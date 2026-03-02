@@ -114,7 +114,8 @@ export async function getEventCategories(eventSlug: string): Promise<string[]> {
     .from("results")
     .select("distance_category")
     .eq("event_id", event.id)
-    .not("distance_category", "is", null);
+    .not("distance_category", "is", null)
+    .limit(10000);
   const cats = [...new Set(((data ?? []) as any[]).map((r) => r.distance_category as string))];
   return cats.sort();
 }
