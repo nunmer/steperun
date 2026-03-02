@@ -57,6 +57,16 @@ export type Database = {
         };
       };
     };
+    Functions: {
+      get_distance_options: {
+        Args: Record<string, never>;
+        Returns: { distance_category: string }[];
+      };
+      get_event_categories: {
+        Args: { p_slug: string };
+        Returns: { distance_category: string }[];
+      };
+    };
   };
 };
 
