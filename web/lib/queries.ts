@@ -108,7 +108,8 @@ export async function getEvent(slug: string): Promise<EventRow | null> {
 }
 
 export async function getEventCategories(eventSlug: string): Promise<string[]> {
-  const { data, error } = await supabase.rpc("get_event_categories", { p_slug: eventSlug });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)("get_event_categories", { p_slug: eventSlug });
   if (!error && data && (data as any[]).length > 0) {
     return (data as any[]).map((r) => r.distance_category as string).filter(Boolean);
   }
