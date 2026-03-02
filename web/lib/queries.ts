@@ -199,25 +199,19 @@ export async function getDistanceOptions(): Promise<string[]> {
     return (rpcData as any[]).map((r) => r.distance_category as string);
   }
 
-  // Fallback: paginate through results to collect all distinct categories
+  // Fallback: single fetch of a large sample, deduplicate client-side
+  const { data } = await supabase
+    .from("results")
+    .select("distance_category")
+    .not("distance_category", "is", null)
+    .not("chip_time", "is", null)
+    .neq("chip_time", "--:--:--")
+    .limit(5000);
+
   const counts = new Map<string, number>();
-  let offset = 0;
-  const CHUNK = 1000;
-  while (true) {
-    const { data } = await supabase
-      .from("results")
-      .select("distance_category")
-      .not("distance_category", "is", null)
-      .not("chip_time", "is", null)
-      .neq("chip_time", "--:--:--")
-      .range(offset, offset + CHUNK - 1);
-    if (!data || data.length === 0) break;
-    for (const r of data as any[]) {
-      const d = r.distance_category as string;
-      counts.set(d, (counts.get(d) ?? 0) + 1);
-    }
-    if (data.length < CHUNK) break;
-    offset += CHUNK;
+  for (const r of (data ?? []) as any[]) {
+    const d = r.distance_category as string;
+    counts.set(d, (counts.get(d) ?? 0) + 1);
   }
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([label]) => label);
 }
