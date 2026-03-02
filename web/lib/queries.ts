@@ -196,7 +196,7 @@ export async function getDistanceOptions(): Promise<string[]> {
   // Try the RPC (requires get_distance_options() function in Supabase)
   const { data: rpcData, error } = await supabase.rpc("get_distance_options");
   if (!error && rpcData && (rpcData as any[]).length > 0) {
-    return (rpcData as any[]).map((r) => r.distance_category as string);
+    return (rpcData as any[]).map((r) => r.distance_category as string).filter(Boolean);
   }
 
   // Fallback: single fetch of a large sample, deduplicate client-side
