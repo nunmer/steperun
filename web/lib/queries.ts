@@ -140,10 +140,13 @@ export async function getEventResults(
     .eq("runners.is_hidden", false)
     .not("chip_time", "is", null)
     .neq("chip_time", "--:--:--")
-    .order("place", { nullsFirst: false })
     .range(from, to);
 
-  if (opts.category) q = q.eq("distance_category", opts.category);
+  if (opts.category) {
+    q = q.eq("distance_category", opts.category).order("place", { nullsFirst: false });
+  } else {
+    q = q.order("distance_category").order("place", { nullsFirst: false });
+  }
 
   const { data, count } = await q;
   return { rows: (data ?? []) as unknown as ResultWithRunner[], total: count ?? 0 };
