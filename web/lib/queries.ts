@@ -108,15 +108,21 @@ export async function getEvent(slug: string): Promise<EventRow | null> {
 }
 
 export async function getEventCategories(eventSlug: string): Promise<string[]> {
+  const { data, error } = await supabase.rpc("get_event_categories", { p_slug: eventSlug });
+  if (!error && data && (data as any[]).length > 0) {
+    return (data as any[]).map((r) => r.distance_category as string).filter(Boolean);
+  }
+
+  // Fallback if RPC not created yet
   const event = await getEvent(eventSlug);
   if (!event) return [];
-  const { data } = await supabase
+  const { data: rows } = await supabase
     .from("results")
     .select("distance_category")
     .eq("event_id", event.id)
     .not("distance_category", "is", null)
-    .limit(10000);
-  const cats = [...new Set(((data ?? []) as any[]).map((r) => r.distance_category as string))];
+    .limit(1000);
+  const cats = [...new Set(((rows ?? []) as any[]).map((r) => r.distance_category as string))];
   return cats.sort();
 }
 
