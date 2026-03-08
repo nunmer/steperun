@@ -8,7 +8,8 @@ const links = [
   { href: "/",          label: "Home"      },
   { href: "/rankings",  label: "Rankings"  },
   { href: "/events",    label: "Events"    },
-  { href: "/runners",   label: "Runners"   },
+  { href: "/runners",           label: "Runners"      },
+  { href: "/runners/head-to-head", label: "Head to Head" },
 ];
 
 export function Nav() {
