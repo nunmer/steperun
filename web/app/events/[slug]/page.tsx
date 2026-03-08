@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getEvent, getEventResults, getEventCategories } from "@/lib/queries";
+import { getEvent, getEventResults, getEventCategories, getEventStats } from "@/lib/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { PieChart } from "@/components/pie-chart";
 
 export const revalidate = 3600;
 
@@ -28,9 +29,10 @@ export default async function EventPage({
   const { category, page: pageParam } = await searchParams;
   const page = Number(pageParam ?? 1);
 
-  const [event, categories] = await Promise.all([
+  const [event, categories, stats] = await Promise.all([
     getEvent(slug),
     getEventCategories(slug),
+    getEventStats(slug),
   ]);
 
   if (!event) notFound();
@@ -69,6 +71,15 @@ export default async function EventPage({
           </Badge>
         </div>
       </div>
+
+      {/* Stats charts */}
+      {(stats.countries.length > 0 || stats.cities.length > 0 || stats.distances.length > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 py-2">
+          <PieChart title="Distance" data={stats.distances} maxSlices={6} />
+          <PieChart title="Country" data={stats.countries} maxSlices={6} />
+          <PieChart title="City" data={stats.cities} maxSlices={6} />
+        </div>
+      )}
 
       {/* Category filter */}
       {categories.length > 1 && (

@@ -127,6 +127,57 @@ export async function getEventCategories(eventSlug: string): Promise<string[]> {
   return cats.sort();
 }
 
+export type EventStats = {
+  countries: { label: string; count: number }[];
+  cities: { label: string; count: number }[];
+  distances: { label: string; count: number }[];
+};
+
+export async function getEventStats(eventSlug: string): Promise<EventStats> {
+  const event = await getEvent(eventSlug);
+  if (!event) return { countries: [], cities: [], distances: [] };
+
+  // Fetch all results — paginate past Supabase's 1000-row default
+  const allRows: any[] = [];
+  const batchSize = 1000;
+  let offset = 0;
+  while (true) {
+    const { data } = await supabase
+      .from("results")
+      .select("distance_category, runners!inner(country, city)")
+      .eq("event_id", event.id)
+      .eq("runners.is_hidden", false)
+      .not("chip_time", "is", null)
+      .neq("chip_time", "--:--:--")
+      .range(offset, offset + batchSize - 1);
+
+    const batch = (data ?? []) as any[];
+    allRows.push(...batch);
+    if (batch.length < batchSize) break;
+    offset += batchSize;
+  }
+
+  const rows = allRows;
+
+  const countMap = (extractor: (r: any) => string | null) => {
+    const counts = new Map<string, number>();
+    for (const r of rows) {
+      const val = extractor(r);
+      if (!val) continue;
+      counts.set(val, (counts.get(val) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, count]) => ({ label, count }));
+  };
+
+  return {
+    countries: countMap((r) => r.runners?.country),
+    cities: countMap((r) => r.runners?.city),
+    distances: countMap((r) => r.distance_category),
+  };
+}
+
 export async function getEventResults(
   eventSlug: string,
   opts: { category?: string; page?: number } = {}
@@ -164,11 +215,33 @@ export async function getEventResults(
 // Rankings
 // ---------------------------------------------------------------------------
 
+// Main distances for "All" mode (longest first)
+const MAIN_DISTANCES = ["42 км 195 м", "21 км 97,5 м", "10 км"];
+
 export async function getRankings(opts: {
-  distance: string;
+  distance?: string;
   year?: number;
   limit?: number;
 }): Promise<RankingRow[]> {
+  const limit = opts.limit ?? 100;
+  const isAll = !opts.distance;
+
+  if (isAll) {
+    // Fetch each main distance separately and interleave
+    const perDist = await Promise.all(
+      MAIN_DISTANCES.map((d) => getRankings({ distance: d, year: opts.year, limit }))
+    );
+
+    // Interleave: 1st of each, 2nd of each, 3rd of each, ...
+    const result: RankingRow[] = [];
+    for (let i = 0; i < limit; i++) {
+      for (const group of perDist) {
+        if (i < group.length) result.push(group[i]);
+      }
+    }
+    return result;
+  }
+
   let q = supabase
     .from("results")
     .select(
@@ -180,7 +253,7 @@ export async function getRankings(opts: {
     .neq("chip_time", "--:--:--")
     .not("place", "is", null)
     .order("chip_time", { ascending: true })
-    .limit((opts.limit ?? 100) * 5); // over-fetch for dedup
+    .limit(limit * 5); // over-fetch for dedup
 
   if (opts.year) {
     q = q.eq("events.year", opts.year);
@@ -189,7 +262,7 @@ export async function getRankings(opts: {
   const { data } = await q;
   const rows = (data ?? []) as unknown as RankingRow[];
 
-  // Keep best time per runner
+  // Single distance: keep best time per runner
   const best = new Map<number, RankingRow>();
   for (const row of rows) {
     const runnerId = (row.runners as any)?.id as number;
@@ -197,7 +270,7 @@ export async function getRankings(opts: {
     if (!best.has(runnerId)) best.set(runnerId, row);
   }
 
-  return [...best.values()].slice(0, opts.limit ?? 100);
+  return [...best.values()].slice(0, limit);
 }
 
 export async function getDistanceOptions(): Promise<string[]> {

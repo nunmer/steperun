@@ -23,12 +23,30 @@ export default async function RankingsPage({
     getEventYears(),
   ]);
 
-  // Default to most popular distance (first in list, sorted by result count)
-  const defaultDist = allDistances[0] ?? "";
-  const distance = distParam ?? defaultDist;
+  // "all" is the default (no distance param = all distances)
+  const isAll = !distParam;
+  const distance = distParam; // undefined means "All"
   const year = yearParam ? Number(yearParam) : undefined;
 
   const rows = await getRankings({ distance, year, limit: 100 });
+
+  // For "All" mode, assign ranks per distance group
+  type RankedRow = (typeof rows)[number] & { rank: number };
+  const rankedRows: RankedRow[] = [];
+
+  if (isAll) {
+    // Rows are interleaved (1st 42km, 1st 21km, 1st 10km, 2nd 42km, ...)
+    // Track rank per distance
+    const distRank = new Map<string, number>();
+    for (const row of rows) {
+      const dist = row.distance_category ?? "";
+      const rank = (distRank.get(dist) ?? 0) + 1;
+      distRank.set(dist, rank);
+      rankedRows.push({ ...row, rank });
+    }
+  } else {
+    rows.forEach((row, i) => rankedRows.push({ ...row, rank: i + 1 }));
+  }
 
   return (
     <div className="space-y-6">
@@ -43,12 +61,22 @@ export default async function RankingsPage({
           Distance
         </p>
         <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/rankings${year ? `?year=${year}` : ""}`}
+            className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
+              isAll
+                ? "bg-primary text-primary-foreground border-primary"
+                : "border-border hover:bg-muted"
+            }`}
+          >
+            All
+          </Link>
           {allDistances.slice(0, 12).map((d) => (
             <Link
               key={d}
               href={`/rankings?distance=${encodeURIComponent(d)}${year ? `&year=${year}` : ""}`}
               className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
-                d === distance
+                distParam === d
                   ? "bg-primary text-primary-foreground border-primary"
                   : "border-border hover:bg-muted"
               }`}
@@ -66,7 +94,7 @@ export default async function RankingsPage({
         </p>
         <div className="flex flex-wrap gap-2">
           <Link
-            href={`/rankings?distance=${encodeURIComponent(distance)}`}
+            href={`/rankings${distParam ? `?distance=${encodeURIComponent(distParam)}` : ""}`}
             className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
               !year ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"
             }`}
@@ -76,7 +104,7 @@ export default async function RankingsPage({
           {years.map((y) => (
             <Link
               key={y}
-              href={`/rankings?distance=${encodeURIComponent(distance)}&year=${y}`}
+              href={`/rankings?${distParam ? `distance=${encodeURIComponent(distParam)}&` : ""}year=${y}`}
               className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
                 year === y
                   ? "bg-primary text-primary-foreground border-primary"
@@ -90,7 +118,7 @@ export default async function RankingsPage({
       </div>
 
       {/* Table */}
-      {rows.length === 0 ? (
+      {rankedRows.length === 0 ? (
         <p className="text-muted-foreground py-12 text-center">No results found.</p>
       ) : (
         <div className="rounded-lg border overflow-hidden">
@@ -99,6 +127,7 @@ export default async function RankingsPage({
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Runner</TableHead>
+                <TableHead>Distance</TableHead>
                 <TableHead>Country</TableHead>
                 <TableHead>City</TableHead>
                 <TableHead>Best time</TableHead>
@@ -106,44 +135,51 @@ export default async function RankingsPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row, i) => {
-                const runner = row.runners as any;
-                const event = row.events as any;
-                const rank = i + 1;
-                return (
-                  <TableRow key={`${runner?.id}-${i}`} className="hover:bg-muted/50">
-                    <TableCell className="font-mono text-muted-foreground text-sm">
-                      {medal[rank] ?? rank}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/runners/${runner?.id}`}
-                        className="hover:text-primary hover:underline"
-                      >
-                        {runner?.full_name}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{runner?.country}</TableCell>
-                    <TableCell className="text-muted-foreground">{runner?.city}</TableCell>
-                    <TableCell className="font-mono font-semibold tabular-nums">
-                      {row.chip_time && row.chip_time !== "--:--:--" ? row.chip_time : "—"}
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        href={`/events/${event?.slug}`}
-                        className="text-muted-foreground hover:text-primary hover:underline text-sm"
-                      >
-                        {event?.name}
-                        {event?.year && (
-                          <Badge variant="outline" className="ml-1 text-xs">
-                            {event.year}
+              {rankedRows.map((row, i) => {
+                  const runner = row.runners as any;
+                  const event = row.events as any;
+                  const rank = row.rank;
+                  const dist = row.distance_category ?? "";
+
+                  return (
+                      <TableRow key={`${runner?.id}-${dist}-${i}`} className="hover:bg-muted/50">
+                        <TableCell className="font-mono text-muted-foreground text-sm">
+                          {medal[rank] ?? rank}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <Link
+                            href={`/runners/${runner?.id}`}
+                            className="hover:text-primary hover:underline"
+                          >
+                            {runner?.full_name}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-xs">
+                            {dist}
                           </Badge>
-                        )}
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{runner?.country}</TableCell>
+                        <TableCell className="text-muted-foreground">{runner?.city}</TableCell>
+                        <TableCell className="font-mono font-semibold tabular-nums">
+                          {row.chip_time && row.chip_time !== "--:--:--" ? row.chip_time : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/events/${event?.slug}`}
+                            className="text-muted-foreground hover:text-primary hover:underline text-sm"
+                          >
+                            {event?.name}
+                            {event?.year && (
+                              <Badge variant="outline" className="ml-1 text-xs">
+                                {event.year}
+                              </Badge>
+                            )}
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                  );
+                })}
             </TableBody>
           </Table>
         </div>
