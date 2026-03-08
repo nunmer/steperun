@@ -16,27 +16,27 @@ const SEASON_STYLES: Record<Season, {
   icon: string;
 }> = {
   winter: {
-    bg: "linear-gradient(135deg, rgba(219,234,254,0.5) 0%, rgba(191,219,254,0.3) 100%)",
-    border: "rgba(59,130,246,0.25)",
+    bg: "linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.03) 100%)",
+    border: "rgba(59,130,246,0.2)",
     accent: "#3B82F6",
     icon: "❄️",
   },
   spring: {
-    bg: "linear-gradient(135deg, rgba(220,252,231,0.5) 0%, rgba(187,247,208,0.3) 100%)",
-    border: "rgba(34,197,94,0.25)",
+    bg: "linear-gradient(135deg, rgba(34,197,94,0.08) 0%, rgba(34,197,94,0.03) 100%)",
+    border: "rgba(34,197,94,0.2)",
     accent: "#22C55E",
     icon: "🌸",
   },
   summer: {
-    bg: "linear-gradient(135deg, rgba(254,249,195,0.5) 0%, rgba(254,240,138,0.3) 100%)",
-    border: "rgba(234,179,8,0.25)",
-    accent: "#EAB308",
+    bg: "linear-gradient(135deg, rgba(250,204,21,0.08) 0%, rgba(250,204,21,0.03) 100%)",
+    border: "rgba(250,204,21,0.2)",
+    accent: "#FACC15",
     icon: "☀️",
   },
   autumn: {
-    bg: "linear-gradient(135deg, rgba(255,237,213,0.5) 0%, rgba(254,215,170,0.3) 100%)",
-    border: "rgba(249,115,22,0.25)",
-    accent: "#F97316",
+    bg: "linear-gradient(135deg, rgba(232,82,15,0.08) 0%, rgba(232,82,15,0.03) 100%)",
+    border: "rgba(232,82,15,0.2)",
+    accent: "#E8520F",
     icon: "🍂",
   },
 };

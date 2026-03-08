@@ -161,7 +161,7 @@ export default async function RankingsPage({
                         </TableCell>
                         <TableCell className="text-muted-foreground">{runner?.country}</TableCell>
                         <TableCell className="text-muted-foreground">{runner?.city}</TableCell>
-                        <TableCell className="font-mono font-semibold tabular-nums">
+                        <TableCell className="font-mono font-semibold tabular-nums text-[#22c55e]">
                           {row.chip_time && row.chip_time !== "--:--:--" ? row.chip_time : "—"}
                         </TableCell>
                         <TableCell>

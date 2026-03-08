@@ -85,19 +85,19 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-4 pb-4">
-            <p className="text-2xl font-bold">{totalRaces}</p>
+            <p className="text-2xl font-bold text-[#22c55e]">{totalRaces}</p>
             <p className="text-sm text-muted-foreground">Races completed</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 pb-4">
-            <p className="text-2xl font-bold">{uniqueYears}</p>
+            <p className="text-2xl font-bold text-[#22c55e]">{uniqueYears}</p>
             <p className="text-sm text-muted-foreground">Active seasons</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4 pb-4">
-            <p className="text-2xl font-bold">{pbs.length}</p>
+            <p className="text-2xl font-bold text-[#22c55e]">{pbs.length}</p>
             <p className="text-sm text-muted-foreground">Distances run</p>
           </CardContent>
         </Card>
@@ -124,7 +124,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                   return (
                     <TableRow key={cat}>
                       <TableCell className="font-medium">{cat}</TableCell>
-                      <TableCell className="font-mono font-semibold tabular-nums">
+                      <TableCell className="font-mono font-semibold tabular-nums text-[#22c55e]">
                         {r.chip_time ?? r.finish_time ?? "—"}
                       </TableCell>
                       <TableCell>

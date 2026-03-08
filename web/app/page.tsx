@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { getStats, getEvents } from "@/lib/queries";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SeasonCard } from "@/components/season-card";
 
 export const revalidate = 3600;
 
@@ -10,7 +11,7 @@ function StatCard({ value, label }: { value: number; label: string }) {
   return (
     <Card>
       <CardContent className="pt-6">
-        <p className="text-4xl font-bold tabular-nums">{value.toLocaleString()}</p>
+        <p className="text-4xl font-bold tabular-nums text-[#22c55e]">{value.toLocaleString()}</p>
         <p className="text-muted-foreground mt-1 text-sm">{label}</p>
       </CardContent>
     </Card>
@@ -76,18 +77,14 @@ export default async function HomePage() {
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {byYear[year].map((event) => (
                   <Link key={event.slug} href={`/events/${event.slug}`} className="block">
-                    <Card className="hover:border-primary transition-colors cursor-pointer h-full">
-                      <CardHeader className="pb-2 pt-4 px-4">
-                        <CardTitle className="text-sm font-medium leading-snug">
-                          {event.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="px-4 pb-4">
-                        <Badge variant="secondary">
-                          {event.total_results.toLocaleString()} finishers
-                        </Badge>
-                      </CardContent>
-                    </Card>
+                    <SeasonCard dateOfEvent={event.date_of_event}>
+                      <h3 className="text-sm font-medium leading-snug mb-2">
+                        {event.name}
+                      </h3>
+                      <Badge variant="secondary">
+                        {event.total_results.toLocaleString()} finishers
+                      </Badge>
+                    </SeasonCard>
                   </Link>
                 ))}
               </div>
