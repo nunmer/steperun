@@ -12,6 +12,7 @@ export type EventRow = {
   name: string;
   year: number | null;
   url?: string;
+  date_of_event: string | null;
   scraped_at: string | null;
   total_results: number;
 };
@@ -77,7 +78,7 @@ export async function getStats() {
 export async function getEvents(year?: number): Promise<EventRow[]> {
   let q = supabase
     .from("events")
-    .select("id, slug, name, year, total_results, scraped_at")
+    .select("id, slug, name, year, date_of_event, total_results, scraped_at")
     .not("scraped_at", "is", null)
     .order("year", { ascending: false })
     .order("name");

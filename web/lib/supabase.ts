@@ -10,6 +10,7 @@ export type Database = {
           name: string;
           year: number | null;
           url: string;
+          date_of_event: string | null;
           scraped_at: string | null;
           total_results: number;
         };

@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS events (
     name        TEXT NOT NULL,          -- human-readable name
     year        INTEGER,
     url         TEXT NOT NULL,
+    date_of_event DATE,
     scraped_at  TIMESTAMPTZ,
     total_results INTEGER DEFAULT 0
 );
