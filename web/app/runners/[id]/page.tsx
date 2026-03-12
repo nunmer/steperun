@@ -82,7 +82,17 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
       </div>
 
       {/* Quick stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {runner.elo_score && (
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <p className="text-2xl font-bold text-[#22c55e]">{runner.elo_score}</p>
+              <p className="text-sm text-muted-foreground">
+                ELO — Level {runner.elo_level}
+              </p>
+            </CardContent>
+          </Card>
+        )}
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-2xl font-bold text-[#22c55e]">{totalRaces}</p>

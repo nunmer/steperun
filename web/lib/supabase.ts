@@ -22,6 +22,9 @@ export type Database = {
           country: string | null;
           city: string | null;
           is_hidden: boolean;
+          elo_score: number | null;
+          elo_level: number | null;
+          elo_updated_at: string | null;
           created_at: string;
         };
       };

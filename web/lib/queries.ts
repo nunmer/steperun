@@ -22,6 +22,8 @@ export type RunnerRow = {
   full_name: string;
   country: string | null;
   city: string | null;
+  elo_score: number | null;
+  elo_level: number | null;
   created_at?: string;
 };
 
@@ -311,7 +313,7 @@ export async function getRunners(
 
   let q = supabase
     .from("runners")
-    .select("id, full_name, country, city", { count: "exact" })
+    .select("id, full_name, country, city, elo_score, elo_level", { count: "exact" })
     .eq("is_hidden", false)
     .order("full_name")
     .range(from, to);
@@ -327,7 +329,7 @@ export async function getRunner(
 ): Promise<{ runner: RunnerRow; results: ResultWithEvent[] } | null> {
   const { data: runner } = await supabase
     .from("runners")
-    .select("id, full_name, country, city, created_at")
+    .select("id, full_name, country, city, elo_score, elo_level, created_at")
     .eq("id", id)
     .single();
 
@@ -345,4 +347,54 @@ export async function getRunner(
     runner: runner as RunnerRow,
     results: (results ?? []) as unknown as ResultWithEvent[],
   };
+}
+
+// ---------------------------------------------------------------------------
+// Power Rankings (ELO)
+// ---------------------------------------------------------------------------
+
+export type PowerRankingRow = {
+  id: number;
+  full_name: string;
+  country: string | null;
+  city: string | null;
+  elo_score: number | null;
+  elo_level: number | null;
+};
+
+export async function getPowerRankings(opts: {
+  level?: number;
+  page?: number;
+}): Promise<{ runners: PowerRankingRow[]; total: number }> {
+  const page = opts.page ?? 1;
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  let q = supabase
+    .from("runners")
+    .select("id, full_name, country, city, elo_score, elo_level", { count: "exact" })
+    .eq("is_hidden", false)
+    .not("elo_score", "is", null)
+    .order("elo_score", { ascending: false })
+    .range(from, to);
+
+  if (opts.level) {
+    q = q.eq("elo_level", opts.level);
+  }
+
+  const { data, count } = await q;
+  return { runners: (data ?? []) as PowerRankingRow[], total: count ?? 0 };
+}
+
+export async function getEloStats() {
+  const levels = [];
+  for (let lvl = 1; lvl <= 10; lvl++) {
+    const { count } = await supabase
+      .from("runners")
+      .select("id", { count: "exact", head: true })
+      .eq("is_hidden", false)
+      .eq("elo_level", lvl);
+    levels.push({ level: lvl, count: count ?? 0 });
+  }
+  return levels;
 }

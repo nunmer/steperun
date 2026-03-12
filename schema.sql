@@ -18,11 +18,14 @@ CREATE TABLE IF NOT EXISTS events (
 -- Runners: deduplicated across all events
 -- A runner is identified by (full_name, country, city)
 CREATE TABLE IF NOT EXISTS runners (
-    id          SERIAL PRIMARY KEY,
-    full_name   TEXT NOT NULL,
-    country     TEXT,
-    city        TEXT,
-    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    id              SERIAL PRIMARY KEY,
+    full_name       TEXT NOT NULL,
+    country         TEXT,
+    city            TEXT,
+    elo_score       INTEGER,           -- ELO rating (100–2500)
+    elo_level       INTEGER,           -- Level 1–10
+    elo_updated_at  TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(full_name, country, city)
 );
 
@@ -50,6 +53,7 @@ CREATE INDEX IF NOT EXISTS idx_results_category ON results(distance_category);
 CREATE INDEX IF NOT EXISTS idx_runners_name     ON runners(full_name);
 CREATE INDEX IF NOT EXISTS idx_events_year      ON events(year);
 CREATE INDEX IF NOT EXISTS idx_events_slug      ON events(slug);
+CREATE INDEX IF NOT EXISTS idx_runners_elo       ON runners(elo_score DESC NULLS LAST);
 
 -- View: flat view for easy querying
 CREATE OR REPLACE VIEW v_results AS
