@@ -54,6 +54,12 @@ CREATE INDEX IF NOT EXISTS idx_runners_name     ON runners(full_name);
 CREATE INDEX IF NOT EXISTS idx_events_year      ON events(year);
 CREATE INDEX IF NOT EXISTS idx_events_slug      ON events(slug);
 CREATE INDEX IF NOT EXISTS idx_runners_elo       ON runners(elo_score DESC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_runners_hidden    ON runners(is_hidden);
+
+-- Composite index for rankings queries: filter by distance + sort by chip_time
+CREATE INDEX IF NOT EXISTS idx_results_ranking
+  ON results(distance_category, chip_time)
+  WHERE chip_time IS NOT NULL AND chip_time != '--:--:--' AND place IS NOT NULL;
 
 -- View: flat view for easy querying
 CREATE OR REPLACE VIEW v_results AS

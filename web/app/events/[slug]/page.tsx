@@ -29,15 +29,14 @@ export default async function EventPage({
   const { category, page: pageParam } = await searchParams;
   const page = Number(pageParam ?? 1);
 
-  const [event, categories, stats] = await Promise.all([
-    getEvent(slug),
-    getEventCategories(slug),
-    getEventStats(slug),
-  ]);
-
+  const event = await getEvent(slug);
   if (!event) notFound();
 
-  const { rows, total } = await getEventResults(slug, { category, page });
+  const [categories, stats, { rows, total }] = await Promise.all([
+    getEventCategories(event.id),
+    getEventStats(event.id),
+    getEventResults(event.id, { category, page }),
+  ]);
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
   function hrefWithParams(overrides: Record<string, string | undefined>) {

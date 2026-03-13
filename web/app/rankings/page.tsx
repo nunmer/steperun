@@ -18,17 +18,17 @@ export default async function RankingsPage({
 }) {
   const { distance: distParam, year: yearParam } = await searchParams;
 
-  const [allDistances, years] = await Promise.all([
-    getDistanceOptions(),
-    getEventYears(),
-  ]);
-
   // "all" is the default (no distance param = all distances)
   const isAll = !distParam;
   const distance = distParam; // undefined means "All"
   const year = yearParam ? Number(yearParam) : undefined;
 
-  const rows = await getRankings({ distance, year, limit: 100 });
+  // Run all three queries in parallel — no waterfall
+  const [allDistances, years, rows] = await Promise.all([
+    getDistanceOptions(),
+    getEventYears(),
+    getRankings({ distance, year, limit: 100 }),
+  ]);
 
   // For "All" mode, assign ranks per distance group
   type RankedRow = (typeof rows)[number] & { rank: number };

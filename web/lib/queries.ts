@@ -110,20 +110,25 @@ export async function getEvent(slug: string): Promise<EventRow | null> {
   return data as EventRow | null;
 }
 
-export async function getEventCategories(eventSlug: string): Promise<string[]> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase.rpc as any)("get_event_categories", { p_slug: eventSlug });
-  if (!error && data && (data as any[]).length > 0) {
-    return (data as any[]).map((r) => r.distance_category as string).filter(Boolean);
+export async function getEventCategories(eventSlugOrId: string | number): Promise<string[]> {
+  if (typeof eventSlugOrId === "string") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.rpc as any)("get_event_categories", { p_slug: eventSlugOrId });
+    if (!error && data && (data as any[]).length > 0) {
+      return (data as any[]).map((r) => r.distance_category as string).filter(Boolean);
+    }
   }
 
-  // Fallback if RPC not created yet
-  const event = await getEvent(eventSlug);
-  if (!event) return [];
+  // Resolve event ID
+  const eventId = typeof eventSlugOrId === "number"
+    ? eventSlugOrId
+    : (await getEvent(eventSlugOrId))?.id;
+  if (!eventId) return [];
+
   const { data: rows } = await supabase
     .from("results")
     .select("distance_category")
-    .eq("event_id", event.id)
+    .eq("event_id", eventId)
     .not("distance_category", "is", null)
     .limit(1000);
   const cats = [...new Set(((rows ?? []) as any[]).map((r) => r.distance_category as string))];
@@ -136,28 +141,44 @@ export type EventStats = {
   distances: { label: string; count: number }[];
 };
 
-export async function getEventStats(eventSlug: string): Promise<EventStats> {
-  const event = await getEvent(eventSlug);
-  if (!event) return { countries: [], cities: [], distances: [] };
-
-  // Fetch all results — paginate past Supabase's 1000-row default
-  const allRows: any[] = [];
+export async function getEventStats(eventId: number): Promise<EventStats> {
+  // Fetch all results — paginate past Supabase's 1000-row default, in parallel
   const batchSize = 1000;
-  let offset = 0;
-  while (true) {
-    const { data } = await supabase
-      .from("results")
-      .select("distance_category, runners!inner(country, city)")
-      .eq("event_id", event.id)
-      .eq("runners.is_hidden", false)
-      .not("chip_time", "is", null)
-      .neq("chip_time", "--:--:--")
-      .range(offset, offset + batchSize - 1);
 
-    const batch = (data ?? []) as any[];
-    allRows.push(...batch);
-    if (batch.length < batchSize) break;
-    offset += batchSize;
+  // First batch to determine total size
+  const first = await supabase
+    .from("results")
+    .select("distance_category, runners!inner(country, city)", { count: "exact" })
+    .eq("event_id", eventId)
+    .eq("runners.is_hidden", false)
+    .not("chip_time", "is", null)
+    .neq("chip_time", "--:--:--")
+    .range(0, batchSize - 1);
+
+  const allRows: any[] = (first.data ?? []) as any[];
+  const totalRows = first.count ?? allRows.length;
+
+  // Fetch remaining batches in parallel
+  if (totalRows > batchSize) {
+    const remaining = await Promise.all(
+      Array.from(
+        { length: Math.ceil((totalRows - batchSize) / batchSize) },
+        (_, i) => {
+          const offset = (i + 1) * batchSize;
+          return supabase
+            .from("results")
+            .select("distance_category, runners!inner(country, city)")
+            .eq("event_id", eventId)
+            .eq("runners.is_hidden", false)
+            .not("chip_time", "is", null)
+            .neq("chip_time", "--:--:--")
+            .range(offset, offset + batchSize - 1);
+        }
+      )
+    );
+    for (const res of remaining) {
+      allRows.push(...((res.data ?? []) as any[]));
+    }
   }
 
   const rows = allRows;
@@ -182,12 +203,9 @@ export async function getEventStats(eventSlug: string): Promise<EventStats> {
 }
 
 export async function getEventResults(
-  eventSlug: string,
+  eventId: number,
   opts: { category?: string; page?: number } = {}
 ): Promise<{ rows: ResultWithRunner[]; total: number }> {
-  const event = await getEvent(eventSlug);
-  if (!event) return { rows: [], total: 0 };
-
   const page = opts.page ?? 1;
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -198,7 +216,7 @@ export async function getEventResults(
       "place, bib_number, finish_time, chip_time, checkpoint_times, distance_category, runners!inner(id, full_name, country, city)",
       { count: "exact" }
     )
-    .eq("event_id", event.id)
+    .eq("event_id", eventId)
     .eq("runners.is_hidden", false)
     .not("chip_time", "is", null)
     .neq("chip_time", "--:--:--")
@@ -230,19 +248,20 @@ export async function getRankings(opts: {
   const isAll = !opts.distance;
 
   if (isAll) {
-    // Fetch each main distance separately and interleave
+    // Fetch each main distance separately — only need limit/MAIN_DISTANCES.length each
+    const perDistLimit = Math.ceil(limit / MAIN_DISTANCES.length) + 5;
     const perDist = await Promise.all(
-      MAIN_DISTANCES.map((d) => getRankings({ distance: d, year: opts.year, limit }))
+      MAIN_DISTANCES.map((d) => getRankings({ distance: d, year: opts.year, limit: perDistLimit }))
     );
 
     // Interleave: 1st of each, 2nd of each, 3rd of each, ...
     const result: RankingRow[] = [];
-    for (let i = 0; i < limit; i++) {
+    for (let i = 0; i < perDistLimit; i++) {
       for (const group of perDist) {
         if (i < group.length) result.push(group[i]);
       }
     }
-    return result;
+    return result.slice(0, limit);
   }
 
   let q = supabase
@@ -251,12 +270,12 @@ export async function getRankings(opts: {
       "chip_time, finish_time, place, distance_category, runners!inner(id, full_name, country, city), events!inner(name, slug, year)"
     )
     .eq("runners.is_hidden", false)
-    .ilike("distance_category", `%${opts.distance}%`)
+    .eq("distance_category", opts.distance!)
     .not("chip_time", "is", null)
     .neq("chip_time", "--:--:--")
     .not("place", "is", null)
     .order("chip_time", { ascending: true })
-    .limit(limit * 5); // over-fetch for dedup
+    .limit(limit * 3); // over-fetch for dedup
 
   if (opts.year) {
     q = q.eq("events.year", opts.year);
@@ -283,14 +302,14 @@ export async function getDistanceOptions(): Promise<string[]> {
     return (rpcData as any[]).map((r) => r.distance_category as string).filter(Boolean);
   }
 
-  // Fallback: single fetch of a large sample, deduplicate client-side
+  // Fallback: sample enough rows to capture all distance categories
   const { data } = await supabase
     .from("results")
     .select("distance_category")
     .not("distance_category", "is", null)
     .not("chip_time", "is", null)
     .neq("chip_time", "--:--:--")
-    .limit(5000);
+    .limit(1000);
 
   const counts = new Map<string, number>();
   for (const r of (data ?? []) as any[]) {
@@ -387,14 +406,15 @@ export async function getPowerRankings(opts: {
 }
 
 export async function getEloStats() {
-  const levels = [];
-  for (let lvl = 1; lvl <= 10; lvl++) {
-    const { count } = await supabase
-      .from("runners")
-      .select("id", { count: "exact", head: true })
-      .eq("is_hidden", false)
-      .eq("elo_level", lvl);
-    levels.push({ level: lvl, count: count ?? 0 });
-  }
+  const levels = await Promise.all(
+    Array.from({ length: 10 }, (_, i) => i + 1).map(async (lvl) => {
+      const { count } = await supabase
+        .from("runners")
+        .select("id", { count: "exact", head: true })
+        .eq("is_hidden", false)
+        .eq("elo_level", lvl);
+      return { level: lvl, count: count ?? 0 };
+    })
+  );
   return levels;
 }
