@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { approveClaimAction, rejectClaimAction } from "./actions";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 function adminClient() {
   return createClient(
