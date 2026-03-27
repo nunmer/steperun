@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { ClaimButton } from "@/components/claim-button";
 
 export const revalidate = 3600;
 
@@ -68,7 +69,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
         <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted flex items-center justify-center text-xl sm:text-2xl font-bold text-muted-foreground shrink-0">
           {runner.full_name[0]?.toUpperCase()}
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl sm:text-3xl font-bold truncate">{runner.full_name}</h1>
           <div className="flex gap-2 mt-1 flex-wrap">
             {runner.country && (
@@ -77,6 +78,9 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
             {runner.city && (
               <Badge variant="outline">{runner.city}</Badge>
             )}
+          </div>
+          <div className="mt-3">
+            <ClaimButton runnerId={runner.id} claimedBy={runner.claimed_by ?? null} />
           </div>
         </div>
       </div>

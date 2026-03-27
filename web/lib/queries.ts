@@ -24,6 +24,7 @@ export type RunnerRow = {
   city: string | null;
   elo_score: number | null;
   elo_level: number | null;
+  claimed_by: string | null;
   created_at?: string;
 };
 
@@ -348,7 +349,7 @@ export async function getRunner(
 ): Promise<{ runner: RunnerRow; results: ResultWithEvent[] } | null> {
   const { data: runner } = await supabase
     .from("runners")
-    .select("id, full_name, country, city, elo_score, elo_level, created_at")
+    .select("id, full_name, country, city, elo_score, elo_level, claimed_by, created_at")
     .eq("id", id)
     .single();
 
@@ -366,6 +367,15 @@ export async function getRunner(
     runner: runner as RunnerRow,
     results: (results ?? []) as unknown as ResultWithEvent[],
   };
+}
+
+export async function isRunnerClaimed(runnerId: number): Promise<boolean> {
+  const { data } = await supabase
+    .from("runners")
+    .select("id, claimed_by")
+    .eq("id", runnerId)
+    .single();
+  return !!(data as { claimed_by?: string | null } | null)?.claimed_by;
 }
 
 // ---------------------------------------------------------------------------

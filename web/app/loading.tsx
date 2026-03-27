@@ -5,8 +5,8 @@ export default function HomeLoading() {
     <div className="space-y-12">
       {/* Hero */}
       <section className="py-8 text-center space-y-4">
-        <h1 className="text-5xl font-extrabold tracking-tight">
-          Almaty Running
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+          Runners
           <br />
           <span className="text-primary">Database</span>
         </h1>

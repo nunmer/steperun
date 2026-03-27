@@ -26,6 +26,75 @@ export type Database = {
           elo_level: number | null;
           elo_updated_at: string | null;
           created_at: string;
+          claimed_by: string | null;
+        };
+      };
+      user_profiles: {
+        Row: {
+          id: string;
+          display_name: string | null;
+          trust_score: number;
+          verification_level: number;
+          is_admin: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+      };
+      strava_tokens: {
+        Row: {
+          user_id: string;
+          athlete_id: number;
+          access_token: string;
+          refresh_token: string;
+          expires_at: string;
+          scope: string | null;
+          connected_at: string;
+          last_synced_at: string | null;
+        };
+      };
+      runner_claims: {
+        Row: {
+          id: number;
+          runner_id: number;
+          user_id: string;
+          status: "pending" | "approved" | "rejected" | "disputed" | "superseded";
+          trust_score_at_claim: number;
+          auto_approved: boolean;
+          strava_match_score: number | null;
+          strava_match_detail: unknown;
+          evidence: unknown;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          review_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+      };
+      disputes: {
+        Row: {
+          id: number;
+          original_claim_id: number;
+          disputing_user_id: string;
+          status: "open" | "resolved_demoted" | "resolved_upheld" | "admin_decision";
+          reason: string;
+          evidence: unknown;
+          resolved_by: string | null;
+          resolved_at: string | null;
+          resolution_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+      };
+      claim_audit_log: {
+        Row: {
+          id: number;
+          event_type: string;
+          user_id: string | null;
+          runner_id: number | null;
+          claim_id: number | null;
+          ip_address: string | null;
+          payload: unknown;
+          created_at: string;
         };
       };
       results: {

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import type { User } from "@supabase/supabase-js";
 
 const links = [
   { href: "/",          label: "Home"      },
@@ -18,6 +20,30 @@ const links = [
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createSupabaseBrowserClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  function signIn() {
+    supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+  }
+
+  function signOut() {
+    supabase.auth.signOut().then(() => {
+      setUser(null);
+      window.location.href = "/";
+    });
+  }
 
   return (
     <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
@@ -43,6 +69,33 @@ export function Nav() {
             </Link>
           ))}
         </nav>
+
+        {/* Auth button (desktop) */}
+        <div className="hidden md:flex items-center gap-2 ml-2">
+          {user ? (
+            <>
+              <Link
+                href="/profile"
+                className="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={signOut}
+                className="px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={signIn}
+              className="px-3 py-1.5 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              Sign in
+            </button>
+          )}
+        </div>
 
         {/* Mobile hamburger */}
         <button
@@ -72,6 +125,21 @@ export function Nav() {
               {label}
             </Link>
           ))}
+          {user ? (
+            <button
+              onClick={signOut}
+              className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              {user.email?.split("@")[0]} · Sign out
+            </button>
+          ) : (
+            <button
+              onClick={signIn}
+              className="block w-full text-left px-3 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground"
+            >
+              Sign in
+            </button>
+          )}
         </nav>
       )}
     </header>
