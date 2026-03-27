@@ -25,9 +25,9 @@ export default async function EventsPage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Events</h1>
-        <p className="text-muted-foreground">{events.length} events</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+        <h1 className="text-2xl sm:text-3xl font-bold">Events</h1>
+        <p className="text-muted-foreground text-sm">{events.length} events</p>
       </div>
 
       {/* Year filter */}

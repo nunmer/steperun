@@ -59,8 +59,8 @@ export default async function EventPage({
           ← All events
         </Link>
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">{event.name}</h1>
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
             <p className="text-muted-foreground mt-1">
               {event.year} · {event.total_results.toLocaleString()} finishers
             </p>
@@ -73,7 +73,7 @@ export default async function EventPage({
 
       {/* Stats charts */}
       {(stats.countries.length > 0 || stats.cities.length > 0 || stats.distances.length > 0) && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 py-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-2">
           <PieChart title="Distance" data={stats.distances} maxSlices={6} />
           <PieChart title="Country" data={stats.countries} maxSlices={6} />
           <PieChart title="City" data={stats.cities} maxSlices={6} />
@@ -116,18 +116,18 @@ export default async function EventPage({
       </p>
 
       {/* Results table */}
-      <div className="rounded-lg border overflow-hidden">
+      <div className="rounded-lg border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-12">Place</TableHead>
               <TableHead>Runner</TableHead>
-              <TableHead>Country</TableHead>
-              <TableHead>City</TableHead>
-              <TableHead>Bib</TableHead>
+              <TableHead className="hidden sm:table-cell">Country</TableHead>
+              <TableHead className="hidden md:table-cell">City</TableHead>
+              <TableHead className="hidden md:table-cell">Bib</TableHead>
               {categories.length > 1 && <TableHead>Distance</TableHead>}
               <TableHead>Finish</TableHead>
-              <TableHead>Chip</TableHead>
+              <TableHead className="hidden sm:table-cell">Chip</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -146,9 +146,9 @@ export default async function EventPage({
                       {runner?.full_name}
                     </Link>
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{runner?.country}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{runner?.city}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm font-mono">{row.bib_number}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm hidden sm:table-cell">{runner?.country}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm hidden md:table-cell">{runner?.city}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm font-mono hidden md:table-cell">{row.bib_number}</TableCell>
                   {categories.length > 1 && (
                     <TableCell>
                       <Badge variant="secondary" className="text-xs">
@@ -157,7 +157,7 @@ export default async function EventPage({
                     </TableCell>
                   )}
                   <TableCell className="font-mono tabular-nums">{row.finish_time ?? "—"}</TableCell>
-                  <TableCell className="font-mono tabular-nums text-muted-foreground">
+                  <TableCell className="font-mono tabular-nums text-muted-foreground hidden sm:table-cell">
                     {row.chip_time ?? "—"}
                   </TableCell>
                 </TableRow>
@@ -169,7 +169,7 @@ export default async function EventPage({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <Button asChild variant="outline" disabled={page <= 1}>
             <Link href={hrefWithParams({ page: String(page - 1) })}>← Previous</Link>
           </Button>

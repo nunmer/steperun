@@ -50,8 +50,8 @@ export default async function RankingsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Rankings</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+        <h1 className="text-2xl sm:text-3xl font-bold">Rankings</h1>
         <p className="text-muted-foreground text-sm">Best chip time per runner</p>
       </div>
 
@@ -121,17 +121,17 @@ export default async function RankingsPage({
       {rankedRows.length === 0 ? (
         <p className="text-muted-foreground py-12 text-center">No results found.</p>
       ) : (
-        <div className="rounded-lg border overflow-hidden">
+        <div className="rounded-lg border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Runner</TableHead>
                 <TableHead>Distance</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>City</TableHead>
+                <TableHead className="hidden sm:table-cell">Country</TableHead>
+                <TableHead className="hidden md:table-cell">City</TableHead>
                 <TableHead>Best time</TableHead>
-                <TableHead>Event</TableHead>
+                <TableHead className="hidden sm:table-cell">Event</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -159,12 +159,12 @@ export default async function RankingsPage({
                             {dist}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{runner?.country}</TableCell>
-                        <TableCell className="text-muted-foreground">{runner?.city}</TableCell>
+                        <TableCell className="text-muted-foreground hidden sm:table-cell">{runner?.country}</TableCell>
+                        <TableCell className="text-muted-foreground hidden md:table-cell">{runner?.city}</TableCell>
                         <TableCell className="font-mono font-semibold tabular-nums text-[#22c55e]">
                           {row.chip_time && row.chip_time !== "--:--:--" ? row.chip_time : "—"}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="hidden sm:table-cell">
                           <Link
                             href={`/events/${event?.slug}`}
                             className="text-muted-foreground hover:text-primary hover:underline text-sm"

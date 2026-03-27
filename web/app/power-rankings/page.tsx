@@ -51,13 +51,13 @@ export default async function PowerRankingsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Power Rankings</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+        <h1 className="text-2xl sm:text-3xl font-bold">Power Rankings</h1>
         <p className="text-muted-foreground text-sm">ELO-based runner ratings</p>
       </div>
 
       {/* Level distribution cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-10 gap-2">
         {eloStats.map(({ level: lvl, count }) => {
           const info = getLevelInfo(lvl);
           const isActive = level === lvl;
@@ -117,16 +117,16 @@ export default async function PowerRankingsPage({
       {runners.length === 0 ? (
         <p className="text-muted-foreground py-12 text-center">No runners found.</p>
       ) : (
-        <div className="rounded-lg border overflow-hidden">
+        <div className="rounded-lg border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Runner</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>City</TableHead>
+                <TableHead className="hidden sm:table-cell">Country</TableHead>
+                <TableHead className="hidden md:table-cell">City</TableHead>
                 <TableHead className="text-right">ELO</TableHead>
-                <TableHead>Level</TableHead>
+                <TableHead className="hidden sm:table-cell">Level</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -147,17 +147,17 @@ export default async function PowerRankingsPage({
                         {runner.full_name}
                       </Link>
                       {isChallenger && (
-                        <Badge variant="outline" className="ml-2 text-[10px] text-red-400 border-red-400/30">
+                        <Badge variant="outline" className="ml-2 text-[10px] text-red-400 border-red-400/30 hidden sm:inline-flex">
                           Challenger
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{runner.country}</TableCell>
-                    <TableCell className="text-muted-foreground">{runner.city}</TableCell>
+                    <TableCell className="text-muted-foreground hidden sm:table-cell">{runner.country}</TableCell>
+                    <TableCell className="text-muted-foreground hidden md:table-cell">{runner.city}</TableCell>
                     <TableCell className="text-right font-mono font-bold tabular-nums text-[#22c55e]">
                       {runner.elo_score ?? "—"}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <Badge variant="outline" className={`text-xs ${info.bg} ${info.color}`}>
                         Lvl {runner.elo_level} — {info.name}
                       </Badge>

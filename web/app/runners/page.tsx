@@ -24,9 +24,9 @@ export default async function RunnersPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Runners</h1>
-        <p className="text-muted-foreground">{total.toLocaleString()} registered</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+        <h1 className="text-2xl sm:text-3xl font-bold">Runners</h1>
+        <p className="text-muted-foreground text-sm">{total.toLocaleString()} registered</p>
       </div>
 
       {/* Search */}
@@ -52,12 +52,12 @@ export default async function RunnersPage({
       )}
 
       {/* Table */}
-      <div className="rounded-lg border overflow-hidden">
+      <div className="rounded-lg border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Country</TableHead>
+              <TableHead className="hidden sm:table-cell">Country</TableHead>
               <TableHead>City</TableHead>
             </TableRow>
           </TableHeader>
@@ -69,7 +69,7 @@ export default async function RunnersPage({
                     {r.full_name}
                   </Link>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{r.country}</TableCell>
+                <TableCell className="text-muted-foreground hidden sm:table-cell">{r.country}</TableCell>
                 <TableCell className="text-muted-foreground">{r.city}</TableCell>
               </TableRow>
             ))}

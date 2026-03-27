@@ -63,13 +63,13 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
       </Link>
 
       {/* Profile header */}
-      <div className="flex items-start gap-6">
+      <div className="flex items-start gap-4 sm:gap-6">
         {/* Avatar placeholder */}
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-2xl font-bold text-muted-foreground shrink-0">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted flex items-center justify-center text-xl sm:text-2xl font-bold text-muted-foreground shrink-0">
           {runner.full_name[0]?.toUpperCase()}
         </div>
-        <div>
-          <h1 className="text-3xl font-bold">{runner.full_name}</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold truncate">{runner.full_name}</h1>
           <div className="flex gap-2 mt-1 flex-wrap">
             {runner.country && (
               <Badge variant="secondary">{runner.country}</Badge>
@@ -117,14 +117,14 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
       {pbs.length > 0 && (
         <section>
           <h2 className="text-xl font-semibold mb-3">Personal Bests</h2>
-          <div className="rounded-lg border overflow-hidden">
+          <div className="rounded-lg border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Distance</TableHead>
                   <TableHead>Best time</TableHead>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Year</TableHead>
+                  <TableHead className="hidden sm:table-cell">Event</TableHead>
+                  <TableHead className="hidden sm:table-cell">Year</TableHead>
                   <TableHead>Place</TableHead>
                 </TableRow>
               </TableHeader>
@@ -137,7 +137,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                       <TableCell className="font-mono font-semibold tabular-nums text-[#22c55e]">
                         {r.chip_time ?? r.finish_time ?? "—"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Link
                           href={`/events/${event?.slug}`}
                           className="hover:text-primary hover:underline text-sm"
@@ -145,7 +145,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                           {event?.name}
                         </Link>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{event?.year}</TableCell>
+                      <TableCell className="text-muted-foreground hidden sm:table-cell">{event?.year}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {r.place ? `#${r.place}` : "—"}
                       </TableCell>
@@ -163,16 +163,16 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
       {/* Full race history */}
       <section>
         <h2 className="text-xl font-semibold mb-3">Race history</h2>
-        <div className="rounded-lg border overflow-hidden">
+        <div className="rounded-lg border overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Event</TableHead>
-                <TableHead>Year</TableHead>
+                <TableHead className="hidden sm:table-cell">Year</TableHead>
                 <TableHead>Distance</TableHead>
                 <TableHead>Place</TableHead>
                 <TableHead>Finish</TableHead>
-                <TableHead>Chip</TableHead>
+                <TableHead className="hidden sm:table-cell">Chip</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -188,7 +188,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                         {event?.name}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{event?.year}</TableCell>
+                    <TableCell className="text-muted-foreground hidden sm:table-cell">{event?.year}</TableCell>
                     <TableCell>
                       <Badge variant="secondary" className="text-xs">
                         {r.distance_category}
@@ -198,7 +198,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                       {r.place ? `#${r.place}` : "—"}
                     </TableCell>
                     <TableCell className="font-mono tabular-nums">{r.finish_time ?? "—"}</TableCell>
-                    <TableCell className="font-mono tabular-nums text-muted-foreground">
+                    <TableCell className="font-mono tabular-nums text-muted-foreground hidden sm:table-cell">
                       {r.chip_time ?? "—"}
                     </TableCell>
                   </TableRow>

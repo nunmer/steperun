@@ -95,10 +95,10 @@ function RadarChart({
     Math.min(dataB.totalRaces / 20, 1),
   ];
 
-  const size = 220;
+  const size = 200;
   const cx = size / 2;
   const cy = size / 2;
-  const r = 80;
+  const r = 70;
   const n = 5;
 
   function pointOnAxis(axis: number, value: number): [number, number] {
@@ -114,7 +114,7 @@ function RadarChart({
   const rings = [0.25, 0.5, 0.75, 1];
 
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} className="overflow-visible">
+    <svg viewBox={`0 0 ${size} ${size}`} className="overflow-visible w-full max-w-[200px]">
       {/* Grid */}
       {rings.map((rv) => (
         <polygon
@@ -244,9 +244,9 @@ function RunnerAvatar({
   side: "left" | "right";
 }) {
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-2 sm:gap-3">
       <div
-        className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold shrink-0"
+        className="w-16 h-16 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold shrink-0"
         style={{
           background: `radial-gradient(circle at 30% 30%, ${color}30, ${color}10)`,
           border: `2px solid ${color}40`,
@@ -368,11 +368,11 @@ export function HeadToHead() {
       {/* Comparison card */}
       {dataA && dataB && (
         <>
-          <div className="rounded-xl border border-border/50 p-6 sm:p-8 space-y-8"
+          <div className="rounded-xl border border-border/50 p-4 sm:p-8 space-y-6 sm:space-y-8"
             style={{ background: "linear-gradient(180deg, var(--card) 0%, var(--background) 100%)" }}
           >
             {/* Top section: Avatar — Radar — Avatar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
               <RunnerAvatar runner={dataA.runner} color={COLOR_A} side="left" />
               <RadarChart dataA={dataA} dataB={dataB} />
               <RunnerAvatar runner={dataB.runner} color={COLOR_B} side="right" />
@@ -439,7 +439,7 @@ export function HeadToHead() {
           {allDistances.length > 0 && (
             <section>
               <h2 className="text-lg font-semibold mb-3">Personal Bests</h2>
-              <div className="rounded-lg border overflow-hidden">
+              <div className="rounded-lg border overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-muted/50">
@@ -490,7 +490,7 @@ export function HeadToHead() {
               <h2 className="text-lg font-semibold mb-3">
                 Race History ({sharedEvents.length} shared)
               </h2>
-              <div className="rounded-lg border overflow-hidden">
+              <div className="rounded-lg border overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b bg-muted/50">

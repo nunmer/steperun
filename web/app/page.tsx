@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SeasonCard } from "@/components/season-card";
+import { PhotoCarousel } from "@/components/photo-carousel";
+import { carouselPhotos } from "@/lib/carousel-photos";
 
 export const revalidate = 3600;
 
@@ -32,8 +34,8 @@ export default async function HomePage() {
     <div className="space-y-12">
       {/* Hero */}
       <section className="py-8 text-center space-y-4">
-        <h1 className="text-5xl font-extrabold tracking-tight">
-          Almaty Running
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
+          Runners
           <br />
           <span className="text-primary">Database</span>
         </h1>
@@ -49,6 +51,13 @@ export default async function HomePage() {
           </Button>
         </div>
       </section>
+
+      {/* Photo carousel */}
+      {carouselPhotos.length > 0 && (
+        <section>
+          <PhotoCarousel photos={carouselPhotos} />
+        </section>
+      )}
 
       {/* Stats */}
       <section>

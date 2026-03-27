@@ -33,7 +33,7 @@ export function PieChart({
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           {title}
         </h3>
-        <div style={{ width: 180, height: 180 }} />
+        <div className="w-full max-w-[180px] aspect-square" />
       </div>
     );
   }
@@ -181,9 +181,7 @@ export function PieChart({
       </h3>
       <svg
         viewBox={`0 0 ${size} ${size}`}
-        width={size}
-        height={size}
-        className="overflow-visible"
+        className="overflow-visible w-full max-w-[180px]"
       >
         {paths}
         {tooltip}
