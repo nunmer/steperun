@@ -41,11 +41,21 @@ export default function AuthCallbackPage() {
         return;
       }
 
+      // If user already has a claim, go straight to profile
+      const claimsRes = await fetch("/api/claims/my");
+      if (claimsRes.ok) {
+        const claims: { status: string }[] = await claimsRes.json();
+        if (claims.some((c) => c.status === "approved" || c.status === "pending")) {
+          router.replace("/profile");
+          return;
+        }
+      }
+
       const res = await fetch(`/api/runners/match-name?name=${encodeURIComponent(fullName)}`);
       const runners: RunnerMatch[] = await res.json();
 
       if (runners.length === 0) {
-        router.replace("/");
+        router.replace("/profile");
         return;
       }
 
