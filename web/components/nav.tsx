@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
@@ -19,7 +19,6 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [signingIn, setSigningIn] = useState(false);
@@ -27,19 +26,14 @@ export function Nav() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (event === "SIGNED_IN" && sessionStorage.getItem("pending_welcome")) {
-        sessionStorage.removeItem("pending_welcome");
-        window.location.href = "/auth/welcome";
-      }
     });
     return () => subscription.unsubscribe();
   }, []);
 
   function signIn() {
     setSigningIn(true);
-    sessionStorage.setItem("pending_welcome", "1");
     supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
