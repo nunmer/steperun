@@ -1,50 +1,36 @@
-"use client";
+export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
+import { redirect } from "next/navigation";
+import { getAuthUser, createSupabaseServerClient } from "@/lib/supabase-server";
+import { supabase } from "@/lib/supabase";
 import WelcomeClient from "./welcome-client";
 
-type RunnerMatch = { id: number; full_name: string; country: string | null; city: string | null };
+export default async function WelcomePage() {
+  const user = await getAuthUser();
+  if (!user) redirect("/");
 
-export default function WelcomePage() {
-  const router = useRouter();
-  const [matches, setMatches] = useState<RunnerMatch[] | null>(null);
+  // Already has a pending or approved claim — go straight to profile.
+  const serverClient = await createSupabaseServerClient();
+  const { data: claims } = await serverClient
+    .from("runner_claims")
+    .select("status")
+    .eq("user_id", user.id)
+    .in("status", ["approved", "pending"]);
 
-  useEffect(() => {
-    async function run() {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace("/"); return; }
+  if (claims?.length) redirect("/profile");
 
-      const claimsRes = await fetch("/api/claims/my");
-      if (claimsRes.ok) {
-        const claims: { status: string }[] = await claimsRes.json();
-        if (claims.some((c) => c.status === "approved" || c.status === "pending")) {
-          window.location.href = "/profile";
-          return;
-        }
-      }
+  // No claim yet — find runner profiles matching their name.
+  const fullName = user.user_metadata?.full_name as string | undefined;
+  if (!fullName) redirect("/profile");
 
-      const fullName = user.user_metadata?.full_name as string | undefined;
-      if (!fullName) { window.location.href = "/profile"; return; }
+  const { data: runners } = await supabase
+    .from("runners")
+    .select("id, full_name, country, city")
+    .ilike("full_name", fullName)
+    .eq("is_hidden", false)
+    .limit(5);
 
-      const res = await fetch(`/api/runners/match-name?name=${encodeURIComponent(fullName)}`);
-      const runners: RunnerMatch[] = await res.json();
+  if (!runners?.length) redirect("/profile");
 
-      if (!runners.length) { window.location.href = "/profile"; return; }
-      setMatches(runners);
-    }
-    run();
-  }, [router]);
-
-  if (!matches) {
-    return (
-      <div className="flex items-center justify-center min-h-[40vh] text-muted-foreground text-sm">
-        Loading…
-      </div>
-    );
-  }
-
-  return <WelcomeClient matches={matches} />;
+  return <WelcomeClient matches={runners} />;
 }
