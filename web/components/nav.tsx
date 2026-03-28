@@ -31,7 +31,7 @@ export function Nav() {
       setUser(session?.user ?? null);
       if (event === "SIGNED_IN" && sessionStorage.getItem("pending_welcome")) {
         sessionStorage.removeItem("pending_welcome");
-        router.replace("/auth/welcome");
+        window.location.href = "/auth/welcome";
       }
     });
     return () => subscription.unsubscribe();
