@@ -30,11 +30,7 @@ export async function GET(request: NextRequest) {
     if (!error) {
       return response;
     }
-    // Redirect with error info so we can diagnose on Vercel
-    return NextResponse.redirect(
-      `${origin}/?auth_error=${encodeURIComponent(error.message)}&code=${encodeURIComponent(error.code ?? "")}`
-    );
   }
 
-  return NextResponse.redirect(`${origin}/?auth_error=no_code`);
+  return NextResponse.redirect(`${origin}/`);
 }
