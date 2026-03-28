@@ -6,6 +6,11 @@ const PROTECTED_PREFIXES = ["/api/claims", "/api/disputes", "/api/admin"];
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Don't interfere with the OAuth callback — the browser client handles code exchange.
+  if (pathname === "/auth/callback") {
+    return NextResponse.next();
+  }
+
   // Always refresh the session so server components see a valid token.
   let supabaseResponse = NextResponse.next({ request });
 

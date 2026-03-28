@@ -9,14 +9,31 @@ export default function CallbackPage() {
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
+    let redirected = false;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
+    function goToWelcome() {
+      if (!redirected) {
+        redirected = true;
         router.replace("/auth/welcome");
+      }
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
+        goToWelcome();
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Fallback: if auth events don't fire within 3s, check manually.
+    const timeout = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) goToWelcome();
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, [router]);
 
   return (
