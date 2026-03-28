@@ -6,10 +6,8 @@ const PROTECTED_PREFIXES = ["/api/claims", "/api/disputes", "/api/admin"];
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const needsAuth = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-  if (!needsAuth) return NextResponse.next();
-
-  const response = NextResponse.next();
+  // Always refresh the session so server components see a valid token.
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,10 +18,13 @@ export async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
-          });
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
         },
       },
     }
@@ -31,31 +32,37 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  // Protected routes — require auth
+  const needsAuth = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  if (needsAuth) {
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  // Admin-only routes
-  if (pathname.startsWith("/api/admin")) {
-    const { createClient } = await import("@supabase/supabase-js");
-    const adminClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_KEY!
-    );
-    const { data: profile } = await adminClient
-      .from("user_profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .single();
+    // Admin-only routes
+    if (pathname.startsWith("/api/admin")) {
+      const { createClient } = await import("@supabase/supabase-js");
+      const adminClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_KEY!
+      );
+      const { data: profile } = await adminClient
+        .from("user_profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single();
 
-    if (!profile?.is_admin) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      if (!profile?.is_admin) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
     }
   }
 
-  return response;
+  return supabaseResponse;
 }
 
 export const config = {
-  matcher: ["/api/claims/:path*", "/api/disputes/:path*", "/api/admin/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };
