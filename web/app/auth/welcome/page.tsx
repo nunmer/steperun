@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
-import { getAuthUser, createSupabaseServerClient } from "@/lib/supabase-server";
+import { getAuthUser } from "@/lib/supabase-server";
 import { supabase } from "@/lib/supabase";
 import WelcomeClient from "./welcome-client";
 
@@ -10,8 +10,7 @@ export default async function WelcomePage() {
   if (!user) redirect("/");
 
   // Already has a pending or approved claim — go straight to profile.
-  const serverClient = await createSupabaseServerClient();
-  const { data: claims } = await serverClient
+  const { data: claims } = await supabase
     .from("runner_claims")
     .select("status")
     .eq("user_id", user.id)
