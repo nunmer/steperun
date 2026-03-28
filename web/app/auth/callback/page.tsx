@@ -16,16 +16,23 @@ export default function CallbackPage() {
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
+      // Only SIGNED_IN fires after a fresh code exchange — INITIAL_SESSION
+      // fires immediately on mount with any existing (possibly stale) session.
+      if (event === "SIGNED_IN" && session) {
         goToWelcome();
       }
     });
 
-    // Fallback: if auth events don't fire within 3s, check manually.
+    // Fallback: if SIGNED_IN doesn't fire within 5s, check for a fresh session.
+    // We only redirect if the session was issued recently (not a stale leftover).
     const timeout = setTimeout(async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) goToWelcome();
-    }, 3000);
+      const issuedAt = session?.user?.last_sign_in_at
+        ? new Date(session.user.last_sign_in_at).getTime()
+        : 0;
+      const isFresh = Date.now() - issuedAt < 5 * 60 * 1000; // within 5 minutes
+      if (session && isFresh) goToWelcome();
+    }, 5000);
 
     return () => {
       clearTimeout(timeout);
