@@ -22,18 +22,18 @@ export default function WelcomePage() {
       if (claimsRes.ok) {
         const claims: { status: string }[] = await claimsRes.json();
         if (claims.some((c) => c.status === "approved" || c.status === "pending")) {
-          router.replace("/profile");
+          window.location.href = "/profile";
           return;
         }
       }
 
       const fullName = user.user_metadata?.full_name as string | undefined;
-      if (!fullName) { router.replace("/profile"); return; }
+      if (!fullName) { window.location.href = "/profile"; return; }
 
       const res = await fetch(`/api/runners/match-name?name=${encodeURIComponent(fullName)}`);
       const runners: RunnerMatch[] = await res.json();
 
-      if (!runners.length) { router.replace("/profile"); return; }
+      if (!runners.length) { window.location.href = "/profile"; return; }
       setMatches(runners);
     }
     run();
