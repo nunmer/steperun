@@ -1,38 +1,51 @@
-import { redirect } from "next/navigation";
-import { getAuthUser } from "@/lib/supabase-server";
-import { supabase } from "@/lib/supabase";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import WelcomeClient from "./welcome-client";
 
-export const dynamic = "force-dynamic";
+type RunnerMatch = { id: number; full_name: string; country: string | null; city: string | null };
 
-export default async function WelcomePage() {
-  const user = await getAuthUser();
-  if (!user) redirect("/");
+export default function WelcomePage() {
+  const router = useRouter();
+  const [matches, setMatches] = useState<RunnerMatch[] | null>(null);
 
-  // If already has an active claim, go straight to profile
-  const { data: claims } = await supabase
-    .from("runner_claims")
-    .select("status")
-    .eq("user_id", user.id)
-    .in("status", ["approved", "pending"]);
+  useEffect(() => {
+    async function run() {
+      const supabase = createSupabaseBrowserClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.replace("/"); return; }
 
-  if (claims && claims.length > 0) {
-    redirect("/profile");
+      // Already has a claim — go straight to profile
+      const claimsRes = await fetch("/api/claims/my");
+      if (claimsRes.ok) {
+        const claims: { status: string }[] = await claimsRes.json();
+        if (claims.some((c) => c.status === "approved" || c.status === "pending")) {
+          router.replace("/profile");
+          return;
+        }
+      }
+
+      const fullName = user.user_metadata?.full_name as string | undefined;
+      if (!fullName) { router.replace("/profile"); return; }
+
+      const res = await fetch(`/api/runners/match-name?name=${encodeURIComponent(fullName)}`);
+      const runners: RunnerMatch[] = await res.json();
+
+      if (!runners.length) { router.replace("/profile"); return; }
+      setMatches(runners);
+    }
+    run();
+  }, [router]);
+
+  if (!matches) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh] text-muted-foreground text-sm">
+        Loading…
+      </div>
+    );
   }
-
-  // Find unclaimed runners matching the user's Google display name
-  const fullName = user.user_metadata?.full_name as string | undefined;
-  if (!fullName) redirect("/profile");
-
-  const { data: matches } = await supabase
-    .from("runners")
-    .select("id, full_name, country, city")
-    .ilike("full_name", fullName)
-    .eq("is_hidden", false)
-    .is("claimed_by", null)
-    .limit(5);
-
-  if (!matches || matches.length === 0) redirect("/profile");
 
   return <WelcomeClient matches={matches} />;
 }
