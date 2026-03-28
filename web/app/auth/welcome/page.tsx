@@ -43,11 +43,14 @@ export default function WelcomePage() {
     // Use onAuthStateChange instead of getUser() so we wait for any
     // in-progress token refresh to complete before acting.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[auth/welcome] onAuthStateChange:", event, "session:", !!session);
       if (event === "SIGNED_OUT" || (event === "INITIAL_SESSION" && !session)) {
+        console.log("[auth/welcome] no session → redirect /");
         router.replace("/");
         return;
       }
       if (session) {
+        console.log("[auth/welcome] session found, running flow");
         subscription.unsubscribe();
         runWelcomeFlow(session.user, router, setMatches);
       }
