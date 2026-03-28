@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 export default function CallbackPage() {
-  const router = useRouter();
-
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
     let redirected = false;
@@ -14,7 +11,7 @@ export default function CallbackPage() {
     function goToWelcome() {
       if (!redirected) {
         redirected = true;
-        router.replace("/auth/welcome");
+        window.location.href = "/auth/welcome";
       }
     }
 
@@ -34,7 +31,7 @@ export default function CallbackPage() {
       clearTimeout(timeout);
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, []);
 
   return (
     <div className="flex items-center justify-center min-h-[40vh] text-muted-foreground text-sm">
