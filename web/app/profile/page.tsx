@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ProfileAuthGate } from "./profile-auth-gate";
 import { getAuthUser } from "@/lib/supabase-server";
 import { supabase } from "@/lib/supabase";
 import { getRunner } from "@/lib/queries";
@@ -14,7 +14,10 @@ import {
 
 export default async function ProfilePage() {
   const user = await getAuthUser();
-  if (!user) redirect("/");
+  // Server couldn't read the session (e.g. cookies mid-refresh) — let the
+  // client verify and reload rather than hard-redirecting to /.
+  if (!user) return <ProfileAuthGate />;
+
 
   const { data: claim } = await supabase
     .from("runner_claims")
