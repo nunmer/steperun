@@ -27,7 +27,7 @@ export function Nav() {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      if (event === "SIGNED_IN") {
+      if (event === "SIGNED_IN" && !window.location.pathname.startsWith("/auth/")) {
         window.location.href = "/auth/welcome";
       }
     });
