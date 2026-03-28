@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
@@ -19,8 +19,10 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [signingIn, setSigningIn] = useState(false);
   const supabase = createSupabaseBrowserClient();
 
   useEffect(() => {
@@ -29,13 +31,14 @@ export function Nav() {
       setUser(session?.user ?? null);
       if (event === "SIGNED_IN" && sessionStorage.getItem("pending_welcome")) {
         sessionStorage.removeItem("pending_welcome");
-        window.location.href = "/auth/welcome";
+        router.replace("/auth/welcome");
       }
     });
     return () => subscription.unsubscribe();
   }, []);
 
   function signIn() {
+    setSigningIn(true);
     sessionStorage.setItem("pending_welcome", "1");
     supabase.auth.signInWithOAuth({
       provider: "google",
@@ -51,6 +54,14 @@ export function Nav() {
       setUser(null);
       window.location.href = "/";
     });
+  }
+
+  if (signingIn) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
+        <p className="text-muted-foreground text-sm">Signing you in…</p>
+      </div>
+    );
   }
 
   return (
