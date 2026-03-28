@@ -36,7 +36,7 @@ export default async function AdminClaimsPage() {
     .select(`
       id, trust_score_at_claim, strava_match_score, strava_match_detail, created_at,
       runners ( id, full_name, country, city ),
-      user_profiles ( id, display_name )
+      user_profiles!runner_claims_user_id_fkey ( id, display_name )
     `)
     .eq("status", "pending")
     .order("created_at", { ascending: true });
