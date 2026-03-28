@@ -4,26 +4,34 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
-// This page handles both PKCE (code in query params) and implicit flow (tokens in hash).
-// The browser Supabase client detects both automatically and fires SIGNED_IN.
 export default function CallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient();
 
+    // Give the browser client a moment to process the OAuth tokens from
+    // the URL hash or query params, then redirect regardless of event.
+    const timeout = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace("/auth/welcome");
+      } else {
+        router.replace("/");
+      }
+    }, 1000);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") {
+        clearTimeout(timeout);
         router.replace("/auth/welcome");
       }
     });
 
-    // Also handle already-signed-in case (e.g. session already in cookie)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) router.replace("/auth/welcome");
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, [router]);
 
   return (
