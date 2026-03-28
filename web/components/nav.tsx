@@ -27,7 +27,8 @@ export function Nav() {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      if (event === "SIGNED_IN" && !window.location.pathname.startsWith("/auth/")) {
+      if (event === "SIGNED_IN" && sessionStorage.getItem("pending_welcome")) {
+        sessionStorage.removeItem("pending_welcome");
         window.location.href = "/auth/welcome";
       }
     });
@@ -35,6 +36,7 @@ export function Nav() {
   }, []);
 
   function signIn() {
+    sessionStorage.setItem("pending_welcome", "1");
     supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
