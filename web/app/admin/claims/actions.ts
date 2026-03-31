@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthUser } from "@/lib/supabase-server";
 import { logAudit } from "@/lib/services/audit";
+import { awardCoins, awardEventParticipationCoins, COIN_REWARDS } from "@/lib/services/coins";
 
 function adminClient() {
   return createClient(
@@ -42,6 +43,10 @@ export async function approveClaimAction(claimId: number, notes?: string) {
   }).eq("id", claimId);
 
   await db.from("runners").update({ claimed_by: (claim as any).user_id }).eq("id", (claim as any).runner_id);
+
+  // Award coins: +10 for claim, +20 per event participation
+  await awardCoins((claim as any).user_id, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claimId);
+  await awardEventParticipationCoins((claim as any).user_id, (claim as any).runner_id);
 
   await logAudit({ event_type: "admin_claim_approved", user_id: admin.id, claim_id: claimId });
   revalidatePath("/admin/claims");

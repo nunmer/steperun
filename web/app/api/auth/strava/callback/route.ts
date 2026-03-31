@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getAuthUser } from "@/lib/supabase-server";
 import { verifyStravaState, exchangeCode } from "@/lib/services/strava";
 import { logAudit } from "@/lib/services/audit";
+import { awardCoins, COIN_REWARDS } from "@/lib/services/coins";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -60,6 +61,9 @@ export async function GET(request: NextRequest) {
   await db.from("user_profiles")
     .update({ trust_score: Math.min(100, current + 20) })
     .eq("id", user.id);
+
+  // Award 20 coins for connecting Strava (idempotent — won't double-award)
+  await awardCoins(user.id, COIN_REWARDS.STRAVA_CONNECTED, "strava_connected");
 
   await logAudit({
     event_type: "strava_connected",

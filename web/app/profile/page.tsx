@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { getBalance } from "@/lib/services/coins";
 
 export default async function ProfilePage() {
   const user = await getAuthUser();
@@ -24,6 +25,8 @@ export default async function ProfilePage() {
     .in("status", ["approved", "pending"])
     .order("created_at", { ascending: false })
     .maybeSingle();
+
+  const coins = await getBalance(user.id);
 
   // Has a claimed runner — show full runner profile
   if (claim) {
@@ -65,7 +68,7 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Card>
               <CardContent className="pt-4 pb-4">
                 <p className="text-2xl font-bold text-[#22c55e]">{results.length}</p>
@@ -78,6 +81,12 @@ export default async function ProfilePage() {
                   {new Set(results.map((r) => (r.events as any)?.year)).size}
                 </p>
                 <p className="text-sm text-muted-foreground">Active seasons</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4 pb-4">
+                <p className="text-2xl font-bold text-amber-500">{coins}</p>
+                <p className="text-sm text-muted-foreground">Coins</p>
               </CardContent>
             </Card>
             {runner.elo_score && (
@@ -156,6 +165,17 @@ export default async function ProfilePage() {
           <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
         </div>
       </div>
+
+      {coins > 0 && (
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardContent className="pt-4 pb-4">
+              <p className="text-2xl font-bold text-amber-500">{coins}</p>
+              <p className="text-sm text-muted-foreground">Coins</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <Card>
         <CardContent className="pt-6 pb-6 flex flex-col gap-3">

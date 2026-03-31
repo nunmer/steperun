@@ -36,8 +36,19 @@ export type Database = {
           trust_score: number;
           verification_level: number;
           is_admin: boolean;
+          coins: number;
           created_at: string;
           updated_at: string;
+        };
+      };
+      coin_transactions: {
+        Row: {
+          id: number;
+          user_id: string;
+          amount: number;
+          reason: string;
+          ref_id: number | null;
+          created_at: string;
         };
       };
       strava_tokens: {

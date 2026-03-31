@@ -13,6 +13,7 @@ import {
 import type { StravaActivity } from "./strava";
 import { fetchAthleteActivities, refreshAccessToken } from "./strava";
 import { logAudit } from "./audit";
+import { awardCoins, awardEventParticipationCoins, COIN_REWARDS } from "./coins";
 
 function adminClient() {
   return createClient(
@@ -224,7 +225,7 @@ export async function createClaim(
     throw new Error(`Failed to create claim: ${insertError.message}`);
   }
 
-  // If auto-approved, update runner.claimed_by
+  // If auto-approved, update runner.claimed_by and award coins
   if (autoApproved) {
     await db.from("runners").update({ claimed_by: userId }).eq("id", runnerId);
 
@@ -232,6 +233,10 @@ export async function createClaim(
     await db.from("user_profiles")
       .update({ trust_score: Math.min(100, (userProfile?.trust_score ?? 0) + trustScore) })
       .eq("id", userId);
+
+    // Award coins: +10 for claim, +20 per event participation
+    await awardCoins(userId, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claim.id);
+    await awardEventParticipationCoins(userId, runnerId);
   }
 
   await logAudit({
@@ -340,6 +345,10 @@ export async function attachEvidence(
     if (decision === "auto_approved") {
       await db.from("runner_claims").update({ status: "approved", auto_approved: true }).eq("id", claimId);
       await db.from("runners").update({ claimed_by: userId }).eq("id", claim.runner_id);
+
+      // Award coins on evidence-triggered auto-approval
+      await awardCoins(userId, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claimId);
+      await awardEventParticipationCoins(userId, claim.runner_id);
     }
   }
 
