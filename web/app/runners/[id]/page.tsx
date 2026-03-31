@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRunner } from "@/lib/queries";
+import { getRunner, getEloRanks } from "@/lib/queries";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { EloCard, StatCard } from "@/components/elo-badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -56,6 +57,10 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
   const totalRaces = results.length;
   const uniqueYears = new Set(results.map((r) => (r.events as any)?.year)).size;
 
+  const eloRanks = runner.elo_score
+    ? await getEloRanks(runner.id, runner.city, runner.country, runner.elo_score)
+    : { cityRank: null, countryRank: null };
+
   return (
     <div className="space-y-8">
       {/* Back */}
@@ -87,34 +92,19 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {runner.elo_score && (
-          <Card>
-            <CardContent className="pt-4 pb-4">
-              <p className="text-2xl font-bold text-[#22c55e]">{runner.elo_score}</p>
-              <p className="text-sm text-muted-foreground">
-                ELO — Level {runner.elo_level}
-              </p>
-            </CardContent>
-          </Card>
+        {runner.elo_score && runner.elo_level && (
+          <EloCard
+            score={runner.elo_score}
+            level={runner.elo_level}
+            cityRank={eloRanks.cityRank}
+            countryRank={eloRanks.countryRank}
+            city={runner.city}
+            country={runner.country}
+          />
         )}
-        <Card>
-          <CardContent className="pt-4 pb-4">
-            <p className="text-2xl font-bold text-[#22c55e]">{totalRaces}</p>
-            <p className="text-sm text-muted-foreground">Races completed</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-4">
-            <p className="text-2xl font-bold text-[#22c55e]">{uniqueYears}</p>
-            <p className="text-sm text-muted-foreground">Active seasons</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-4">
-            <p className="text-2xl font-bold text-[#22c55e]">{pbs.length}</p>
-            <p className="text-sm text-muted-foreground">Distances run</p>
-          </CardContent>
-        </Card>
+        <StatCard value={totalRaces} label="Races completed" />
+        <StatCard value={uniqueYears} label="Active seasons" />
+        <StatCard value={pbs.length} label="Distances run" />
       </div>
 
       {/* Personal Bests */}

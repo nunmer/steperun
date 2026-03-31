@@ -379,6 +379,44 @@ export async function isRunnerClaimed(runnerId: number): Promise<boolean> {
 }
 
 // ---------------------------------------------------------------------------
+// ELO regional rankings for a specific runner
+// ---------------------------------------------------------------------------
+
+export async function getEloRanks(
+  runnerId: number,
+  city: string | null,
+  country: string | null,
+  eloScore: number
+): Promise<{ cityRank: number | null; countryRank: number | null }> {
+  let cityRank: number | null = null;
+  let countryRank: number | null = null;
+
+  if (city) {
+    const { count } = await supabase
+      .from("runners")
+      .select("id", { count: "exact", head: true })
+      .eq("is_hidden", false)
+      .eq("city", city)
+      .not("elo_score", "is", null)
+      .gt("elo_score", eloScore);
+    cityRank = (count ?? 0) + 1;
+  }
+
+  if (country) {
+    const { count } = await supabase
+      .from("runners")
+      .select("id", { count: "exact", head: true })
+      .eq("is_hidden", false)
+      .eq("country", country)
+      .not("elo_score", "is", null)
+      .gt("elo_score", eloScore);
+    countryRank = (count ?? 0) + 1;
+  }
+
+  return { cityRank, countryRank };
+}
+
+// ---------------------------------------------------------------------------
 // Power Rankings (ELO)
 // ---------------------------------------------------------------------------
 

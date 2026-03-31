@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAuthUser } from "@/lib/supabase-server";
 import { supabase } from "@/lib/supabase";
-import { getRunner } from "@/lib/queries";
+import { getRunner, getEloRanks } from "@/lib/queries";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -12,6 +12,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { getBalance } from "@/lib/services/coins";
+import { EloCard, StatCard } from "@/components/elo-badge";
+import { CoinBalance } from "@/components/coin-balance";
 
 export default async function ProfilePage() {
   const user = await getAuthUser();
@@ -41,8 +43,13 @@ export default async function ProfilePage() {
         return (yearB - yearA) || ((a.events as any)?.name?.localeCompare((b.events as any)?.name) ?? 0);
       });
 
+      const eloRanks = runner.elo_score
+        ? await getEloRanks(runner.id, runner.city, runner.country, runner.elo_score)
+        : { cityRank: null, countryRank: null };
+
       return (
         <div className="space-y-8">
+          {/* Header: avatar, name, badges, coins */}
           <div className="flex items-start gap-4 sm:gap-6">
             {user.user_metadata?.avatar_url ? (
               <img
@@ -56,47 +63,42 @@ export default async function ProfilePage() {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold truncate">{runner.full_name}</h1>
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-bold truncate">{runner.full_name}</h1>
+                <CoinBalance amount={coins} />
+              </div>
               <div className="flex gap-2 mt-1 flex-wrap">
                 {runner.country && <Badge variant="secondary">{runner.country}</Badge>}
                 {runner.city && <Badge variant="outline">{runner.city}</Badge>}
                 {claimStatus === "approved"
-                  ? <Badge variant="secondary" className="text-xs">Claimed ✓</Badge>
+                  ? <Badge variant="secondary" className="text-xs">Claimed</Badge>
                   : <Badge variant="outline" className="text-xs text-muted-foreground">Pending review</Badge>
                 }
               </div>
             </div>
           </div>
 
+          {/* Quick stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <p className="text-2xl font-bold text-[#22c55e]">{results.length}</p>
-                <p className="text-sm text-muted-foreground">Races completed</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <p className="text-2xl font-bold text-[#22c55e]">
-                  {new Set(results.map((r) => (r.events as any)?.year)).size}
-                </p>
-                <p className="text-sm text-muted-foreground">Active seasons</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4 pb-4">
-                <p className="text-2xl font-bold text-amber-500">{coins}</p>
-                <p className="text-sm text-muted-foreground">Coins</p>
-              </CardContent>
-            </Card>
-            {runner.elo_score && (
-              <Card>
-                <CardContent className="pt-4 pb-4">
-                  <p className="text-2xl font-bold text-[#22c55e]">{runner.elo_score}</p>
-                  <p className="text-sm text-muted-foreground">ELO — Level {runner.elo_level}</p>
-                </CardContent>
-              </Card>
+            {runner.elo_score && runner.elo_level && (
+              <EloCard
+                score={runner.elo_score}
+                level={runner.elo_level}
+                cityRank={eloRanks.cityRank}
+                countryRank={eloRanks.countryRank}
+                city={runner.city}
+                country={runner.country}
+              />
             )}
+            <StatCard value={results.length} label="Races completed" />
+            <StatCard
+              value={new Set(results.map((r) => (r.events as any)?.year)).size}
+              label="Active seasons"
+            />
+            <StatCard
+              value={new Set(results.map((r) => r.distance_category)).size}
+              label="Distances run"
+            />
           </div>
 
           <Separator />
@@ -161,21 +163,13 @@ export default async function ProfilePage() {
           </div>
         )}
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold">{name ?? "Runner"}</h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-bold">{name ?? "Runner"}</h1>
+            {coins > 0 && <CoinBalance amount={coins} />}
+          </div>
           <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
         </div>
       </div>
-
-      {coins > 0 && (
-        <div className="grid grid-cols-2 gap-4">
-          <Card>
-            <CardContent className="pt-4 pb-4">
-              <p className="text-2xl font-bold text-amber-500">{coins}</p>
-              <p className="text-sm text-muted-foreground">Coins</p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
       <Card>
         <CardContent className="pt-6 pb-6 flex flex-col gap-3">
