@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 
@@ -15,6 +16,7 @@ const links = [
   { href: "/runners",           label: "Runners"      },
   { href: "/power-rankings",        label: "Power Rankings" },
   { href: "/runners/head-to-head", label: "Head to Head" },
+  { href: "/run-analyzer",        label: "AI Coach" },
 ];
 
 export function Nav() {
@@ -22,7 +24,11 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [signingIn, setSigningIn] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
   const supabase = createSupabaseBrowserClient();
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
@@ -83,8 +89,17 @@ export function Nav() {
           ))}
         </nav>
 
-        {/* Auth button (desktop) */}
+        {/* Theme + Auth (desktop) */}
         <div className="hidden md:flex items-center gap-2 ml-2">
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          )}
           {user ? (
             <>
               <Link
@@ -138,6 +153,15 @@ export function Nav() {
               {label}
             </Link>
           ))}
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              {theme === "dark" ? "Light mode" : "Dark mode"}
+            </button>
+          )}
           {user ? (
             <button
               onClick={signOut}

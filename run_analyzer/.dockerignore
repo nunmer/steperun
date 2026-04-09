@@ -1,0 +1,8 @@
+.env
+output/
+uploads/
+__pycache__/
+*.task
+.git
+.gitignore
+templates/

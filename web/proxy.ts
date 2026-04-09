@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_PREFIXES = ["/api/claims", "/api/disputes", "/api/admin"];
+const PROTECTED_PREFIXES = ["/api/claims", "/api/disputes", "/api/admin", "/api/run-analyzer"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -57,5 +57,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/claims/:path*", "/api/disputes/:path*", "/api/admin/:path*"],
+  matcher: ["/api/claims/:path*", "/api/disputes/:path*", "/api/admin/:path*", "/api/run-analyzer/:path*"],
 };

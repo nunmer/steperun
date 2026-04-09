@@ -1,0 +1,17 @@
+web/node_modules
+web/.next
+web/.env.local
+.env
+scraper/
+migrations/
+schema.sql
+run.py
+*.md
+.git
+__pycache__
+run_analyzer/output
+run_analyzer/uploads
+run_analyzer/__pycache__
+run_analyzer/.env
+run_analyzer/*.task
+run_analyzer/templates

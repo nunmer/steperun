@@ -1,0 +1,7 @@
+.env
+output/
+uploads/
+__pycache__/
+*.task
+.git
+templates/

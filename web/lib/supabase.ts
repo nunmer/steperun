@@ -108,6 +108,58 @@ export type Database = {
           created_at: string;
         };
       };
+      run_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          status: "extracting" | "extracted" | "analyzing" | "done" | "error";
+          frame_count: number;
+          analysis: unknown;
+          overall_score: number | null;
+          provider: string;
+          error: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title?: string;
+          status?: string;
+          provider?: string;
+        };
+        Update: {
+          status?: string;
+          frame_count?: number;
+          analysis?: unknown;
+          overall_score?: number;
+          error?: string;
+          updated_at?: string;
+        };
+      };
+      run_frames: {
+        Row: {
+          id: string;
+          session_id: string;
+          idx: number;
+          phase: string;
+          frame_number: number;
+          timestamp_ms: number;
+          image_path: string;
+          landmarks: unknown;
+          created_at: string;
+        };
+        Insert: {
+          session_id: string;
+          idx: number;
+          phase: string;
+          frame_number: number;
+          timestamp_ms: number;
+          image_path: string;
+          landmarks?: unknown;
+        };
+      };
       results: {
         Row: {
           id: number;

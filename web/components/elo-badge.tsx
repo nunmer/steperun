@@ -122,10 +122,10 @@ interface GlowCardProps {
 function GlowCard({ color, glow, children }: GlowCardProps) {
   return (
     <div
-      className="relative rounded-xl overflow-hidden bg-card text-card-foreground"
-      style={{ boxShadow: `0 0 20px ${glow}, inset 0 0 20px ${glow}` }}
+      className="relative rounded-xl overflow-hidden bg-card text-card-foreground border border-border dark:border-transparent"
+      style={{ boxShadow: `0 0 20px ${glow}` }}
     >
-      <div className="absolute inset-0 rounded-xl pointer-events-none" style={{
+      <div className="absolute inset-0 rounded-xl pointer-events-none dark:block hidden" style={{
         border: `1px solid ${color}40`,
         mask: "linear-gradient(to bottom, black 60%, transparent 100%)",
         WebkitMask: "linear-gradient(to bottom, black 60%, transparent 100%)",
@@ -161,14 +161,14 @@ export function EloCard({ score, level, cityRank, countryRank, city, country }: 
       <div className="flex flex-col items-center pt-3 pb-2 px-3">
         <div className="w-14 h-14 sm:w-16 sm:h-16">
           <svg viewBox="0 0 90 90" className="w-full h-full" style={{ filter: `drop-shadow(0 0 8px ${style.glow})` }}>
-            <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="3" />
+            <circle cx="45" cy="45" r="38" fill="none" className="stroke-border/30" strokeWidth="3" />
             <circle
               cx="45" cy="45" r="38" fill="none"
               stroke={style.ring} strokeWidth="3" strokeLinecap="round"
               strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
               transform="rotate(-90 45 45)"
             />
-            <circle cx="45" cy="45" r="30" fill="rgba(0,0,0,0.5)" stroke={style.ring} strokeWidth="0.8" opacity="0.3" />
+            <circle cx="45" cy="45" r="30" className="fill-background/80" stroke={style.ring} strokeWidth="0.8" opacity="0.3" />
             <text
               x="45" y="45" textAnchor="middle" dominantBaseline="central"
               fill={style.ring} fontSize="22" fontWeight="bold" fontFamily="system-ui, sans-serif"
@@ -183,8 +183,8 @@ export function EloCard({ score, level, cityRank, countryRank, city, country }: 
       </div>
 
       {/* Divider line */}
-      <div className="mx-3 h-px" style={{
-        background: `linear-gradient(90deg, transparent, ${style.ring}30, transparent)`,
+      <div className="mx-3 h-px bg-border dark:bg-transparent" style={{
+        backgroundImage: `linear-gradient(90deg, transparent, ${style.ring}30, transparent)`,
       }} />
 
       {/* Regional ranks with real flags */}

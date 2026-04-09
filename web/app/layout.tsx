@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -18,13 +19,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}>
-        <Nav />
-        <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
-        <footer className="border-t mt-16 py-6 text-center text-sm text-muted-foreground">
-          Steppe RUN © {new Date().getFullYear()} · With love, BTS Team
-        </footer>
+        <ThemeProvider>
+          <Nav />
+          <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
+          <footer className="border-t mt-16 py-6 text-center text-sm text-muted-foreground">
+            Steppe RUN © {new Date().getFullYear()} · With love, BTS Team
+          </footer>
+        </ThemeProvider>
       </body>
     </html>
   );
