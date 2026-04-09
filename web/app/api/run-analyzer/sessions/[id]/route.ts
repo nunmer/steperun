@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/supabase-server";
-import { getSession, getSessionFrames, getFramePublicUrl } from "@/lib/run-analyzer-db";
+import { getSession, getSessionFrames, getFramePublicUrl, type RunFrame } from "@/lib/run-analyzer-db";
 
 /** GET /api/run-analyzer/sessions/[id] — full session with frames */
 export async function GET(
@@ -19,7 +19,7 @@ export async function GET(
 
   const { data: frames } = await getSessionFrames(id);
 
-  const framesWithUrls = (frames ?? []).map((f) => ({
+  const framesWithUrls = ((frames ?? []) as RunFrame[]).map((f) => ({
     ...f,
     image_url: getFramePublicUrl(f.image_path),
   }));

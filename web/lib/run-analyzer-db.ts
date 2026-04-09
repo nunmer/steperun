@@ -4,12 +4,19 @@
  * conflicts with the main Database type definition.
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const client = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!,
-);
+let _client: SupabaseClient | null = null;
+
+function db() {
+  if (!_client) {
+    _client = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_KEY!,
+    );
+  }
+  return _client;
+}
 
 // ----- run_sessions -----
 
@@ -32,7 +39,7 @@ export async function createSession(data: {
   title?: string;
   provider?: string;
 }) {
-  return client
+  return db()
     .from("run_sessions")
     .insert({
       user_id: data.user_id,
@@ -45,7 +52,7 @@ export async function createSession(data: {
 }
 
 export async function getUserSessions(userId: string) {
-  return client
+  return db()
     .from("run_sessions")
     .select("id, title, status, frame_count, overall_score, created_at")
     .eq("user_id", userId)
@@ -53,14 +60,14 @@ export async function getUserSessions(userId: string) {
 }
 
 export async function getUserSessionCount(userId: string) {
-  return client
+  return db()
     .from("run_sessions")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId);
 }
 
 export async function getSession(id: string, userId: string) {
-  return client
+  return db()
     .from("run_sessions")
     .select("*")
     .eq("id", id)
@@ -69,7 +76,7 @@ export async function getSession(id: string, userId: string) {
 }
 
 export async function updateSession(id: string, data: Record<string, unknown>) {
-  return client
+  return db()
     .from("run_sessions")
     .update({ ...data, updated_at: new Date().toISOString() })
     .eq("id", id);
@@ -97,11 +104,11 @@ export async function insertFrames(frames: Array<{
   timestamp_ms: number;
   image_path: string;
 }>) {
-  return client.from("run_frames").insert(frames);
+  return db().from("run_frames").insert(frames);
 }
 
 export async function getSessionFrames(sessionId: string) {
-  return client
+  return db()
     .from("run_frames")
     .select("*")
     .eq("session_id", sessionId)
@@ -111,12 +118,12 @@ export async function getSessionFrames(sessionId: string) {
 // ----- Storage -----
 
 export function getFramePublicUrl(path: string) {
-  const { data } = client.storage.from("run-frames").getPublicUrl(path);
+  const { data } = db().storage.from("run-frames").getPublicUrl(path);
   return data.publicUrl;
 }
 
 export async function uploadFrame(path: string, buffer: Buffer) {
-  return client.storage
+  return db().storage
     .from("run-frames")
     .upload(path, buffer, { contentType: "image/jpeg", upsert: true });
 }
