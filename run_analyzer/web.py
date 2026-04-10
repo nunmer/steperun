@@ -1,6 +1,7 @@
 """FastAPI web server for the running technique analyzer."""
 
 import base64
+import logging
 import os
 import shutil
 import uuid
@@ -17,6 +18,7 @@ from frame_extractor import extract_key_frames, save_key_frames
 from analyzer import analyze_frames
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
 
 app = FastAPI(title="Run Analyzer")
 
@@ -60,6 +62,13 @@ async def extract(video: UploadFile = File(...)):
             detail="No running person detected. Ensure the video shows a runner.",
         )
 
+    key_count = sum(1 for kf in key_frames if kf.is_key_frame)
+    motion_count = len(key_frames) - key_count
+    logging.info(
+        f"[extract] Job {job_id}: {len(key_frames)} total frames "
+        f"({key_count} key, {motion_count} motion)"
+    )
+
     paths = save_key_frames(key_frames, job_dir)
 
     frames = []
@@ -71,6 +80,7 @@ async def extract(video: UploadFile = File(...)):
             "phase": kf.phase,
             "frame_number": kf.frame_number,
             "timestamp_ms": kf.timestamp_ms,
+            "is_key_frame": kf.is_key_frame,
         })
 
     return JSONResponse({"job_id": job_id, "frames": frames})

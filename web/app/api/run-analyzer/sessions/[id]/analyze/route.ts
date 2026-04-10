@@ -40,11 +40,14 @@ export async function POST(
     return NextResponse.json({ error: "No frames found" }, { status: 400 });
   }
 
-  // Download frames and send to Python analyzer
+  // Only send key frames to the analyzer (motion frames are for playback only)
+  const keyFrames = frames.filter((f: Record<string, unknown>) => f.is_key_frame !== false);
+  console.log(`[analyze] Session ${id}: ${frames.length} total frames, ${keyFrames.length} key frames sent to LLM`);
+
   const form = new FormData();
   form.append("provider", session.provider);
 
-  for (const f of frames) {
+  for (const f of keyFrames) {
     const url = getFramePublicUrl(f.image_path);
     const res = await fetch(url);
     if (!res.ok) continue;

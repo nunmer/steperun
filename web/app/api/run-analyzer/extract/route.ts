@@ -8,6 +8,8 @@ import {
   getFramePublicUrl,
 } from "@/lib/run-analyzer-db";
 
+export const maxDuration = 120;
+
 const EXTRACTOR_URL = process.env.RUN_ANALYZER_API_URL || "http://localhost:8000";
 
 /** POST /api/run-analyzer/extract — upload video, extract frames via Python service */
@@ -45,9 +47,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: err.detail }, { status: res.status });
     }
     extractResult = await res.json();
-  } catch {
-    await updateSession(sessionId, { status: "error", error: "Extraction service unavailable" });
-    return NextResponse.json({ error: "Extraction service unavailable" }, { status: 502 });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Extraction service unavailable";
+    console.error("Extraction fetch error:", msg);
+    await updateSession(sessionId, { status: "error", error: msg });
+    return NextResponse.json({ error: msg }, { status: 502 });
   }
 
   // Store frames in Supabase Storage + DB
@@ -58,13 +62,16 @@ export async function POST(request: NextRequest) {
     frame_number: number;
     timestamp_ms: number;
     image_path: string;
+    is_key_frame: boolean;
   }> = [];
 
   for (let i = 0; i < extractResult.frames.length; i++) {
     const f = extractResult.frames[i];
+    const isKey = f.is_key_frame ?? true;
+    const tag = isKey ? "key" : "motion";
     const base64 = f.src.replace(/^data:image\/\w+;base64,/, "");
     const buffer = Buffer.from(base64, "base64");
-    const storagePath = `${user.id}/${sessionId}/${String(i).padStart(2, "0")}_${f.phase}.jpg`;
+    const storagePath = `${user.id}/${sessionId}/${String(i).padStart(3, "0")}_${tag}_${f.phase}.jpg`;
 
     const { error: uploadErr } = await uploadFrame(storagePath, buffer);
     if (uploadErr) {
@@ -79,6 +86,7 @@ export async function POST(request: NextRequest) {
       frame_number: f.frame_number,
       timestamp_ms: f.timestamp_ms,
       image_path: storagePath,
+      is_key_frame: isKey,
     });
   }
 

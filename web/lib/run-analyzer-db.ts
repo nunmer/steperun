@@ -92,6 +92,7 @@ export interface RunFrame {
   frame_number: number;
   timestamp_ms: number;
   image_path: string;
+  is_key_frame: boolean;
   landmarks: unknown;
   created_at: string;
 }
@@ -103,6 +104,7 @@ export async function insertFrames(frames: Array<{
   frame_number: number;
   timestamp_ms: number;
   image_path: string;
+  is_key_frame?: boolean;
 }>) {
   return db().from("run_frames").insert(frames);
 }
