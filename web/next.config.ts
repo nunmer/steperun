@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       dynamic: 300,
       static: 300,
     },
+    middlewareClientMaxBodySize: "100mb",
   },
 };
 
