@@ -1,4 +1,4 @@
-app = "app-wild-dream-1355"
+app = "steperun-app"
 primary_region = "ams"
 
 [build]
@@ -6,7 +6,7 @@ primary_region = "ams"
 
   [build.args]
     NEXT_PUBLIC_SUPABASE_URL = "https://ddohlplxshswvbittecv.supabase.co"
-    # Set NEXT_PUBLIC_SUPABASE_ANON_KEY via: fly deploy --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+    NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRkb2hscGx4c2hzd3ZiaXR0ZWN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyNzMxMjYsImV4cCI6MjA4Nzg0OTEyNn0.yrsh-lWYDjnttcnx1-nmcKnZ29JUyoUUs3OugWCzklo"
 
 [http_service]
   internal_port = 3000

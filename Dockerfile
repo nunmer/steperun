@@ -10,7 +10,9 @@ COPY web/package.json web/package-lock.json ./
 RUN npm ci
 
 COPY web/ .
-# Build needs env vars for NEXT_PUBLIC_* at build time
+# Build needs public env vars at build time for prerendering.
+# SUPABASE_URL / SUPABASE_SERVICE_KEY are runtime-only (lazy-init client) and
+# come from `fly secrets set ...` — never bake them into the image.
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
@@ -23,7 +25,7 @@ FROM python:3.11-slim
 
 # Install Node.js 20
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl libgl1 libglib2.0-0 ca-certificates \
+    curl libgl1 libglib2.0-0 libgles2 libegl1 ca-certificates \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
