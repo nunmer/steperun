@@ -8,3 +8,4 @@ venv/
 .venv/
 web/.next/
 web/node_modules/
+output/
