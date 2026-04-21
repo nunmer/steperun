@@ -105,11 +105,21 @@ export async function refreshAccessToken(refreshToken: string): Promise<StravaTo
 // ---------------------------------------------------------------------------
 
 export interface StravaActivity {
-  id:               number;
-  start_date_local: string;
-  distance:         number;
-  moving_time:      number;
-  type:             string;
+  id:                   number;
+  name?:                string;
+  start_date_local:     string;
+  distance:             number;   // metres
+  moving_time:          number;   // seconds
+  elapsed_time?:        number;   // seconds
+  type:                 string;
+  total_elevation_gain?:number;   // metres
+  average_speed?:       number;   // m/s
+  max_speed?:           number;   // m/s
+  average_cadence?:     number;   // per-leg steps/min
+  average_heartrate?:   number;   // bpm
+  max_heartrate?:       number;   // bpm
+  has_heartrate?:       boolean;
+  suffer_score?:        number;   // Strava Relative Effort (training load proxy)
 }
 
 export async function fetchAthleteActivities(

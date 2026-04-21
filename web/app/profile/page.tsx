@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getBalance } from "@/lib/services/coins";
 import { EloCard, StatCard } from "@/components/elo-badge";
 import { CoinBalance } from "@/components/coin-balance";
@@ -19,6 +20,8 @@ import {
   fetchAthleteActivities,
   type StravaActivity,
 } from "@/lib/services/strava";
+import { TrainingTab } from "@/components/training-tab";
+import { isRun } from "@/lib/services/training-analytics";
 
 export default async function ProfilePage({
   searchParams,
@@ -54,7 +57,7 @@ export default async function ProfilePage({
     try {
       const accessToken = await getValidAccessToken(user.id);
       if (accessToken) {
-        stravaActivities = await fetchAthleteActivities(accessToken, { perPage: 30 });
+        stravaActivities = await fetchAthleteActivities(accessToken, { perPage: 200 });
       }
     } catch {
       // Strava API error — show connect card without activities
@@ -132,16 +135,29 @@ export default async function ProfilePage({
 
           <Separator />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Race history */}
-            <section>
-              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#22c55e]" />
-                Race History
-                <Badge variant="outline" className="ml-auto text-xs font-mono">{results.length} races</Badge>
-              </h2>
+          <Tabs defaultValue={stravaStatus === "connected" ? "trainings" : "races"}>
+            <TabsList className="w-full sm:w-fit">
+              <TabsTrigger value="races" className="gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                Official Races
+                <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">{results.length}</Badge>
+              </TabsTrigger>
+              <TabsTrigger value="trainings" className="gap-2">
+                <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0" fill="#FC4C02">
+                  <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+                </svg>
+                Trainings
+                {stravaToken && (
+                  <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">
+                    {stravaActivities.filter(isRun).length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="races" className="mt-4">
               <div className="rounded-lg border overflow-hidden">
-                <div className="max-h-[480px] overflow-y-auto">
+                <div className="max-h-[640px] overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -174,19 +190,12 @@ export default async function ProfilePage({
                   </Table>
                 </div>
               </div>
-            </section>
+            </TabsContent>
 
-            {/* Strava */}
-            <section>
-              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" fill="#FC4C02">
-                  <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-                </svg>
-                Strava
-              </h2>
-              <StravaCard stravaToken={stravaToken} stravaStatus={stravaStatus} activities={stravaActivities} />
-            </section>
-          </div>
+            <TabsContent value="trainings" className="mt-4">
+              <TrainingTab stravaToken={stravaToken} stravaStatus={stravaStatus} activities={stravaActivities} />
+            </TabsContent>
+          </Tabs>
         </div>
       );
     }
@@ -219,7 +228,7 @@ export default async function ProfilePage({
         </div>
       </div>
 
-      <StravaCard stravaToken={stravaToken} stravaStatus={stravaStatus} activities={stravaActivities} />
+      <TrainingTab stravaToken={stravaToken} stravaStatus={stravaStatus} activities={stravaActivities} />
 
       <Card>
         <CardContent className="pt-6 pb-6 flex flex-col gap-3">
@@ -235,150 +244,3 @@ export default async function ProfilePage({
   );
 }
 
-function formatDuration(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m ${s}s`;
-}
-
-function formatDistance(meters: number): string {
-  return (meters / 1000).toFixed(2) + " km";
-}
-
-function formatPace(meters: number, seconds: number): string {
-  if (meters === 0) return "--";
-  const paceSeconds = seconds / (meters / 1000);
-  const m = Math.floor(paceSeconds / 60);
-  const s = Math.round(paceSeconds % 60);
-  return `${m}:${s.toString().padStart(2, "0")} /km`;
-}
-
-function activityIcon(type: string): string {
-  switch (type) {
-    case "Run": return "\uD83C\uDFC3";
-    case "TrailRun": return "\u26F0\uFE0F";
-    case "Ride": case "VirtualRide": return "\uD83D\uDEB4";
-    case "Swim": return "\uD83C\uDFCA";
-    case "Walk": case "Hike": return "\uD83D\uDEB6";
-    default: return "\uD83C\uDFCB\uFE0F";
-  }
-}
-
-function StravaCard({
-  stravaToken,
-  stravaStatus,
-  activities,
-}: {
-  stravaToken: { athlete_id: number; connected_at: string } | null;
-  stravaStatus?: string;
-  activities: StravaActivity[];
-}) {
-  const connected = !!stravaToken;
-  const runActivities = activities.filter((a) => a.type === "Run" || a.type === "TrailRun");
-  const allActivities = activities.slice(0, 20);
-
-  // Weekly summary from running activities
-  const now = Date.now();
-  const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
-  const thisWeek = runActivities.filter((a) => new Date(a.start_date_local).getTime() > weekAgo);
-  const weeklyKm = thisWeek.reduce((sum, a) => sum + a.distance, 0) / 1000;
-  const weeklyTime = thisWeek.reduce((sum, a) => sum + a.moving_time, 0);
-
-  return (
-    <Card>
-      <CardContent className="pt-6 pb-6">
-        {stravaStatus === "connected" && (
-          <div className="mb-3 rounded-md bg-green-500/10 border border-green-500/30 px-3 py-2 text-sm text-green-600">
-            Strava connected successfully! +20 coins earned.
-          </div>
-        )}
-        {stravaStatus === "denied" && (
-          <div className="mb-3 rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-red-500">
-            Strava connection was denied.
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <svg viewBox="0 0 24 24" className="w-8 h-8 shrink-0" fill="#FC4C02">
-            <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-          </svg>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-sm">Strava</div>
-            {connected ? (
-              <p className="text-xs text-muted-foreground">
-                Connected · Athlete #{stravaToken.athlete_id}
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">
-                Connect to verify your race results and earn trust score
-              </p>
-            )}
-          </div>
-          {connected ? (
-            <Badge variant="secondary" className="text-xs shrink-0">Connected</Badge>
-          ) : (
-            <Link
-              href="/api/auth/strava/connect"
-              className="shrink-0 px-4 py-2 rounded-lg text-sm font-medium text-white bg-[#FC4C02] hover:bg-[#e04400] transition-colors"
-            >
-              Connect
-            </Link>
-          )}
-        </div>
-
-        {/* Weekly summary */}
-        {connected && runActivities.length > 0 && (
-          <>
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <div className="rounded-lg border p-3 text-center">
-                <div className="text-lg font-bold tabular-nums">{thisWeek.length}</div>
-                <div className="text-[11px] text-muted-foreground">Runs this week</div>
-              </div>
-              <div className="rounded-lg border p-3 text-center">
-                <div className="text-lg font-bold tabular-nums">{weeklyKm.toFixed(1)}</div>
-                <div className="text-[11px] text-muted-foreground">km this week</div>
-              </div>
-              <div className="rounded-lg border p-3 text-center">
-                <div className="text-lg font-bold tabular-nums">{weeklyTime > 0 ? formatDuration(weeklyTime) : "0m"}</div>
-                <div className="text-[11px] text-muted-foreground">Time this week</div>
-              </div>
-            </div>
-
-            <Separator className="mb-4" />
-
-            {/* Recent activities */}
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-              Recent Activities
-            </div>
-            <div className="space-y-1.5 max-h-80 overflow-y-auto">
-              {allActivities.map((a) => (
-                <div key={a.id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors">
-                  <span className="text-lg shrink-0">{activityIcon(a.type)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">{a.type === "TrailRun" ? "Trail Run" : a.type}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(a.start_date_local).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-sm font-mono tabular-nums">{formatDistance(a.distance)}</div>
-                    <div className="text-xs text-muted-foreground font-mono tabular-nums">
-                      {(a.type === "Run" || a.type === "TrailRun") ? formatPace(a.distance, a.moving_time) : formatDuration(a.moving_time)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {connected && allActivities.length === 0 && (
-          <p className="text-sm text-muted-foreground">No recent activities found.</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
