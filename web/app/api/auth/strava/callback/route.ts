@@ -11,8 +11,12 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get("state");
   const error = searchParams.get("error");
 
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || "https";
+  const baseUrl = forwardedHost ? `${forwardedProto}://${forwardedHost}` : request.nextUrl.origin;
+
   if (error) {
-    return NextResponse.redirect(new URL("/profile?strava=denied", request.url));
+    return NextResponse.redirect(new URL("/profile?strava=denied", baseUrl));
   }
 
   if (!code || !state) {
@@ -21,7 +25,7 @@ export async function GET(request: NextRequest) {
 
   const user = await getAuthUser();
   if (!user) {
-    return NextResponse.redirect(new URL("/login?next=/api/auth/strava/connect", request.url));
+    return NextResponse.redirect(new URL("/login?next=/api/auth/strava/connect", baseUrl));
   }
 
   if (!verifyStravaState(state, user.id)) {
@@ -72,5 +76,5 @@ export async function GET(request: NextRequest) {
     payload:    { athlete_id: tokens.athlete.id },
   });
 
-  return NextResponse.redirect(new URL("/profile?strava=connected", request.url));
+  return NextResponse.redirect(new URL("/profile?strava=connected", baseUrl));
 }

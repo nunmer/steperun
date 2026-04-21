@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
 
 const STRAVA_AUTH_URL = "https://www.strava.com/oauth/authorize";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
@@ -126,4 +127,38 @@ export async function fetchAthleteActivities(
     throw new Error(`Strava activities fetch failed: ${res.status}`);
   }
   return res.json();
+}
+
+// ---------------------------------------------------------------------------
+// Get valid access token (auto-refresh if expired)
+// ---------------------------------------------------------------------------
+
+export async function getValidAccessToken(userId: string): Promise<string | null> {
+  const db = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_KEY!,
+  );
+
+  const { data: token } = await db
+    .from("strava_tokens")
+    .select("access_token, refresh_token, expires_at")
+    .eq("user_id", userId)
+    .single();
+
+  if (!token) return null;
+
+  const expiresAt = new Date(token.expires_at).getTime();
+  if (Date.now() < expiresAt - 60_000) {
+    return token.access_token;
+  }
+
+  // Token expired — refresh it
+  const refreshed = await refreshAccessToken(token.refresh_token);
+  await db.from("strava_tokens").update({
+    access_token:  refreshed.access_token,
+    refresh_token: refreshed.refresh_token,
+    expires_at:    new Date(refreshed.expires_at * 1000).toISOString(),
+  }).eq("user_id", userId);
+
+  return refreshed.access_token;
 }
