@@ -10,15 +10,20 @@ COPY web/package.json web/package-lock.json ./
 RUN npm ci
 
 COPY web/ .
-# Build needs public env vars at build time for prerendering.
-# SUPABASE_URL / SUPABASE_SERVICE_KEY are runtime-only (lazy-init client) and
-# come from `fly secrets set ...` — never bake them into the image.
+# Public NEXT_PUBLIC_* vars can be baked — they ship to the browser anyway.
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-RUN npm run build
+# SUPABASE_URL / SUPABASE_SERVICE_KEY are mounted as BuildKit secrets — used
+# only by `next build` for prerender/ISR, never written into an image layer.
+# Pass via: `fly deploy --build-secret supabase_url=... --build-secret supabase_service_key=...`
+RUN --mount=type=secret,id=supabase_url \
+    --mount=type=secret,id=supabase_service_key \
+    export SUPABASE_URL="$(cat /run/secrets/supabase_url)" && \
+    export SUPABASE_SERVICE_KEY="$(cat /run/secrets/supabase_service_key)" && \
+    npm run build
 
 # ---------- Stage 2: Runtime ----------
 FROM python:3.11-slim
