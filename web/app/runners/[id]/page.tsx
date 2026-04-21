@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRunner, getEloRanks } from "@/lib/queries";
+import { getRunnerFull } from "@/lib/queries";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -14,7 +14,7 @@ export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const data = await getRunner(Number(id));
+  const data = await getRunnerFull(Number(id));
   return { title: data?.runner.full_name ?? "Runner" };
 }
 
@@ -27,7 +27,7 @@ function toSeconds(t: string): number {
 }
 
 // Derive personal bests: best chip_time per distance_category
-function getPersonalBests(results: NonNullable<Awaited<ReturnType<typeof getRunner>>>["results"]) {
+function getPersonalBests(results: NonNullable<Awaited<ReturnType<typeof getRunnerFull>>>["results"]) {
   const bests = new Map<string, (typeof results)[0]>();
   for (const r of results) {
     const cat = r.distance_category ?? "Unknown";
@@ -41,10 +41,10 @@ function getPersonalBests(results: NonNullable<Awaited<ReturnType<typeof getRunn
 
 export default async function RunnerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const data = await getRunner(Number(id));
+  const data = await getRunnerFull(Number(id));
   if (!data) notFound();
 
-  const { runner, results } = data;
+  const { runner, results, cityRank, countryRank } = data;
   const pbs = getPersonalBests(results);
 
   // Sort race history by year desc, then event name
@@ -56,10 +56,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
 
   const totalRaces = results.length;
   const uniqueYears = new Set(results.map((r) => (r.events as any)?.year)).size;
-
-  const eloRanks = runner.elo_score
-    ? await getEloRanks(runner.id, runner.city, runner.country, runner.elo_score)
-    : { cityRank: null, countryRank: null };
+  const eloRanks = { cityRank, countryRank };
 
   return (
     <div className="space-y-8">
