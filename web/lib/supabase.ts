@@ -207,7 +207,17 @@ export type Database = {
 };
 
 // Server-only — never exposed to the browser bundle
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY!;
+// Lazy-init to avoid crashing during `next build` page collection
+let _supabase: ReturnType<typeof createClient<Database>> | null = null;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+export const supabase = new Proxy({} as ReturnType<typeof createClient<Database>>, {
+  get(_target, prop) {
+    if (!_supabase) {
+      _supabase = createClient<Database>(
+        process.env.SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_KEY!,
+      );
+    }
+    return (_supabase as any)[prop];
+  },
+});
