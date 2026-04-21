@@ -1,6 +1,19 @@
+import { cache } from "react";
 import { supabase } from "./supabase";
 
 export const PAGE_SIZE = 30;
+
+// Remember which RPCs are missing (404 from PostgREST) so we stop probing them.
+// Applies per server process; a restart clears it (so newly applied migrations pick up).
+const missingRpcs = new Set<string>();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isMissingFunctionError(error: any): boolean {
+  if (!error) return false;
+  // PostgREST returns PGRST202 when a function is not found
+  const code = error.code ?? "";
+  const msg = (error.message ?? "").toString();
+  return code === "PGRST202" || /Could not find the function/i.test(msg);
+}
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -62,10 +75,12 @@ export type RankingRow = {
 // ---------------------------------------------------------------------------
 
 export async function getStats() {
+  // "planned" uses pg_class.reltuples — an estimate, but homepage stats don't need exactness.
+  // Exact counts on 60k+ rows force a full scan (~300-500ms each).
   const [runnersRes, eventsRes, resultsRes] = await Promise.all([
-    supabase.from("runners").select("id", { count: "exact", head: true }),
-    supabase.from("events").select("id", { count: "exact", head: true }).not("scraped_at", "is", null),
-    supabase.from("results").select("id", { count: "exact", head: true }),
+    supabase.from("runners").select("id", { count: "planned", head: true }),
+    supabase.from("events").select("id", { count: "planned", head: true }).not("scraped_at", "is", null),
+    supabase.from("results").select("id", { count: "planned", head: true }),
   ]);
   return {
     runners: runnersRes.count ?? 0,
@@ -91,50 +106,60 @@ export async function getEvents(year?: number): Promise<EventRow[]> {
   return (data ?? []) as EventRow[];
 }
 
-export async function getEventYears(): Promise<number[]> {
+export const getEventYears = cache(async (): Promise<number[]> => {
+  // Prefer RPC (one round-trip, no JS dedup).
+  const { data: rpcData, error } = await supabase.rpc("get_event_years");
+  if (!error && rpcData) {
+    return (rpcData as { year: number }[]).map((r) => r.year);
+  }
+  // Fallback
   const { data } = await supabase
     .from("events")
     .select("year")
     .not("scraped_at", "is", null)
     .not("year", "is", null)
     .order("year", { ascending: false });
-  const years = [...new Set(((data ?? []) as any[]).map((e) => e.year as number))];
-  return years;
-}
+  return [...new Set(((data ?? []) as { year: number }[]).map((e) => e.year))];
+});
 
-export async function getEvent(slug: string): Promise<EventRow | null> {
+export const getEvent = cache(async (slug: string): Promise<EventRow | null> => {
   const { data } = await supabase
     .from("events")
     .select("id, slug, name, year, total_results, scraped_at, url")
     .eq("slug", slug)
     .single();
   return data as EventRow | null;
-}
+});
 
-export async function getEventCategories(eventSlugOrId: string | number): Promise<string[]> {
-  if (typeof eventSlugOrId === "string") {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.rpc as any)("get_event_categories", { p_slug: eventSlugOrId });
-    if (!error && data && (data as any[]).length > 0) {
-      return (data as any[]).map((r) => r.distance_category as string).filter(Boolean);
-    }
-  }
-
-  // Resolve event ID
+export const getEventCategories = cache(async (eventSlugOrId: string | number): Promise<string[]> => {
+  // Resolve event ID (cheap when already a number; uses cached getEvent for slug)
   const eventId = typeof eventSlugOrId === "number"
     ? eventSlugOrId
     : (await getEvent(eventSlugOrId))?.id;
   if (!eventId) return [];
 
+  // Prefer RPC — single query returning DISTINCT distance_category
+  if (!missingRpcs.has("get_event_categories_by_id")) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.rpc as any)("get_event_categories_by_id", { p_event_id: eventId });
+    if (!error && data) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data as any[]).map((r) => r.distance_category as string).filter(Boolean);
+    }
+    if (isMissingFunctionError(error)) missingRpcs.add("get_event_categories_by_id");
+  }
+
+  // Fallback: sample up to 1000 rows and dedupe in JS
   const { data: rows } = await supabase
     .from("results")
     .select("distance_category")
     .eq("event_id", eventId)
     .not("distance_category", "is", null)
     .limit(1000);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const cats = [...new Set(((rows ?? []) as any[]).map((r) => r.distance_category as string))];
   return cats.sort();
-}
+});
 
 export type EventStats = {
   countries: { label: string; count: number }[];
@@ -142,11 +167,20 @@ export type EventStats = {
   distances: { label: string; count: number }[];
 };
 
-export async function getEventStats(eventId: number): Promise<EventStats> {
-  // Fetch all results — paginate past Supabase's 1000-row default, in parallel
-  const batchSize = 1000;
+export const getEventStats = cache(async (eventId: number): Promise<EventStats> => {
+  // Prefer RPC: single round-trip, aggregation done in Postgres
+  if (!missingRpcs.has("get_event_stats")) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: rpcData, error: rpcError } = await (supabase.rpc as any)(
+      "get_event_stats",
+      { p_event_id: eventId }
+    );
+    if (!rpcError && rpcData) return rpcData as EventStats;
+    if (isMissingFunctionError(rpcError)) missingRpcs.add("get_event_stats");
+  }
 
-  // First batch to determine total size
+  // Fallback: batched client-side aggregation (only when RPC missing)
+  const batchSize = 1000;
   const first = await supabase
     .from("results")
     .select("distance_category, runners!inner(country, city)", { count: "exact" })
@@ -156,10 +190,10 @@ export async function getEventStats(eventId: number): Promise<EventStats> {
     .neq("chip_time", "--:--:--")
     .range(0, batchSize - 1);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allRows: any[] = (first.data ?? []) as any[];
   const totalRows = first.count ?? allRows.length;
 
-  // Fetch remaining batches in parallel
   if (totalRows > batchSize) {
     const remaining = await Promise.all(
       Array.from(
@@ -178,15 +212,15 @@ export async function getEventStats(eventId: number): Promise<EventStats> {
       )
     );
     for (const res of remaining) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       allRows.push(...((res.data ?? []) as any[]));
     }
   }
 
-  const rows = allRows;
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const countMap = (extractor: (r: any) => string | null) => {
     const counts = new Map<string, number>();
-    for (const r of rows) {
+    for (const r of allRows) {
       const val = extractor(r);
       if (!val) continue;
       counts.set(val, (counts.get(val) ?? 0) + 1);
@@ -201,7 +235,7 @@ export async function getEventStats(eventId: number): Promise<EventStats> {
     cities: countMap((r) => r.runners?.city),
     distances: countMap((r) => r.distance_category),
   };
-}
+});
 
 export async function getEventResults(
   eventId: number,
@@ -211,11 +245,12 @@ export async function getEventResults(
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
+  // "planned" avoids counting the full filtered set on every page render.
   let q = supabase
     .from("results")
     .select(
       "place, bib_number, finish_time, chip_time, checkpoint_times, distance_category, runners!inner(id, full_name, country, city)",
-      { count: "exact" }
+      { count: "planned" }
     )
     .eq("event_id", eventId)
     .eq("runners.is_hidden", false)
@@ -249,13 +284,39 @@ export async function getRankings(opts: {
   const isAll = !opts.distance;
 
   if (isAll) {
-    // Fetch each main distance separately — only need limit/MAIN_DISTANCES.length each
     const perDistLimit = Math.ceil(limit / MAIN_DISTANCES.length) + 5;
+
+    // Prefer combined RPC: best-per-runner per distance in ONE round-trip
+    if (!missingRpcs.has("get_rankings_all")) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: rpcData, error: rpcError } = await (supabase.rpc as any)(
+        "get_rankings_all",
+        { p_per_distance: perDistLimit, p_year: opts.year ?? null }
+      );
+      if (!rpcError && rpcData) {
+        const byDist = new Map<string, RankingRow[]>();
+        for (const row of rpcData as RankingRow[]) {
+          const d = row.distance_category ?? "";
+          const arr = byDist.get(d) ?? [];
+          arr.push(row);
+          byDist.set(d, arr);
+        }
+        const interleaved: RankingRow[] = [];
+        for (let i = 0; i < perDistLimit; i++) {
+          for (const d of MAIN_DISTANCES) {
+            const group = byDist.get(d);
+            if (group && i < group.length) interleaved.push(group[i]);
+          }
+        }
+        return interleaved.slice(0, limit);
+      }
+      if (isMissingFunctionError(rpcError)) missingRpcs.add("get_rankings_all");
+    }
+
+    // Fallback: 3 parallel per-distance queries
     const perDist = await Promise.all(
       MAIN_DISTANCES.map((d) => getRankings({ distance: d, year: opts.year, limit: perDistLimit }))
     );
-
-    // Interleave: 1st of each, 2nd of each, 3rd of each, ...
     const result: RankingRow[] = [];
     for (let i = 0; i < perDistLimit; i++) {
       for (const group of perDist) {
@@ -265,6 +326,18 @@ export async function getRankings(opts: {
     return result.slice(0, limit);
   }
 
+  // Single distance: prefer RPC with DISTINCT ON (best chip_time per runner in SQL)
+  if (!missingRpcs.has("get_rankings_by_distance")) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: rpcData, error: rpcError } = await (supabase.rpc as any)(
+      "get_rankings_by_distance",
+      { p_distance: opts.distance!, p_limit: limit, p_year: opts.year ?? null }
+    );
+    if (!rpcError && rpcData) return rpcData as RankingRow[];
+    if (isMissingFunctionError(rpcError)) missingRpcs.add("get_rankings_by_distance");
+  }
+
+  // Fallback: over-fetch and dedup in JS
   let q = supabase
     .from("results")
     .select(
@@ -276,7 +349,7 @@ export async function getRankings(opts: {
     .neq("chip_time", "--:--:--")
     .not("place", "is", null)
     .order("chip_time", { ascending: true })
-    .limit(limit * 3); // over-fetch for dedup
+    .limit(limit * 3);
 
   if (opts.year) {
     q = q.eq("events.year", opts.year);
@@ -284,10 +357,9 @@ export async function getRankings(opts: {
 
   const { data } = await q;
   const rows = (data ?? []) as unknown as RankingRow[];
-
-  // Single distance: keep best time per runner
   const best = new Map<number, RankingRow>();
   for (const row of rows) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const runnerId = (row.runners as any)?.id as number;
     if (!runnerId) continue;
     if (!best.has(runnerId)) best.set(runnerId, row);
@@ -296,7 +368,7 @@ export async function getRankings(opts: {
   return [...best.values()].slice(0, limit);
 }
 
-export async function getDistanceOptions(): Promise<string[]> {
+export const getDistanceOptions = cache(async (): Promise<string[]> => {
   // Try the RPC (requires get_distance_options() function in Supabase)
   const { data: rpcData, error } = await supabase.rpc("get_distance_options");
   if (!error && rpcData && (rpcData as any[]).length > 0) {
@@ -318,7 +390,7 @@ export async function getDistanceOptions(): Promise<string[]> {
     counts.set(d, (counts.get(d) ?? 0) + 1);
   }
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([label]) => label);
-}
+});
 
 // ---------------------------------------------------------------------------
 // Runners
@@ -331,9 +403,13 @@ export async function getRunners(
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
+  // "planned" uses pg_class.reltuples — avoids a full-scan count on 60k+ rows.
+  // For the /runners directory, an approximate total is fine.
   let q = supabase
     .from("runners")
-    .select("id, full_name, country, city, elo_score, elo_level", { count: "exact" })
+    .select("id, full_name, country, city, elo_score, elo_level", {
+      count: opts.search ? "exact" : "planned",
+    })
     .eq("is_hidden", false)
     .order("full_name")
     .range(from, to);
@@ -347,15 +423,12 @@ export async function getRunners(
 export async function getRunner(
   id: number
 ): Promise<{ runner: RunnerRow; results: ResultWithEvent[] } | null> {
-  const { data: runner } = await supabase
+  const runnerPromise = supabase
     .from("runners")
     .select("id, full_name, country, city, elo_score, elo_level, claimed_by, created_at")
     .eq("id", id)
     .single();
-
-  if (!runner) return null;
-
-  const { data: results } = await supabase
+  const resultsPromise = supabase
     .from("results")
     .select(
       "place, bib_number, finish_time, chip_time, distance_category, checkpoint_times, events!inner(id, slug, name, year)"
@@ -363,11 +436,42 @@ export async function getRunner(
     .eq("runner_id", id)
     .order("chip_time", { ascending: true });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [runnerRes, resultsRes] = (await Promise.all([runnerPromise, resultsPromise])) as [any, any];
+
+  if (!runnerRes.data) return null;
+
   return {
-    runner: runner as RunnerRow,
-    results: (results ?? []) as unknown as ResultWithEvent[],
+    runner: runnerRes.data as RunnerRow,
+    results: (resultsRes.data ?? []) as unknown as ResultWithEvent[],
   };
 }
+
+// Full runner payload in ONE round-trip via RPC (runner + results + rank counts)
+export type RunnerFull = {
+  runner: RunnerRow;
+  results: ResultWithEvent[];
+  cityRank: number | null;
+  countryRank: number | null;
+};
+
+export const getRunnerFull = cache(async (id: number): Promise<RunnerFull | null> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)("get_runner_full", { p_id: id });
+  if (error || !data) return null;
+  const payload = data as {
+    runner: RunnerRow;
+    results: ResultWithEvent[];
+    city_rank: number | null;
+    country_rank: number | null;
+  };
+  return {
+    runner: payload.runner,
+    results: payload.results ?? [],
+    cityRank: payload.city_rank,
+    countryRank: payload.country_rank,
+  };
+});
 
 export async function isRunnerClaimed(runnerId: number): Promise<boolean> {
   const { data } = await supabase
@@ -388,32 +492,32 @@ export async function getEloRanks(
   country: string | null,
   eloScore: number
 ): Promise<{ cityRank: number | null; countryRank: number | null }> {
-  let cityRank: number | null = null;
-  let countryRank: number | null = null;
+  const cityQuery = city
+    ? supabase
+        .from("runners")
+        .select("id", { count: "exact", head: true })
+        .eq("is_hidden", false)
+        .eq("city", city)
+        .not("elo_score", "is", null)
+        .gt("elo_score", eloScore)
+    : Promise.resolve({ count: null });
 
-  if (city) {
-    const { count } = await supabase
-      .from("runners")
-      .select("id", { count: "exact", head: true })
-      .eq("is_hidden", false)
-      .eq("city", city)
-      .not("elo_score", "is", null)
-      .gt("elo_score", eloScore);
-    cityRank = (count ?? 0) + 1;
-  }
+  const countryQuery = country
+    ? supabase
+        .from("runners")
+        .select("id", { count: "exact", head: true })
+        .eq("is_hidden", false)
+        .eq("country", country)
+        .not("elo_score", "is", null)
+        .gt("elo_score", eloScore)
+    : Promise.resolve({ count: null });
 
-  if (country) {
-    const { count } = await supabase
-      .from("runners")
-      .select("id", { count: "exact", head: true })
-      .eq("is_hidden", false)
-      .eq("country", country)
-      .not("elo_score", "is", null)
-      .gt("elo_score", eloScore);
-    countryRank = (count ?? 0) + 1;
-  }
+  const [cityRes, countryRes] = await Promise.all([cityQuery, countryQuery]);
 
-  return { cityRank, countryRank };
+  return {
+    cityRank: city ? (cityRes.count ?? 0) + 1 : null,
+    countryRank: country ? (countryRes.count ?? 0) + 1 : null,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -437,9 +541,11 @@ export async function getPowerRankings(opts: {
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
+  // "planned" uses pg_class.reltuples — avoids a full-scan count on 60k+ rows.
+  // Exact rank offsets aren't critical for paginated leaderboards.
   let q = supabase
     .from("runners")
-    .select("id, full_name, country, city, elo_score, elo_level", { count: "exact" })
+    .select("id, full_name, country, city, elo_score, elo_level", { count: "planned" })
     .eq("is_hidden", false)
     .not("elo_score", "is", null)
     .order("elo_score", { ascending: false })
@@ -453,16 +559,17 @@ export async function getPowerRankings(opts: {
   return { runners: (data ?? []) as PowerRankingRow[], total: count ?? 0 };
 }
 
-export async function getEloStats() {
-  const levels = await Promise.all(
-    Array.from({ length: 10 }, (_, i) => i + 1).map(async (lvl) => {
-      const { count } = await supabase
-        .from("runners")
-        .select("id", { count: "exact", head: true })
-        .eq("is_hidden", false)
-        .eq("elo_level", lvl);
-      return { level: lvl, count: count ?? 0 };
-    })
-  );
-  return levels;
+export async function getEloStats(): Promise<{ level: number; count: number }[]> {
+  const { data, error } = await supabase.rpc("get_elo_stats");
+  if (error || !data) {
+    // Fallback: zeros for all 10 levels
+    return Array.from({ length: 10 }, (_, i) => ({ level: i + 1, count: 0 }));
+  }
+  const rows = data as { level: number; count: number }[];
+  // Ensure all 10 levels appear even if some have zero runners
+  const byLevel = new Map(rows.map((r) => [r.level, Number(r.count)]));
+  return Array.from({ length: 10 }, (_, i) => ({
+    level: i + 1,
+    count: byLevel.get(i + 1) ?? 0,
+  }));
 }
