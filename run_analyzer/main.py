@@ -30,12 +30,8 @@ def main():
         help="Minimum pose detection confidence (default: 0.6)",
     )
     parser.add_argument(
-        "--provider", type=str, choices=["aws", "openai"], default="aws",
-        help="LLM provider: 'aws' (Bedrock Claude) or 'openai' (GPT-4o). Default: aws",
-    )
-    parser.add_argument(
         "--model", type=str, default=None,
-        help="Model ID override (default: auto per provider)",
+        help="Model ID override (default: gpt-4o)",
     )
     parser.add_argument(
         "--extract-only", action="store_true",
@@ -69,9 +65,9 @@ def main():
         print("Skipping LLM analysis (--extract-only).")
         return
 
-    display_model = args.model or f"default ({args.provider})"
-    print(f"\nAnalyzing technique with {args.provider} / {display_model}...")
-    analysis = analyze_frames(paths, provider=args.provider, model=args.model)
+    display_model = args.model or "gpt-4o"
+    print(f"\nAnalyzing technique with OpenAI / {display_model}...")
+    analysis = analyze_frames(paths, model=args.model)
 
     print("\n" + "=" * 60)
     print("RUNNING TECHNIQUE ANALYSIS")

@@ -9,7 +9,6 @@ from pathlib import Path
 
 import cv2
 from dotenv import load_dotenv
-from typing import Annotated
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -87,7 +86,7 @@ async def extract(video: UploadFile = File(...)):
 
 
 @app.post("/api/analyze")
-async def analyze(job_id: str = Form(...), provider: str = Form("aws")):
+async def analyze(job_id: str = Form(...)):
     """Analyze previously extracted frames with LLM."""
     job_dir = OUTPUT_DIR / job_id
     if not job_dir.exists():
@@ -98,7 +97,7 @@ async def analyze(job_id: str = Form(...), provider: str = Form("aws")):
         raise HTTPException(status_code=404, detail="No frames found")
 
     try:
-        result = analyze_frames(frame_paths, provider=provider)
+        result = analyze_frames(frame_paths)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -107,7 +106,6 @@ async def analyze(job_id: str = Form(...), provider: str = Form("aws")):
 
 @app.post("/api/analyze-frames")
 async def analyze_uploaded_frames(
-    provider: Annotated[str, Form()] = "aws",
     frames: list[UploadFile] = File(...),
 ):
     """Analyze frames uploaded directly (called by Next.js backend)."""
@@ -127,7 +125,7 @@ async def analyze_uploaded_frames(
         raise HTTPException(status_code=400, detail="No frames provided")
 
     try:
-        result = analyze_frames(sorted(frame_paths), provider=provider)
+        result = analyze_frames(sorted(frame_paths))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:

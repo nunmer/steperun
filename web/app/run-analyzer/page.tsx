@@ -162,7 +162,6 @@ export default function RunAnalyzerPage() {
   const [step, setStep] = useState<"upload" | "session">("upload");
   const [loading, setLoading] = useState(false);
   const [loadingType, setLoadingType] = useState<"extract" | "analyze">("extract");
-  const [provider, setProvider] = useState("aws");
   const [error, setError] = useState<string | null>(null);
 
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -216,7 +215,6 @@ export default function RunAnalyzerPage() {
 
     setSessionStatus(s.status);
     setFrames(data.frames || []);
-    setProvider(s.provider || "aws");
     setActiveSectionIdx(0);
     setShowDetails(false);
     setAutoPlaying(false);
@@ -265,7 +263,7 @@ export default function RunAnalyzerPage() {
     const sessionRes = await fetch("/api/run-analyzer/sessions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: file.name.replace(/\.\w+$/, ""), provider }),
+      body: JSON.stringify({ title: file.name.replace(/\.\w+$/, "") }),
     });
     if (!sessionRes.ok) {
       setError((await sessionRes.json()).error || "Failed to create session");
@@ -371,7 +369,7 @@ export default function RunAnalyzerPage() {
             </button>
           </div>
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-medium">
-            Sessions ({sessions.length}/2 free)
+            Sessions ({sessions.filter(s => s.status !== "error").length}/2 free)
           </div>
           <div className="flex-1 overflow-y-auto space-y-1">
             {sessions.map((s) => (
@@ -432,7 +430,7 @@ export default function RunAnalyzerPage() {
 
           {/* UPLOAD */}
           {!loading && step === "upload" && (
-            <UploadCard provider={provider} setProvider={setProvider} onUpload={handleUpload} />
+            <UploadCard onUpload={handleUpload} />
           )}
 
           {/* SESSION */}
@@ -1145,7 +1143,7 @@ function FrameCarousel({ frames, currentFrame, setCurrentFrame, playing, setPlay
   );
 }
 
-function UploadCard({ provider, setProvider, onUpload }: { provider: string; setProvider: (p: string) => void; onUpload: (f: File) => void; }) {
+function UploadCard({ onUpload }: { onUpload: (f: File) => void; }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
@@ -1171,13 +1169,6 @@ function UploadCard({ provider, setProvider, onUpload }: { provider: string; set
         <div className="text-sm text-foreground">Drop your video here or <span className="text-primary font-medium">browse</span></div>
         <div className="text-xs text-muted-foreground mt-1">Supports MOV, MP4</div>
         <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={(e) => { if (e.target.files?.length) onUpload(e.target.files[0]); }} />
-      </div>
-      <div className="flex gap-2 mt-5 justify-center">
-        {(["aws", "openai"] as const).map((p) => (
-          <button key={p} onClick={() => setProvider(p)} className="px-5 py-2 text-xs font-medium transition-all" style={{ borderRadius: "9999px", border: provider === p ? "1px solid var(--foreground)" : "1px solid var(--border)", background: provider === p ? "var(--foreground)" : "var(--card)", color: provider === p ? "var(--background)" : "var(--muted-foreground)" }}>
-            {p === "aws" ? "AWS Claude" : "OpenAI GPT-4o"}
-          </button>
-        ))}
       </div>
     </div>
   );

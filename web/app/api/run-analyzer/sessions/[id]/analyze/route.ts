@@ -45,7 +45,6 @@ export async function POST(
   console.log(`[analyze] Session ${id}: ${frames.length} total frames, ${keyFrames.length} key frames sent to LLM`);
 
   const form = new FormData();
-  form.append("provider", session.provider);
 
   for (const f of keyFrames) {
     const url = getFramePublicUrl(f.image_path);

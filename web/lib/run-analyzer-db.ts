@@ -28,7 +28,6 @@ export interface RunSession {
   frame_count: number;
   analysis: unknown;
   overall_score: number | null;
-  provider: string;
   error: string | null;
   created_at: string;
   updated_at: string;
@@ -37,14 +36,12 @@ export interface RunSession {
 export async function createSession(data: {
   user_id: string;
   title?: string;
-  provider?: string;
 }) {
   return db()
     .from("run_sessions")
     .insert({
       user_id: data.user_id,
       title: data.title || "Untitled session",
-      provider: data.provider || "aws",
       status: "extracting",
     })
     .select("id, title, status, created_at")
@@ -63,7 +60,8 @@ export async function getUserSessionCount(userId: string) {
   return db()
     .from("run_sessions")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", userId);
+    .eq("user_id", userId)
+    .neq("status", "error");
 }
 
 export async function getSession(id: string, userId: string) {

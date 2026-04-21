@@ -1,8 +1,6 @@
 """Send extracted key frames to LLM for running technique analysis.
 
-Supports:
-  - aws: Claude via AWS Bedrock (uses AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION)
-  - openai: GPT-4o via OpenAI API (uses OPENAI_API_KEY)
+Uses OpenAI GPT-4o via OPENAI_API_KEY.
 """
 
 import base64
@@ -92,10 +90,7 @@ Rules:
 - Return ONLY the JSON object, no markdown fences, no extra text.\
 """
 
-DEFAULT_MODELS = {
-    "aws": "eu.anthropic.claude-sonnet-4-20250514-v1:0",
-    "openai": "gpt-4o",
-}
+DEFAULT_MODEL = "gpt-4o"
 
 
 def _encode_image(path: Path) -> tuple[str, str]:
@@ -131,43 +126,6 @@ def _phase_from_filename(path: Path) -> str:
         return "_".join(parts[2:-1])
     # Old format: 00_foot_strike_42 → foot_strike
     return path.stem.split("_", 1)[1].rsplit("_", 1)[0]
-
-
-def _analyze_aws(frame_paths: list[Path], model: str) -> str:
-    """Analyze via Claude on AWS Bedrock."""
-    import anthropic
-
-    client = anthropic.AnthropicBedrock()
-
-    content: list[dict] = [
-        {"type": "text", "text": "Analyze this runner's technique from the following key frames:"},
-    ]
-    for path in frame_paths:
-        image_data, media_type = _encode_image(path)
-        content.append({
-            "type": "image",
-            "source": {
-                "type": "base64",
-                "media_type": media_type,
-                "data": image_data,
-            },
-        })
-        content.append({
-            "type": "text",
-            "text": f"Frame: {path.stem} (phase: {_phase_from_filename(path)})",
-        })
-
-    message = client.messages.create(
-        model=model,
-        max_tokens=4096,
-        system=SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": content}],
-    )
-    logger.info(
-        f"[aws] Actual usage — input: {message.usage.input_tokens:,} tokens, "
-        f"output: {message.usage.output_tokens:,} tokens"
-    )
-    return message.content[0].text
 
 
 def _analyze_openai(frame_paths: list[Path], model: str) -> str:
@@ -210,7 +168,6 @@ def _analyze_openai(frame_paths: list[Path], model: str) -> str:
 
 def analyze_frames(
     frame_paths: list[Path],
-    provider: str = "aws",
     model: str | None = None,
 ) -> dict:
     """Send key frames to LLM for technique analysis.
@@ -223,9 +180,8 @@ def analyze_frames(
     if not key_paths:
         key_paths = frame_paths  # fallback: treat all as key frames
 
-    # Estimate image tokens (Claude: ~1600 tokens per 768px image; GPT-4o: ~765 per low-detail)
     total_image_bytes = sum(p.stat().st_size for p in key_paths)
-    est_image_tokens = len(key_paths) * 1600  # rough per-image estimate
+    est_image_tokens = len(key_paths) * 765  # ~765 per low-detail image
     est_system_tokens = len(SYSTEM_PROMPT) // 4
     est_total = est_image_tokens + est_system_tokens
 
@@ -237,14 +193,8 @@ def analyze_frames(
         f"system prompt: ~{est_system_tokens:,})"
     )
 
-    model = model or DEFAULT_MODELS[provider]
-
-    if provider == "aws":
-        raw = _analyze_aws(key_paths, model)
-    elif provider == "openai":
-        raw = _analyze_openai(key_paths, model)
-    else:
-        raise ValueError(f"Unknown provider: {provider}. Use 'aws' or 'openai'.")
+    model = model or DEFAULT_MODEL
+    raw = _analyze_openai(key_paths, model)
 
     # Strip markdown fences if present
     text = raw.strip()

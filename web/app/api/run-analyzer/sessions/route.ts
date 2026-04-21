@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { title?: string; provider?: string };
+  let body: { title?: string };
   try {
     body = await request.json();
   } catch {
@@ -44,7 +44,6 @@ export async function POST(request: Request) {
   const { data, error } = await createSession({
     user_id: user.id,
     title: body.title,
-    provider: body.provider,
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

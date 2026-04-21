@@ -68,10 +68,14 @@ export async function POST(request: NextRequest) {
   for (let i = 0; i < extractResult.frames.length; i++) {
     const f = extractResult.frames[i];
     const isKey = f.is_key_frame ?? true;
-    const tag = isKey ? "key" : "motion";
+
+    // Only persist key frames. Motion frames stay in the response for
+    // ephemeral playback but are not uploaded — keeps storage quota low.
+    if (!isKey) continue;
+
     const base64 = f.src.replace(/^data:image\/\w+;base64,/, "");
     const buffer = Buffer.from(base64, "base64");
-    const storagePath = `${user.id}/${sessionId}/${String(i).padStart(3, "0")}_${tag}_${f.phase}.jpg`;
+    const storagePath = `${user.id}/${sessionId}/${String(i).padStart(3, "0")}_key_${f.phase}.jpg`;
 
     const { error: uploadErr } = await uploadFrame(storagePath, buffer);
     if (uploadErr) {

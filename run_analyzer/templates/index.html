@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RunForm AI — Running Technique Analyzer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a2e;
+    --border: #2a2a3e;
+    --text: #e0e0f0;
+    --text-dim: #7a7a9a;
+    --cyan: #00f0ff;
+    --purple: #a855f7;
+    --pink: #f472b6;
+    --green: #00ff88;
+    --red: #ff4466;
+    --orange: #ff9944;
+    --glow-cyan: 0 0 20px rgba(0,240,255,0.3), 0 0 60px rgba(0,240,255,0.1);
+    --glow-purple: 0 0 20px rgba(168,85,247,0.3), 0 0 60px rgba(168,85,247,0.1);
+    --glow-green: 0 0 20px rgba(0,255,136,0.3), 0 0 60px rgba(0,255,136,0.1);
+    --glow-red: 0 0 20px rgba(255,68,102,0.3), 0 0 60px rgba(255,68,102,0.1);
+    --gradient-main: linear-gradient(135deg, #00f0ff, #a855f7, #f472b6);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === ANIMATED BACKGROUND === */
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridScroll 20s linear infinite;
+  }
+  @keyframes gridScroll { to { background-position: 60px 60px; } }
+
+  .bg-orb {
+    position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0;
+    animation: orbFloat 8s ease-in-out infinite alternate;
+  }
+  .bg-orb--1 { width: 500px; height: 500px; top: -200px; left: -100px; background: rgba(0,240,255,0.08); }
+  .bg-orb--2 { width: 400px; height: 400px; bottom: -150px; right: -100px; background: rgba(168,85,247,0.08); animation-delay: -4s; }
+  .bg-orb--3 { width: 300px; height: 300px; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(244,114,182,0.05); animation-delay: -2s; }
+  @keyframes orbFloat { to { transform: translate(30px, -40px) scale(1.1); } }
+
+  /* === LAYOUT === */
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; position: relative; z-index: 1; }
+
+  /* === HEADER === */
+  .header { text-align: center; margin-bottom: 3rem; }
+  .header__badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.35rem 1rem; border-radius: 100px;
+    background: rgba(0,240,255,0.08); border: 1px solid rgba(0,240,255,0.2);
+    font-size: 0.75rem; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.1em;
+    font-family: 'JetBrains Mono', monospace; margin-bottom: 1.5rem;
+  }
+  .header__badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .header__title {
+    font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; line-height: 1.1;
+    background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 0.75rem;
+  }
+  .header__sub { font-size: 1.1rem; color: var(--text-dim); max-width: 500px; margin: 0 auto; }
+
+  /* === CARDS === */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .card:hover { border-color: rgba(0,240,255,0.3); }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: var(--gradient-main); opacity: 0.5;
+  }
+  .card__title {
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--cyan); font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card__title::before {
+    content: ''; display: inline-block; width: 8px; height: 8px;
+    border-radius: 2px; background: var(--cyan);
+  }
+
+  /* === UPLOAD === */
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 3rem;
+    text-align: center; cursor: pointer; transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .upload-zone:hover, .upload-zone--active {
+    border-color: var(--cyan); background: rgba(0,240,255,0.03);
+    box-shadow: var(--glow-cyan);
+  }
+  .upload-zone__icon {
+    width: 64px; height: 64px; margin: 0 auto 1rem;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: rgba(0,240,255,0.1); border: 1px solid rgba(0,240,255,0.2);
+  }
+  .upload-zone__icon svg { width: 28px; height: 28px; stroke: var(--cyan); }
+  .upload-zone__text { font-size: 1rem; color: var(--text); margin-bottom: 0.25rem; }
+  .upload-zone__hint { font-size: 0.8rem; color: var(--text-dim); }
+  .upload-zone input { display: none; }
+
+
+  /* === LOADING OVERLAY === */
+  .loading { display: none; }
+  .loading--visible { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 0; }
+  .loading__spinner {
+    width: 80px; height: 80px; position: relative; margin-bottom: 2rem;
+  }
+  .loading__spinner::before, .loading__spinner::after {
+    content: ''; position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid transparent;
+  }
+  .loading__spinner::before {
+    border-top-color: var(--cyan); border-right-color: var(--cyan);
+    animation: spin 1s linear infinite;
+  }
+  .loading__spinner::after {
+    border-bottom-color: var(--purple); border-left-color: var(--purple);
+    animation: spin 1.5s linear infinite reverse;
+    inset: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading__word {
+    font-family: 'JetBrains Mono', monospace; font-size: 1rem;
+    background: var(--gradient-main); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; background-clip: text;
+    animation: wordFade 0.6s ease-in-out;
+  }
+  @keyframes wordFade { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+  .loading__sub { color: var(--text-dim); font-size: 0.8rem; margin-top: 0.5rem; }
+
+  /* === FRAMES VIEWER === */
+  .frames-section { display: none; margin-top: 2rem; }
+  .frames-section--visible { display: block; animation: fadeUp 0.6s ease-out; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+  .frame-viewer {
+    position: relative; border-radius: 12px; overflow: hidden;
+    background: #000; aspect-ratio: 16/9; margin-bottom: 1rem;
+    border: 1px solid var(--border);
+  }
+  .frame-viewer img {
+    width: 100%; height: 100%; object-fit: contain;
+    animation: frameIn 0.3s ease-out;
+  }
+  @keyframes frameIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+  .frame-viewer__phase {
+    position: absolute; top: 12px; left: 12px; padding: 0.3rem 0.75rem;
+    border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    background: rgba(0,0,0,0.7); border: 1px solid var(--cyan); color: var(--cyan);
+    backdrop-filter: blur(8px);
+  }
+  .frame-viewer__counter {
+    position: absolute; top: 12px; right: 12px; padding: 0.3rem 0.75rem;
+    border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
+    background: rgba(0,0,0,0.7); color: var(--text-dim); backdrop-filter: blur(8px);
+  }
+
+  .frame-thumbs { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+  .frame-thumbs::-webkit-scrollbar { height: 4px; }
+  .frame-thumbs::-webkit-scrollbar-track { background: var(--surface); }
+  .frame-thumbs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .frame-thumb {
+    flex-shrink: 0; width: 80px; height: 50px; border-radius: 6px;
+    overflow: hidden; border: 2px solid transparent; cursor: pointer;
+    transition: all 0.2s; opacity: 0.5;
+  }
+  .frame-thumb:hover { opacity: 0.8; }
+  .frame-thumb--active { border-color: var(--cyan); opacity: 1; box-shadow: var(--glow-cyan); }
+  .frame-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  .frame-controls { display: flex; align-items: center; gap: 1rem; margin-top: 0.75rem; }
+  .btn-icon {
+    width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); display: flex;
+    align-items: center; justify-content: center; cursor: pointer;
+    transition: all 0.2s; font-size: 1rem;
+  }
+  .btn-icon:hover { border-color: var(--cyan); color: var(--cyan); }
+  .btn-icon--active { background: rgba(0,240,255,0.1); border-color: var(--cyan); color: var(--cyan); }
+  .speed-label { font-size: 0.75rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+  /* === ANALYZE BUTTON === */
+  .btn-analyze {
+    width: 100%; padding: 1rem; margin-top: 1.5rem; border: none; border-radius: 12px;
+    font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600;
+    cursor: pointer; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: #000; transition: all 0.3s; letter-spacing: 0.02em;
+  }
+  .btn-analyze:hover { box-shadow: 0 0 30px rgba(0,240,255,0.3), 0 0 60px rgba(168,85,247,0.2); transform: translateY(-1px); }
+  .btn-analyze:active { transform: translateY(0); }
+  .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-analyze::after {
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: linear-gradient(transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg); transition: 0.5s;
+    animation: btnShine 3s infinite;
+  }
+  @keyframes btnShine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    30%,100% { transform: translateX(100%) rotate(45deg); }
+  }
+
+  /* === ANALYSIS RESULTS === */
+  .results-section { display: none; margin-top: 2rem; }
+  .results-section--visible { display: block; }
+
+  .score-ring {
+    width: 160px; height: 160px; margin: 0 auto 2rem; position: relative;
+  }
+  .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .score-ring__bg { fill: none; stroke: var(--surface2); stroke-width: 8; }
+  .score-ring__fill {
+    fill: none; stroke-width: 8; stroke-linecap: round;
+    transition: stroke-dashoffset 1.5s ease-out, stroke 0.5s;
+  }
+  .score-ring__value {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .score-ring__number {
+    font-size: 2.5rem; font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .score-ring__label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .analysis-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+  .analysis-item {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 1rem;
+    align-items: center; padding: 1rem 1.25rem; border-radius: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    animation: fadeUp 0.5s ease-out both;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .analysis-item:hover { border-color: rgba(255,255,255,0.1); }
+  .analysis-item--good { border-left: 3px solid var(--green); }
+  .analysis-item--good:hover { box-shadow: var(--glow-green); }
+  .analysis-item--warning { border-left: 3px solid var(--orange); }
+  .analysis-item--bad { border-left: 3px solid var(--red); }
+  .analysis-item--bad:hover { box-shadow: var(--glow-red); }
+
+  .analysis-item__icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  }
+  .analysis-item--good .analysis-item__icon { background: rgba(0,255,136,0.1); }
+  .analysis-item--warning .analysis-item__icon { background: rgba(255,153,68,0.1); }
+  .analysis-item--bad .analysis-item__icon { background: rgba(255,68,102,0.1); }
+
+  .analysis-item__content { min-width: 0; }
+  .analysis-item__title { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.15rem; }
+  .analysis-item__summary { font-size: 0.8rem; color: var(--text-dim); }
+  .analysis-item__details {
+    display: none; margin-top: 0.5rem; font-size: 0.8rem;
+    color: var(--text-dim); line-height: 1.5; padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .analysis-item--expanded .analysis-item__details { display: block; }
+
+  .analysis-item__toggle {
+    background: none; border: none; color: var(--text-dim); cursor: pointer;
+    font-size: 1.2rem; padding: 0.25rem; transition: transform 0.2s;
+  }
+  .analysis-item--expanded .analysis-item__toggle { transform: rotate(180deg); }
+
+  .rating-badge {
+    display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .rating-badge--good { background: rgba(0,255,136,0.1); color: var(--green); }
+  .rating-badge--warning { background: rgba(255,153,68,0.1); color: var(--orange); }
+  .rating-badge--bad { background: rgba(255,68,102,0.1); color: var(--red); animation: badPulse 2s infinite; }
+  @keyframes badPulse { 0%,100% { box-shadow: none; } 50% { box-shadow: var(--glow-red); } }
+
+  /* === RECOMMENDATIONS === */
+  .recs { margin-top: 1.5rem; }
+  .recs__title {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+    color: var(--purple); text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+  }
+  .recs__title::before { content: ''; width: 8px; height: 8px; border-radius: 2px; background: var(--purple); }
+  .rec-item {
+    display: flex; gap: 1rem; padding: 1rem; border-radius: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    margin-bottom: 0.5rem; animation: fadeUp 0.5s ease-out both;
+  }
+  .rec-item__num {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    color: #000;
+  }
+  .rec-item__text { font-size: 0.9rem; line-height: 1.5; }
+
+  /* === ERROR === */
+  .error-banner {
+    display: none; padding: 1rem; border-radius: 10px; margin-top: 1rem;
+    background: rgba(255,68,102,0.08); border: 1px solid rgba(255,68,102,0.3);
+    color: var(--red); font-size: 0.85rem;
+  }
+  .error-banner--visible { display: block; animation: fadeUp 0.3s; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 640px) {
+    .container { padding: 1rem; }
+    .card { padding: 1.5rem; }
+    .upload-zone { padding: 2rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb--1"></div>
+<div class="bg-orb bg-orb--2"></div>
+<div class="bg-orb bg-orb--3"></div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header__badge">ai-powered biomechanics</div>
+    <h1 class="header__title">RunForm AI</h1>
+    <p class="header__sub">Upload your running video. AI extracts key frames, maps your skeleton, and analyzes your technique.</p>
+  </header>
+
+  <!-- UPLOAD CARD -->
+  <div class="card" id="uploadCard">
+    <div class="card__title">01 &mdash; Upload Video</div>
+
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-zone__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 16 12 12 8 16"></polyline>
+          <line x1="12" y1="12" x2="12" y2="21"></line>
+          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+        </svg>
+      </div>
+      <div class="upload-zone__text">Drop your video here or <span style="color:var(--cyan)">browse</span></div>
+      <div class="upload-zone__hint">Supports MOV, MP4 &bull; Max 200MB</div>
+      <input type="file" id="videoInput" accept="video/*">
+    </div>
+
+
+    <!-- EXTRACT LOADING -->
+    <div class="loading" id="extractLoading">
+      <div class="loading__spinner"></div>
+      <div class="loading__word" id="extractWord">initializing</div>
+      <div class="loading__sub" id="extractSub">Preparing pose estimation model...</div>
+    </div>
+
+    <div class="error-banner" id="errorBanner"></div>
+  </div>
+
+  <!-- FRAMES SECTION -->
+  <div class="frames-section" id="framesSection">
+    <div class="card">
+      <div class="card__title">02 &mdash; Key Frames</div>
+      <div class="frame-viewer" id="frameViewer">
+        <img id="frameImg" src="" alt="Key frame">
+        <div class="frame-viewer__phase" id="framePhase"></div>
+        <div class="frame-viewer__counter" id="frameCounter"></div>
+      </div>
+      <div class="frame-thumbs" id="frameThumbs"></div>
+      <div class="frame-controls">
+        <button class="btn-icon btn-icon--active" id="btnPlay" title="Auto-play">&#9654;</button>
+        <button class="btn-icon" id="btnPrev" title="Previous">&#9664;</button>
+        <button class="btn-icon" id="btnNext" title="Next">&#9654;</button>
+        <span class="speed-label" id="speedLabel">500ms</span>
+        <input type="range" min="200" max="2000" step="100" value="500" id="speedSlider" style="flex:1;accent-color:var(--cyan);">
+      </div>
+      <button class="btn-analyze" id="btnAnalyze">Analyze Technique with AI</button>
+
+      <!-- ANALYZE LOADING -->
+      <div class="loading" id="analyzeLoading">
+        <div class="loading__spinner"></div>
+        <div class="loading__word" id="analyzeWord">thinking</div>
+        <div class="loading__sub" id="analyzeSub">AI is reviewing your biomechanics...</div>
+      </div>
+
+      <div class="error-banner" id="analyzeError"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS SECTION -->
+  <div class="results-section" id="resultsSection">
+    <div class="card">
+      <div class="card__title">03 &mdash; Technique Analysis</div>
+
+      <div class="score-ring" id="scoreRing">
+        <svg viewBox="0 0 120 120">
+          <circle class="score-ring__bg" cx="60" cy="60" r="52"></circle>
+          <circle class="score-ring__fill" id="scoreFill" cx="60" cy="60" r="52"
+            stroke-dasharray="326.73" stroke-dashoffset="326.73"></circle>
+        </svg>
+        <div class="score-ring__value">
+          <span class="score-ring__number" id="scoreNumber">0</span>
+          <span class="score-ring__label">overall</span>
+        </div>
+      </div>
+
+      <div class="analysis-grid" id="analysisGrid"></div>
+
+      <div class="recs" id="recsContainer">
+        <div class="recs__title">Top Recommendations</div>
+        <div id="recsList"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  // === STATE ===
+  let frames = [];
+  let currentFrame = 0;
+  let playing = true;
+  let playInterval = null;
+  let speed = 500;
+  let jobId = '';
+
+  // === ELEMENTS ===
+  const uploadZone = document.getElementById('uploadZone');
+  const videoInput = document.getElementById('videoInput');
+  const extractLoading = document.getElementById('extractLoading');
+  const extractWord = document.getElementById('extractWord');
+  const extractSub = document.getElementById('extractSub');
+  const errorBanner = document.getElementById('errorBanner');
+  const framesSection = document.getElementById('framesSection');
+  const frameImg = document.getElementById('frameImg');
+  const framePhase = document.getElementById('framePhase');
+  const frameCounter = document.getElementById('frameCounter');
+  const frameThumbs = document.getElementById('frameThumbs');
+  const btnPlay = document.getElementById('btnPlay');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const speedSlider = document.getElementById('speedSlider');
+  const speedLabel = document.getElementById('speedLabel');
+  const btnAnalyze = document.getElementById('btnAnalyze');
+  const analyzeLoading = document.getElementById('analyzeLoading');
+  const analyzeWord = document.getElementById('analyzeWord');
+  const analyzeSub = document.getElementById('analyzeSub');
+  const analyzeError = document.getElementById('analyzeError');
+  const resultsSection = document.getElementById('resultsSection');
+  const analysisGrid = document.getElementById('analysisGrid');
+  const recsList = document.getElementById('recsList');
+  const scoreNumber = document.getElementById('scoreNumber');
+  const scoreFill = document.getElementById('scoreFill');
+
+  // === ANIMATED WORDS ===
+  const extractWords = [
+    ['initializing', 'Warming up the pose model...'],
+    ['scanning', 'Reading video frames...'],
+    ['detecting', 'Finding the runner...'],
+    ['mapping', 'Building skeleton overlay...'],
+    ['analyzing', 'Classifying gait phases...'],
+    ['vibing', 'Almost there...'],
+    ['extracting', 'Pulling key frames...'],
+    ['finishing', 'Wrapping up...'],
+  ];
+  const analyzeWords = [
+    ['thinking', 'AI is reviewing your biomechanics...'],
+    ['observing', 'Studying your foot strike pattern...'],
+    ['measuring', 'Calculating joint angles...'],
+    ['comparing', 'Cross-referencing optimal form...'],
+    ['vibing', 'Deep in thought...'],
+    ['diagnosing', 'Identifying areas for improvement...'],
+    ['crafting', 'Writing your personalized report...'],
+    ['polishing', 'Final touches on analysis...'],
+  ];
+
+  function animateWords(wordEl, subEl, wordList) {
+    let i = 0;
+    return setInterval(() => {
+      i = (i + 1) % wordList.length;
+      wordEl.style.animation = 'none';
+      wordEl.offsetHeight; // reflow
+      wordEl.style.animation = 'wordFade 0.6s ease-in-out';
+      wordEl.textContent = wordList[i][0];
+      subEl.textContent = wordList[i][1];
+    }, 2000);
+  }
+
+  // === UPLOAD ===
+  uploadZone.addEventListener('click', () => videoInput.click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('upload-zone--active'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('upload-zone--active'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('upload-zone--active');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  videoInput.addEventListener('change', () => { if (videoInput.files.length) handleFile(videoInput.files[0]); });
+
+  async function handleFile(file) {
+    errorBanner.classList.remove('error-banner--visible');
+    uploadZone.style.display = 'none';
+    extractLoading.classList.add('loading--visible');
+    const wordTimer = animateWords(extractWord, extractSub, extractWords);
+
+    const form = new FormData();
+    form.append('video', file);
+
+    try {
+      const res = await fetch('/api/extract', { method: 'POST', body: form });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Extraction failed');
+      }
+      const data = await res.json();
+      jobId = data.job_id;
+      frames = data.frames;
+      showFrames();
+    } catch (e) {
+      errorBanner.textContent = e.message;
+      errorBanner.classList.add('error-banner--visible');
+      uploadZone.style.display = '';
+    } finally {
+      clearInterval(wordTimer);
+      extractLoading.classList.remove('loading--visible');
+    }
+  }
+
+  // === FRAME VIEWER ===
+  function showFrames() {
+    framesSection.classList.add('frames-section--visible');
+    framesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    frameThumbs.innerHTML = '';
+    frames.forEach((f, i) => {
+      const thumb = document.createElement('div');
+      thumb.className = 'frame-thumb' + (i === 0 ? ' frame-thumb--active' : '');
+      thumb.innerHTML = `<img src="${f.src}" alt="frame ${i}">`;
+      thumb.addEventListener('click', () => goToFrame(i));
+      frameThumbs.appendChild(thumb);
+    });
+
+    goToFrame(0);
+    startAutoPlay();
+  }
+
+  function goToFrame(i) {
+    currentFrame = i;
+    const f = frames[i];
+    frameImg.src = f.src;
+    framePhase.textContent = f.phase.replace(/_/g, ' ');
+    frameCounter.textContent = `${i + 1} / ${frames.length}`;
+    document.querySelectorAll('.frame-thumb').forEach((t, j) => {
+      t.classList.toggle('frame-thumb--active', j === i);
+    });
+  }
+
+  function startAutoPlay() {
+    stopAutoPlay();
+    if (!playing) return;
+    playInterval = setInterval(() => {
+      goToFrame((currentFrame + 1) % frames.length);
+    }, speed);
+  }
+  function stopAutoPlay() { clearInterval(playInterval); playInterval = null; }
+
+  btnPlay.addEventListener('click', () => {
+    playing = !playing;
+    btnPlay.classList.toggle('btn-icon--active', playing);
+    btnPlay.innerHTML = playing ? '&#9654;' : '&#9646;&#9646;';
+    if (playing) startAutoPlay(); else stopAutoPlay();
+  });
+  btnPrev.addEventListener('click', () => goToFrame((currentFrame - 1 + frames.length) % frames.length));
+  btnNext.addEventListener('click', () => goToFrame((currentFrame + 1) % frames.length));
+  speedSlider.addEventListener('input', () => {
+    speed = parseInt(speedSlider.value);
+    speedLabel.textContent = speed + 'ms';
+    if (playing) startAutoPlay();
+  });
+
+  // === ANALYZE ===
+  btnAnalyze.addEventListener('click', async () => {
+    btnAnalyze.disabled = true;
+    btnAnalyze.style.display = 'none';
+    analyzeError.classList.remove('error-banner--visible');
+    analyzeLoading.classList.add('loading--visible');
+    const wordTimer = animateWords(analyzeWord, analyzeSub, analyzeWords);
+
+    const form = new FormData();
+    form.append('job_id', jobId);
+
+    try {
+      const res = await fetch('/api/analyze', { method: 'POST', body: form });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || 'Analysis failed');
+      }
+      const data = await res.json();
+      showResults(data);
+    } catch (e) {
+      analyzeError.textContent = e.message;
+      analyzeError.classList.add('error-banner--visible');
+      btnAnalyze.style.display = '';
+      btnAnalyze.disabled = false;
+    } finally {
+      clearInterval(wordTimer);
+      analyzeLoading.classList.remove('loading--visible');
+    }
+  });
+
+  // === RESULTS ===
+  function showResults(data) {
+    resultsSection.classList.add('results-section--visible');
+    resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Score ring
+    const score = data.overall_score || 0;
+    const circumference = 326.73;
+    const offset = circumference - (score / 100) * circumference;
+    const scoreColor = score >= 75 ? 'var(--green)' : score >= 50 ? 'var(--orange)' : 'var(--red)';
+    scoreFill.style.stroke = scoreColor;
+    setTimeout(() => { scoreFill.style.strokeDashoffset = offset; }, 100);
+
+    // Animate number
+    let current = 0;
+    const step = Math.ceil(score / 40);
+    const numTimer = setInterval(() => {
+      current = Math.min(current + step, score);
+      scoreNumber.textContent = current;
+      scoreNumber.style.color = scoreColor;
+      if (current >= score) clearInterval(numTimer);
+    }, 30);
+
+    // Sections
+    const icons = { good: '&#10003;', warning: '&#9888;', bad: '&#10007;' };
+    analysisGrid.innerHTML = '';
+    (data.sections || []).forEach((s, i) => {
+      const item = document.createElement('div');
+      item.className = `analysis-item analysis-item--${s.rating}`;
+      item.style.animationDelay = `${i * 0.1}s`;
+      item.innerHTML = `
+        <div class="analysis-item__icon">${icons[s.rating] || ''}</div>
+        <div class="analysis-item__content">
+          <div class="analysis-item__title">
+            ${s.title}
+            <span class="rating-badge rating-badge--${s.rating}">${s.rating}</span>
+          </div>
+          <div class="analysis-item__summary">${s.summary}</div>
+          <div class="analysis-item__details">${s.details}</div>
+        </div>
+        <button class="analysis-item__toggle">&#9660;</button>
+      `;
+      item.querySelector('.analysis-item__toggle').addEventListener('click', () => {
+        item.classList.toggle('analysis-item--expanded');
+      });
+      analysisGrid.appendChild(item);
+    });
+
+    // Recommendations
+    recsList.innerHTML = '';
+    (data.recommendations || []).forEach((r, i) => {
+      const rec = document.createElement('div');
+      rec.className = 'rec-item';
+      rec.style.animationDelay = `${(data.sections?.length || 0) * 0.1 + i * 0.15}s`;
+      rec.innerHTML = `
+        <div class="rec-item__num">${r.priority}</div>
+        <div class="rec-item__text">${r.text}</div>
+      `;
+      recsList.appendChild(rec);
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
