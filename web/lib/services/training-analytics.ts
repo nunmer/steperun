@@ -308,6 +308,244 @@ export function computeConsistency(activities: StravaActivity[], weeks: number =
 }
 
 // ---------------------------------------------------------------------------
+// Monthly summary — last N calendar months
+// ---------------------------------------------------------------------------
+
+export interface MonthlyBucket {
+  key:       string;   // YYYY-MM
+  label:     string;   // "Apr"
+  year:      number;
+  count:     number;
+  distance:  number;   // km
+  time:      number;   // seconds
+  elevation: number;   // metres
+  load:      number;
+  avgPace:   number | null; // s/km
+}
+
+export function computeMonthly(activities: StravaActivity[], months: number = 6): MonthlyBucket[] {
+  const runs = activities.filter(isRun);
+  const now = new Date();
+  const buckets: MonthlyBucket[] = [];
+  for (let m = months - 1; m >= 0; m--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - m, 1);
+    buckets.push({
+      key:   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      label: d.toLocaleDateString(undefined, { month: "short" }),
+      year:  d.getFullYear(),
+      count: 0, distance: 0, time: 0, elevation: 0, load: 0, avgPace: null,
+    });
+  }
+  const idxByKey = new Map(buckets.map((b, i) => [b.key, i]));
+
+  for (const a of runs) {
+    const key = a.start_date_local.slice(0, 7); // YYYY-MM
+    const idx = idxByKey.get(key);
+    if (idx === undefined) continue;
+    const b = buckets[idx];
+    b.count     += 1;
+    b.distance  += a.distance / 1000;
+    b.time      += a.moving_time;
+    b.elevation += a.total_elevation_gain ?? 0;
+    b.load      += activityLoad(a);
+  }
+  for (const b of buckets) {
+    b.avgPace = b.distance > 0 ? b.time / b.distance : null;
+  }
+  return buckets;
+}
+
+// ---------------------------------------------------------------------------
+// Day-of-week distribution — total km & avg load per weekday (last N weeks)
+// ---------------------------------------------------------------------------
+
+export interface DowBucket {
+  dow:       number;   // 0=Mon .. 6=Sun
+  label:     string;
+  count:     number;
+  distance:  number;   // km
+  load:      number;
+}
+
+export function computeDayOfWeek(activities: StravaActivity[], weeks: number = 12): DowBucket[] {
+  const runs = activities.filter(isRun);
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const cutoff = addDays(now, -weeks * 7);
+  const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const buckets: DowBucket[] = labels.map((label, dow) => ({
+    dow, label, count: 0, distance: 0, load: 0,
+  }));
+
+  for (const a of runs) {
+    const d = new Date(a.start_date_local);
+    if (d < cutoff) continue;
+    const js = d.getDay();         // 0=Sun..6=Sat
+    const idx = js === 0 ? 6 : js - 1;
+    buckets[idx].count    += 1;
+    buckets[idx].distance += a.distance / 1000;
+    buckets[idx].load     += activityLoad(a);
+  }
+  return buckets;
+}
+
+// ---------------------------------------------------------------------------
+// Distance histogram — count runs in short / medium / long / very-long bands
+// ---------------------------------------------------------------------------
+
+export interface DistanceBand {
+  label:    string;
+  minKm:    number;
+  maxKm:    number;  // exclusive, Infinity allowed
+  count:    number;
+  distance: number;  // total km in band
+}
+
+const DISTANCE_BANDS_TPL: Pick<DistanceBand, "label" | "minKm" | "maxKm">[] = [
+  { label: "<5 km",    minKm: 0,  maxKm: 5 },
+  { label: "5–10",     minKm: 5,  maxKm: 10 },
+  { label: "10–15",    minKm: 10, maxKm: 15 },
+  { label: "15–21",    minKm: 15, maxKm: 21 },
+  { label: "21+",      minKm: 21, maxKm: Infinity },
+];
+
+export function computeDistanceHistogram(activities: StravaActivity[]): DistanceBand[] {
+  const runs = activities.filter(isRun);
+  const bands: DistanceBand[] = DISTANCE_BANDS_TPL.map((b) => ({ ...b, count: 0, distance: 0 }));
+  for (const a of runs) {
+    const km = a.distance / 1000;
+    const band = bands.find((b) => km >= b.minKm && km < b.maxKm);
+    if (!band) continue;
+    band.count    += 1;
+    band.distance += km;
+  }
+  return bands;
+}
+
+// ---------------------------------------------------------------------------
+// Pace trend — weekly avg pace over last N weeks (mirrors computeWeekly)
+// Returns array aligned with computeWeekly buckets.
+// ---------------------------------------------------------------------------
+
+export interface PaceTrendPoint {
+  weekStart: string;
+  avgPace:   number | null; // s/km
+}
+
+export function computePaceTrend(buckets: WeeklyBucket[]): PaceTrendPoint[] {
+  return buckets.map((b) => ({ weekStart: b.weekStart, avgPace: b.avgPace }));
+}
+
+// ---------------------------------------------------------------------------
+// Predicted race times — Riegel formula T2 = T1 * (D2/D1)^1.06
+// Uses the user's best-available effort as the reference.
+// ---------------------------------------------------------------------------
+
+export interface PredictedRace {
+  label:    string;
+  distance: number;   // metres
+  seconds:  number | null;
+  sourceLabel: string | null; // e.g. "projected from your 10K PR"
+}
+
+const RACE_TARGETS: { label: string; distance: number }[] = [
+  { label: "5K",       distance: 5_000 },
+  { label: "10K",      distance: 10_000 },
+  { label: "Half",     distance: 21_097 },
+  { label: "Marathon", distance: 42_195 },
+];
+
+export function computePredictedRaces(bests: BestEffort[]): PredictedRace[] {
+  const available = bests.filter((b) => b.pace !== null && b.totalTime !== null);
+  if (available.length === 0) {
+    return RACE_TARGETS.map((r) => ({ ...r, seconds: null, sourceLabel: null }));
+  }
+  // Prefer longer references (more reliable for predictions) but within reason.
+  const ref = available.reduce((best, cur) => (cur.distance > best.distance ? cur : best), available[0]);
+
+  return RACE_TARGETS.map(({ label, distance }) => {
+    if (ref.distance === distance) {
+      return { label, distance, seconds: ref.totalTime, sourceLabel: "your best" };
+    }
+    const t1 = ref.totalTime!;
+    const d1 = ref.distance / 1000;
+    const d2 = distance / 1000;
+    const t2 = t1 * Math.pow(d2 / d1, 1.06);
+    return { label, distance, seconds: t2, sourceLabel: `projected from ${ref.label}` };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Elevation totals — last N days
+// ---------------------------------------------------------------------------
+
+export interface ElevationSummary {
+  total:     number;   // metres gained
+  biggest:   number;   // biggest single-run gain
+  biggestDate: string | null;
+  days:      number;
+}
+
+export function computeElevation(activities: StravaActivity[], days: number = 28): ElevationSummary {
+  const runs = activities.filter(isRun);
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const cutoff = addDays(now, -days);
+
+  let total = 0;
+  let biggest = 0;
+  let biggestDate: string | null = null;
+  for (const a of runs) {
+    const d = new Date(a.start_date_local);
+    if (d < cutoff) continue;
+    const gain = a.total_elevation_gain ?? 0;
+    total += gain;
+    if (gain > biggest) {
+      biggest = gain;
+      biggestDate = a.start_date_local.slice(0, 10);
+    }
+  }
+  return { total, biggest, biggestDate, days };
+}
+
+// ---------------------------------------------------------------------------
+// Run-type mix — classify runs by pace relative to the user's median pace
+//   Easy:      slower than median + 30s/km
+//   Steady:    median ± 30s/km
+//   Tempo:     faster than median − 30s/km but slower than − 60s/km
+//   Workout:   faster than median − 60s/km
+// ---------------------------------------------------------------------------
+
+export interface RunTypeMix {
+  easy:     number;
+  steady:   number;
+  tempo:    number;
+  workout:  number;
+  total:    number;
+}
+
+export function computeRunTypeMix(activities: StravaActivity[], days: number = 28): RunTypeMix {
+  const runs = activities.filter(isRun);
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+  const cutoff = addDays(now, -days);
+  const recent = runs.filter(
+    (a) => new Date(a.start_date_local) >= cutoff && a.moving_time > 0 && a.distance > 500,
+  );
+  if (recent.length === 0) return { easy: 0, steady: 0, tempo: 0, workout: 0, total: 0 };
+
+  const paces = recent.map((a) => a.moving_time / (a.distance / 1000)).sort((a, b) => a - b);
+  const median = paces[Math.floor(paces.length / 2)];
+
+  const mix: RunTypeMix = { easy: 0, steady: 0, tempo: 0, workout: 0, total: recent.length };
+  for (const a of recent) {
+    const pace = a.moving_time / (a.distance / 1000);
+    if (pace >= median + 30)      mix.easy += 1;
+    else if (pace <= median - 60) mix.workout += 1;
+    else if (pace <= median - 30) mix.tempo += 1;
+    else                          mix.steady += 1;
+  }
+  return mix;
+}
+
+// ---------------------------------------------------------------------------
 // Formatting helpers
 // ---------------------------------------------------------------------------
 
@@ -326,4 +564,14 @@ export function formatDuration(seconds: number): string {
   if (h > 0) return `${h}h ${m}m`;
   if (m > 0) return `${m}m ${s}s`;
   return `${s}s`;
+}
+
+export function formatRaceTime(seconds: number | null): string {
+  if (seconds === null || !Number.isFinite(seconds) || seconds <= 0) return "—";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.round(seconds % 60);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  if (h > 0) return `${h}:${pad(m)}:${pad(s)}`;
+  return `${m}:${pad(s)}`;
 }
