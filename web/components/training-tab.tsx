@@ -199,15 +199,10 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
 // Common sub-components
 // ---------------------------------------------------------------------------
 
-function SectionHeading({ label, pro }: { label: string; pro?: boolean }) {
+function SectionHeading({ label }: { label: string; pro?: boolean }) {
   return (
     <div className="flex items-center gap-2">
       <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{label}</h3>
-      {pro && (
-        <Badge variant="outline" className="text-[9px] px-1.5 py-0 font-mono tracking-widest bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 text-amber-600">
-          PRO
-        </Badge>
-      )}
     </div>
   );
 }
