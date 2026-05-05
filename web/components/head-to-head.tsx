@@ -318,9 +318,13 @@ function ShareButton({
     const url = `${window.location.origin}/runners/head-to-head?a=${dataA.runner.id}&b=${dataB.runner.id}`;
     const text = buildTeaseText(dataA, dataB, winsA, winsB);
 
+    // WhatsApp / Telegram drop the `text` field when `url` is also passed,
+    // so we pack everything into `text` and let messengers auto-linkify the URL.
+    const payload = `${text}\n\n${url}`;
+
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       try {
-        await navigator.share({ title: "Head to Head — steperun", text, url });
+        await navigator.share({ title: "Head to Head — steperun", text: payload });
         return;
       } catch {
         // User canceled or share failed — fall through to copy
@@ -328,12 +332,11 @@ function ShareButton({
     }
 
     try {
-      await navigator.clipboard.writeText(`${text} ${url}`);
+      await navigator.clipboard.writeText(payload);
       setStatus("copied");
       setTimeout(() => setStatus("idle"), 2000);
     } catch {
-      // Clipboard blocked — last resort: prompt
-      window.prompt("Copy this link:", `${text} ${url}`);
+      window.prompt("Copy this link:", payload);
     }
   }
 
