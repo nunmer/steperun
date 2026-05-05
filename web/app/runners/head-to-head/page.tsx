@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { HeadToHead } from "@/components/head-to-head";
 
@@ -19,7 +20,9 @@ export default function HeadToHeadPage() {
         </p>
       </div>
 
-      <HeadToHead />
+      <Suspense fallback={null}>
+        <HeadToHead />
+      </Suspense>
     </div>
   );
 }

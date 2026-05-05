@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { RunnerSearch } from "@/components/runner-search";
 
@@ -277,14 +278,145 @@ function RunnerAvatar({
   );
 }
 
+// ─── Share Button ────────────────────────────────────────────────────────────
+
+function buildTeaseText(
+  dataA: ComparisonData,
+  dataB: ComparisonData,
+  winsA: number,
+  winsB: number,
+): string {
+  const a = dataA.runner.full_name.split(" ")[0];
+  const b = dataB.runner.full_name.split(" ")[0];
+  if (winsA + winsB === 0) {
+    return `${a} vs ${b} — who's the real runner? 🏃💨`;
+  }
+  if (winsA > winsB) {
+    return `${a} just smoked ${b} ${winsA}–${winsB} head-to-head 🔥 think you can do better?`;
+  }
+  if (winsB > winsA) {
+    return `${b} crushed ${a} ${winsB}–${winsA} 🏁 don't believe it? see for yourself`;
+  }
+  return `${a} and ${b} are dead even at ${winsA}–${winsB} 👀 who breaks the tie?`;
+}
+
+function ShareButton({
+  dataA,
+  dataB,
+  winsA,
+  winsB,
+}: {
+  dataA: ComparisonData;
+  dataB: ComparisonData;
+  winsA: number;
+  winsB: number;
+}) {
+  const [status, setStatus] = useState<"idle" | "copied">("idle");
+
+  async function handleShare() {
+    if (typeof window === "undefined") return;
+    const url = `${window.location.origin}/runners/head-to-head?a=${dataA.runner.id}&b=${dataB.runner.id}`;
+    const text = buildTeaseText(dataA, dataB, winsA, winsB);
+
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: "Head to Head — steperun", text, url });
+        return;
+      } catch {
+        // User canceled or share failed — fall through to copy
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      setStatus("copied");
+      setTimeout(() => setStatus("idle"), 2000);
+    } catch {
+      // Clipboard blocked — last resort: prompt
+      window.prompt("Copy this link:", `${text} ${url}`);
+    }
+  }
+
+  return (
+    <button
+      onClick={handleShare}
+      className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full text-white shadow-md hover:shadow-lg hover:opacity-90 transition-all"
+      style={{
+        background: `linear-gradient(135deg, ${COLOR_A} 0%, ${COLOR_B} 100%)`,
+      }}
+      aria-label="Share comparison"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <circle cx="18" cy="5" r="3" />
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      </svg>
+      {status === "copied" ? "Link copied!" : "Share this matchup"}
+    </button>
+  );
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export function HeadToHead() {
+  const searchParams = useSearchParams();
   const [runnerA, setRunnerA] = useState<Runner | null>(null);
   const [runnerB, setRunnerB] = useState<Runner | null>(null);
   const [dataA, setDataA] = useState<ComparisonData | null>(null);
   const [dataB, setDataB] = useState<ComparisonData | null>(null);
   const [loading, setLoading] = useState(false);
+  const initLoadedRef = useRef(false);
+
+  // Load runners from URL params on first mount
+  useEffect(() => {
+    if (initLoadedRef.current) return;
+    initLoadedRef.current = true;
+
+    const aId = searchParams.get("a");
+    const bId = searchParams.get("b");
+    if (!aId && !bId) return;
+
+    async function loadRunner(id: string): Promise<Runner | null> {
+      try {
+        const res = await fetch(`/api/runners/${id}`);
+        if (!res.ok) return null;
+        const data = await res.json();
+        return (data?.runner as Runner) ?? null;
+      } catch {
+        return null;
+      }
+    }
+
+    if (aId) loadRunner(aId).then((r) => r && setRunnerA(r));
+    if (bId) loadRunner(bId).then((r) => r && setRunnerB(r));
+  }, [searchParams]);
+
+  // Keep URL in sync with selected runners (no Next.js navigation)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams();
+    if (runnerA) params.set("a", String(runnerA.id));
+    if (runnerB) params.set("b", String(runnerB.id));
+    const qs = params.toString();
+    const newUrl = qs
+      ? `${window.location.pathname}?${qs}`
+      : window.location.pathname;
+    if (window.location.pathname + window.location.search !== newUrl) {
+      window.history.replaceState(null, "", newUrl);
+    }
+  }, [runnerA?.id, runnerB?.id]);
 
   useEffect(() => {
     if (!runnerA) { setDataA(null); return; }
@@ -371,6 +503,19 @@ export function HeadToHead() {
           <div className="rounded-xl border border-border/50 p-4 sm:p-8 space-y-6 sm:space-y-8"
             style={{ background: "linear-gradient(180deg, var(--card) 0%, var(--background) 100%)" }}
           >
+            {/* Tease headline */}
+            <p
+              className="text-center text-base sm:text-lg font-semibold leading-snug"
+              style={{
+                background: `linear-gradient(135deg, ${COLOR_A} 0%, ${COLOR_B} 100%)`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              {buildTeaseText(dataA, dataB, winsA, winsB)}
+            </p>
+
             {/* Top section: Avatar — Radar — Avatar */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
               <RunnerAvatar runner={dataA.runner} color={COLOR_A} side="left" />
@@ -392,6 +537,11 @@ export function HeadToHead() {
                 <p className="text-3xl font-bold" style={{ color: COLOR_B }}>{winsB}</p>
                 <p className="text-xs text-muted-foreground uppercase">Wins</p>
               </div>
+            </div>
+
+            {/* Share CTA */}
+            <div className="flex justify-center">
+              <ShareButton dataA={dataA} dataB={dataB} winsA={winsA} winsB={winsB} />
             </div>
 
             {/* Comparison bars */}
