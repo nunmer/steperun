@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
@@ -24,8 +25,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <Nav />
           <main className="max-w-7xl mx-auto px-4 py-8">{children}</main>
-          <footer className="border-t mt-16 py-6 text-center text-sm text-muted-foreground">
-            Steppe RUN © {new Date().getFullYear()} · With love, BTS Team
+          <footer className="border-t mt-16 py-6 text-center text-sm text-muted-foreground space-y-2">
+            <div>Steppe RUN © {new Date().getFullYear()} · With love, BTS Team</div>
+            <nav className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
+              <Link href="/legal/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+              <Link href="/legal/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+              <Link href="/legal/refund" className="hover:text-foreground transition-colors">Refund Policy</Link>
+            </nav>
           </footer>
         </ThemeProvider>
       </body>
