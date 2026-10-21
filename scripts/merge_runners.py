@@ -13,12 +13,14 @@ Usage:
     python scripts/merge_runners.py --keep 26194 --drop 233970          # dry run
     python scripts/merge_runners.py --keep 26194 --drop 233970 --apply
 
-Afterwards: recalculate ELO (scripts/calculate_elo.py) and purge the site
-cache (POST /api/revalidate), or wait for the next daily scrape.
+After --apply the site cache is purged (needs REVALIDATE_SECRET in .env);
+recalculate ELO with scripts/calculate_elo.py.
 """
 
 import argparse
+import os
 import sys
+import urllib.request
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -44,6 +46,23 @@ def _results(client, runner_id: int) -> list[dict]:
         .eq("runner_id", runner_id)
         .execute()
     ).data or []
+
+
+def purge_site_cache() -> None:
+    """POST /api/revalidate so the merged profile shows immediately."""
+    secret = os.getenv("REVALIDATE_SECRET")
+    if not secret:
+        print("REVALIDATE_SECRET not set: site shows the change within an hour.")
+        return
+    req = urllib.request.Request(
+        "https://www.steppe.run/api/revalidate", method="POST",
+        headers={"Authorization": f"Bearer {secret}"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            print("Site cache purged:", resp.status)
+    except OSError as exc:
+        print(f"Cache purge failed ({exc}); site shows the change within an hour.")
 
 
 def main() -> int:
@@ -85,6 +104,7 @@ def main() -> int:
         sys.exit(f"{len(left)} results still on {drop['id']}; runner not deleted")
     client.table("runners").delete().eq("id", drop["id"]).execute()
     print(f"Merged {len(moving)} result(s) into {keep['id']} and deleted runner {drop['id']}.")
+    purge_site_cache()
     return 0
 
 

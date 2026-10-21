@@ -95,8 +95,8 @@ row has no city and two runners share the name), a new runner is created.
 Merge it once someone confirms it's the same person:
 `python scripts/merge_runners.py --keep <id> --drop <id>` (dry run), then
 `--apply`. It refuses if the duplicate is claimed by someone else or if both
-have a result in the same event and distance. Afterwards, recalculate ELO and
-purge the site cache. Claimed users are owed +20 coins per newly attached
+have a result in the same event and distance. With `--apply` it also purges the
+site cache (`REVALIDATE_SECRET` in `.env`). Afterwards, recalculate ELO. Claimed users are owed +20 coins per newly attached
 event (`apply_coin_tx`, reason `event_participation`, ref = event id).
 
 ## Keeping Supabase Disk IO low
