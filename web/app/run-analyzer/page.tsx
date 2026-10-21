@@ -288,10 +288,32 @@ export default function RunAnalyzerPage() {
     const session = await sessionRes.json();
     setActiveSessionId(session.id);
 
-    const form = new FormData();
-    form.append("video", file);
-    form.append("session_id", session.id);
-    const extractRes = await fetch("/api/run-analyzer/extract", { method: "POST", body: form });
+    // Upload straight to Storage (no size cap from our API), then extract.
+    const urlRes = await fetch("/api/run-analyzer/upload-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: session.id, filename: file.name, size: file.size, type: file.type }),
+    });
+    if (!urlRes.ok) {
+      setError((await urlRes.json()).error || "Upload failed");
+      setLoading(false);
+      return;
+    }
+    const { path, token } = await urlRes.json();
+    const { error: uploadErr } = await supabase.storage
+      .from("run-videos")
+      .uploadToSignedUrl(path, token, file, { contentType: file.type || "video/mp4" });
+    if (uploadErr) {
+      setError(`Upload failed: ${uploadErr.message}`);
+      setLoading(false);
+      return;
+    }
+
+    const extractRes = await fetch("/api/run-analyzer/extract", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: session.id, video_path: path }),
+    });
     setLoading(false);
     if (!extractRes.ok) {
       setError((await extractRes.json()).error || "Extraction failed");

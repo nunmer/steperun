@@ -6,23 +6,32 @@ import {
   insertFrames,
   uploadFrame,
   getFramePublicUrl,
+  createVideoReadUrl,
+  removeVideo,
 } from "@/lib/run-analyzer-db";
+import { ANALYZER_URL, analyzerHeaders } from "@/lib/run-analyzer-service";
 
-export const maxDuration = 120;
+// The analyzer Space may need to wake from sleep before extracting.
+export const maxDuration = 300;
 
-const EXTRACTOR_URL = process.env.RUN_ANALYZER_API_URL || "http://localhost:8000";
-
-/** POST /api/run-analyzer/extract — upload video, extract frames via Python service */
+/** POST /api/run-analyzer/extract — extract frames from an uploaded session video */
 export async function POST(request: NextRequest) {
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const formData = await request.formData();
-  const video = formData.get("video") as File | null;
-  const sessionId = formData.get("session_id") as string | null;
+  const body = (await request.json().catch(() => null)) as {
+    session_id?: unknown;
+    video_path?: unknown;
+  } | null;
+  const sessionId = typeof body?.session_id === "string" ? body.session_id : null;
+  const videoPath = typeof body?.video_path === "string" ? body.video_path : null;
 
-  if (!video || !sessionId) {
-    return NextResponse.json({ error: "video and session_id required" }, { status: 400 });
+  if (!videoPath || !sessionId) {
+    return NextResponse.json({ error: "video_path and session_id required" }, { status: 400 });
+  }
+  // Only the caller's own session folder (as issued by /upload-url).
+  if (!videoPath.startsWith(`${user.id}/${sessionId}/`) || videoPath.includes("..")) {
+    return NextResponse.json({ error: "Invalid video path" }, { status: 400 });
   }
 
   // Verify session belongs to user
@@ -31,15 +40,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
-  // Forward video to Python extractor service
-  const extractForm = new FormData();
-  extractForm.append("video", video);
+  const { data: signed, error: signErr } = await createVideoReadUrl(videoPath);
+  if (signErr || !signed) {
+    await updateSession(sessionId, { status: "error", error: "Uploaded video not found" });
+    return NextResponse.json({ error: "Uploaded video not found" }, { status: 404 });
+  }
 
+  // The analyzer downloads the video itself; delete it once extraction is done.
   let extractResult;
   try {
-    const res = await fetch(`${EXTRACTOR_URL}/api/extract`, {
+    const res = await fetch(`${ANALYZER_URL}/api/extract-url`, {
       method: "POST",
-      body: extractForm,
+      headers: analyzerHeaders({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ url: signed.signedUrl, filename: videoPath.split("/").pop() }),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: "Extraction service error" }));
@@ -52,6 +65,9 @@ export async function POST(request: NextRequest) {
     console.error("Extraction fetch error:", msg);
     await updateSession(sessionId, { status: "error", error: msg });
     return NextResponse.json({ error: msg }, { status: 502 });
+  } finally {
+    const { error: rmErr } = await removeVideo(videoPath);
+    if (rmErr) console.error("Video cleanup error:", rmErr);
   }
 
   // Only persist key frames — motion frames stay in the response for

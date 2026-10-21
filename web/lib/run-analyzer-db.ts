@@ -168,3 +168,21 @@ export async function uploadFrame(path: string, buffer: Buffer) {
     .from("run-frames")
     .upload(path, buffer, { contentType: "image/jpeg", upsert: true });
 }
+
+// Videos go browser -> Storage directly (Vercel caps request bodies at 4.5 MB),
+// then the analyzer downloads them via a short-lived signed URL. Private bucket;
+// each video is deleted right after extraction.
+const VIDEO_BUCKET = "run-videos";
+export const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+
+export async function createVideoUploadUrl(path: string) {
+  return db().storage.from(VIDEO_BUCKET).createSignedUploadUrl(path, { upsert: true });
+}
+
+export async function createVideoReadUrl(path: string) {
+  return db().storage.from(VIDEO_BUCKET).createSignedUrl(path, 10 * 60);
+}
+
+export async function removeVideo(path: string) {
+  return db().storage.from(VIDEO_BUCKET).remove([path]);
+}

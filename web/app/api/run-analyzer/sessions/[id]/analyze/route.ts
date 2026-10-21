@@ -11,8 +11,11 @@ import {
 import { COIN_ECONOMY } from "@/lib/coins-config";
 import { getQuotaUsedCount, refundCoins, spendCoins } from "@/lib/services/coins";
 import { expireStaleSessions } from "@/lib/services/session-cleanup";
+import { ANALYZER_URL, analyzerHeaders } from "@/lib/run-analyzer-service";
 
-const EXTRACTOR_URL = process.env.RUN_ANALYZER_API_URL || "http://localhost:8000";
+// LLM analysis plus a possible analyzer cold start.
+export const maxDuration = 300;
+
 
 /** POST /api/run-analyzer/sessions/[id]/analyze — run LLM analysis */
 export async function POST(
@@ -118,8 +121,9 @@ export async function POST(
       form.append("frames", blob, filename);
     }
 
-    const res = await fetch(`${EXTRACTOR_URL}/api/analyze-frames`, {
+    const res = await fetch(`${ANALYZER_URL}/api/analyze-frames`, {
       method: "POST",
+      headers: analyzerHeaders(),
       body: form,
     });
     if (!res.ok) {

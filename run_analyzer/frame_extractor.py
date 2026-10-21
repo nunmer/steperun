@@ -1,7 +1,11 @@
 """Extract key frames from running video using pose estimation."""
 
-import cv2
-import mediapipe as mp
+import gl_preload
+
+gl_preload.preload()  # before mediapipe: provides libEGL/libGLESv2 on Vercel
+
+import cv2  # noqa: E402
+import mediapipe as mp  # noqa: E402
 import numpy as np
 from mediapipe.tasks.python import BaseOptions
 from mediapipe.tasks.python.vision import (
