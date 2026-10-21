@@ -147,6 +147,8 @@ login, claims and the run analyzer fail.
    `curl -s -o /dev/null -w "%{http_code} %{time_total}
 " "$SUPABASE_URL/rest/v1/events?select=id&limit=1" -H "apikey: $SUPABASE_SERVICE_KEY"`
    should return 200 in well under 1 s.
+   Then purge the site cache (`POST /api/revalidate`) in case anything was
+   cached while the database was down.
 5. **Prevent:** spread bulk data fixes over several days (or chunk them with
    pauses), and run ELO only once after a batch of fixes.
 

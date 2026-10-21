@@ -28,8 +28,17 @@ async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T | 
     return data as T;
   }
   if (isMissingFunctionError(error)) missingRpcs.set(name, Date.now());
-  else if (error) console.error(`[queries] rpc ${name} failed`, error.message);
+  else if (error) throw new Error(`[queries] rpc ${name} failed: ${error.message}`);
   return null;
+}
+
+/**
+ * Throw on a failed query. Returning empty data instead would get cached for a
+ * day (and render runner pages as "not found") whenever Supabase is down.
+ */
+function orThrow<R extends { error: { message: string } | null }>(res: R, what: string): R {
+  if (res.error) throw new Error(`[queries] ${what} failed: ${res.error.message}`);
+  return res;
 }
 
 /** Escape LIKE wildcards in user input. */
@@ -103,7 +112,7 @@ export const getStats = cachedQuery(async () => {
     supabase.from("runners").select("id", { count: "exact", head: true }).eq("is_hidden", false),
     supabase.from("events").select("id", { count: "exact", head: true }).not("scraped_at", "is", null),
     supabase.from("results").select("id", { count: "exact", head: true }),
-  ]);
+  ]).then((all) => all.map((res) => orThrow(res, "stats")));
   return {
     runners: runnersRes.count ?? 0,
     events: eventsRes.count ?? 0,
@@ -125,29 +134,35 @@ export const getEvents = cachedQuery(async (year?: number): Promise<EventRow[]> 
     .order("name");
 
   if (year) q = q.eq("year", year);
-  const { data } = await q;
+  const { data } = orThrow(await q, "events");
   return (data ?? []) as EventRow[];
 }, "events");
 
 export const getEventYears = cachedQuery(async (): Promise<number[]> => {
   const rows = await rpc<{ year: number }[]>("get_event_years", {});
   if (rows) return rows.map((r) => r.year);
-  const { data } = await supabase
-    .from("events")
-    .select("year")
-    .not("scraped_at", "is", null)
-    .not("year", "is", null)
-    .order("year", { ascending: false });
+  const { data } = orThrow(
+    await supabase
+      .from("events")
+      .select("year")
+      .not("scraped_at", "is", null)
+      .not("year", "is", null)
+      .order("year", { ascending: false }),
+    "event years",
+  );
   return [...new Set(((data ?? []) as { year: number }[]).map((e) => e.year))];
 }, "event-years");
 
 export const getEvent = cache(
   cachedQuery(async (slug: string): Promise<EventRow | null> => {
-    const { data } = await supabase
-      .from("events")
-      .select("id, slug, name, year, date_of_event, total_results, scraped_at, url, organizer")
-      .eq("slug", slug)
-      .maybeSingle();
+    const { data } = orThrow(
+      await supabase
+        .from("events")
+        .select("id, slug, name, year, date_of_event, total_results, scraped_at, url, organizer")
+        .eq("slug", slug)
+        .maybeSingle(),
+      "event",
+    );
     return data as EventRow | null;
   }, "event"),
 );
@@ -187,10 +202,13 @@ export const getEventResults = cachedQuery(
       .neq("chip_time", "--:--:--");
 
     q = category ? q.eq("distance_category", category) : q.order("distance_category");
-    const { data } = await q
-      .order("place", { nullsFirst: false })
-      .order("id")
-      .range(from, from + PAGE_SIZE - 1);
+    const { data } = orThrow(
+      await q
+        .order("place", { nullsFirst: false })
+        .order("id")
+        .range(from, from + PAGE_SIZE - 1),
+      "event results",
+    );
     return (data ?? []) as unknown as ResultWithRunner[];
   },
   "event-results",
@@ -263,23 +281,29 @@ export const getRunners = cachedQuery(
       const res = await rpc<Paged<RunnerListRow>>("search_runners", { p_q: q, p_limit: pageSize, p_offset: from });
       if (res) return res;
       // Fallback (migration 005 not applied): plain substring match.
-      const { data, count } = await supabase
+      const { data, count } = orThrow(
+        await supabase
+          .from("runners")
+          .select("id, full_name, country, city, elo_score, elo_level", { count: "exact" })
+          .eq("is_hidden", false)
+          .ilike("full_name", `%${likeEscape(q)}%`)
+          .order("full_name")
+          .order("id")
+          .range(from, from + pageSize - 1),
+        "runner search",
+      );
+      return { rows: (data ?? []) as RunnerListRow[], total: count ?? 0 };
+    }
+    const { data, count } = orThrow(
+      await supabase
         .from("runners")
         .select("id, full_name, country, city, elo_score, elo_level", { count: "exact" })
         .eq("is_hidden", false)
-        .ilike("full_name", `%${likeEscape(q)}%`)
         .order("full_name")
         .order("id")
-        .range(from, from + pageSize - 1);
-      return { rows: (data ?? []) as RunnerListRow[], total: count ?? 0 };
-    }
-    const { data, count } = await supabase
-      .from("runners")
-      .select("id, full_name, country, city, elo_score, elo_level", { count: "exact" })
-      .eq("is_hidden", false)
-      .order("full_name")
-      .order("id")
-      .range(from, from + pageSize - 1);
+        .range(from, from + pageSize - 1),
+      "runners",
+    );
     return { rows: (data ?? []) as RunnerListRow[], total: count ?? 0 };
   },
   "runners",
@@ -301,7 +325,7 @@ export const getRunner = cache(
           )
           .eq("runner_id", id)
           .order("chip_time", { ascending: true }),
-      ]);
+      ]).then(([r, res]) => [orThrow(r, "runner"), orThrow(res, "runner results")] as const);
       if (!runnerRes.data) return null;
       return {
         runner: runnerRes.data as RunnerRow,
@@ -373,10 +397,13 @@ export const getPowerRankings = cachedQuery(
       .eq("is_hidden", false)
       .not("elo_score", "is", null);
     if (level) q = q.eq("elo_level", level);
-    const { data } = await q
-      .order("elo_score", { ascending: false })
-      .order("id")
-      .range(from, from + PAGE_SIZE - 1);
+    const { data } = orThrow(
+      await q
+        .order("elo_score", { ascending: false })
+        .order("id")
+        .range(from, from + PAGE_SIZE - 1),
+      "power rankings",
+    );
     return (data ?? []) as PowerRankingRow[];
   },
   "power-rankings",

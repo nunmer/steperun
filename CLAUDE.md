@@ -66,7 +66,8 @@ After any manual data fix, purge the site cache (`POST /api/revalidate`, bearer
   tag `results`; runner data also `runner:<id>`). Pages with `searchParams` are
   dynamic but read cached data; `/runners/[id]` is ISR. The scraper workflow
   calls `/api/revalidate`; claim changes call `invalidateRunner(id)`.
-  `PAGE_SIZE = 30`.
+  `PAGE_SIZE = 30`. Cached queries must **throw** on a Supabase error
+  (`orThrow`), never return empty data, or an outage gets cached for a day.
 - **Lists:** totals are exact (from aggregate RPCs where possible), every
   paginated query ends with `id` as a tiebreaker, and `page` is parsed with
   `parsePage`. Pagination uses `components/pagination.tsx`.

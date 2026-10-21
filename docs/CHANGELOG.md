@@ -11,6 +11,12 @@
   already purge on demand, so the hourly expiry only made crawlers trigger
   fresh DB reads (each runner profile once an hour).
 - `DEPLOYMENT.md`: "Supabase throttled" runbook and troubleshooting row.
+- **Fix: outages were cached as "no data".** Queries swallowed Supabase errors
+  and returned empty results, so pages rendered during the outage were cached
+  empty (homepage blank, runner profiles "not found") until a manual purge.
+  Queries now throw on error (`orThrow` / `rpc` in `lib/queries.ts`), nothing
+  gets cached, ISR keeps serving the last good page, and a first render shows
+  the new `app/error.tsx` ("temporarily unavailable").
 
 ## 2026-10-22: docs brought up to date
 
