@@ -62,7 +62,8 @@ The concurrency group `scrape-results` means runs queue and never overlap.
   - Courses are mapped to distance labels. Road distances reuse the
     almaty-marathon.kz labels (`21 км 97,5 м`, `42 км 195 м`, `Скандинавская
     ходьба: …`) so rankings line up.
-  - Bike, relay, kids, ski and virtual courses are skipped (`_SKIP_COURSE`).
+  - Bike, relay, team, kids, ski and virtual courses are skipped (`_SKIP_COURSE`).
+    Team entries are team names or a captain's name, not one runner's result.
   - DNF/DNS rows are dropped. Places are recomputed per category from time.
   - City comes from the custom field labelled "Город"/"City". Country comes
     from ISO-2 mapped to English names.
@@ -75,7 +76,16 @@ The concurrency group `scrape-results` means runs queue and never overlap.
 
 ## Runner matching across sources
 
-almaty-marathon.kz rows use exact `(full_name, country, city)` identity.
+**Same-person rule** (`RunnerIndex.match_strict`, used by both sources and by
+`scripts/merge_duplicates.py`): every folded name token is equal, in any order
+and either alphabet, and the city is the same and not blank. Country is
+ignored, because nearly everyone is "Kazakhstan".
+
+almaty-marathon.kz rows first look for the exact `(full_name, country, city)`
+row, then apply the same-person rule, and only then create a runner. Before
+2026-10-21 there was no second step, so "Almaty" vs "Алматы", Latin vs Cyrillic
+and swapped name order each created a new runner (6,458 duplicates, merged).
+
 athletex rows go through `scraper/runner_matcher.py`:
 
 - **Name key:** the first two name tokens, sorted (so order doesn't matter),
@@ -84,11 +94,17 @@ athletex rows go through `scraper/runner_matcher.py`:
 - **When an existing runner is reused:** exactly one candidate has an agreeing
   country and city (blank on either side counts as agreeing), or, among
   several, exactly one has the same non-blank city.
+- **Then** the same-person rule above.
 - **Otherwise** a new runner is created. A duplicate profile is recoverable;
   a wrong merge mixes two people's results.
 
 In the dry run, about 47% of athletex results matched an existing runner, and
 all 30 sampled matches were correct.
+
+**Bulk merge.** `python scripts/merge_duplicates.py` (dry run, then `--apply`)
+finds every group that meets the same-person rule, skips groups that finished
+the same event or whose paces differ by more than 35%, and logs undo data to
+`data/merges/`.
 
 **Merging duplicates.** When a match is ambiguous (for example, the athletex
 row has no city and two runners share the name), a new runner is created.

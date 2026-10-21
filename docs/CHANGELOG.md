@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-10-21 (later): duplicates merged, teams removed
+
+- **Duplicate runners:** `scripts/merge_duplicates.py` merged 5,364 groups and
+  removed 6,458 duplicate profiles.
+  - **Rule:** same name tokens in any order or alphabet, and the same city.
+    Country is ignored.
+  - **Skipped:**
+    - 300 groups that finished the same event (different people);
+    - 252 groups whose paces differ by more than 35% on a shared distance;
+    - groups without a city.
+  - **Undo data:** every moved result and deleted runner row is logged in
+    `data/merges/`.
+  - **Coins:** claimed profiles were awarded their missing per-event coins.
+- **Root cause fixed:**
+  - almaty-marathon.kz imports reused a runner only on an exact
+    `(name, country, city)` string ("Almaty" ≠ "Алматы"). Both importers now
+    apply the same-person rule (`RunnerIndex.match_strict`) before creating a
+    runner.
+- **Teams:**
+  - Removed 702 team/relay results (athletex Race Nation `Team` /
+    `Open Team` / `Elite Team`, almaty relays) and 665 team "runners" left with
+    no results.
+  - The athletex parser now skips team courses, and `clean_runners.py`
+    removes team results after every scrape.
+
 ## 2026-10-21 (later): duplicate runner merge
 
 - `scripts/merge_runners.py` merges a duplicate profile (dry run by default).

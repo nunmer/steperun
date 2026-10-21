@@ -66,7 +66,8 @@ def test_category_skips_non_running():
     for course in ("Bike Ultra", "ITT MTB", "ITT Road", "DUO", "Relay 21.1",
                    "Kids 2 km", "Canicross", "Zamykaiushiy", "Oi-Qaragai (дети)",
                    "Teen 2", "Virtual run", "Виртуальный забег", "Vertical Race (skimo) 1.5 км",
-                   "Splitboard/Skitour 7 км", "Snowshoeing 4 км", "test"):
+                   "Splitboard/Skitour 7 км", "Snowshoeing 4 км", "test",
+                   "Team 5", "Open Team 10", "Elite Team 5", "Командный забег"):
         assert category_label(course, 0) is None, course
 
 

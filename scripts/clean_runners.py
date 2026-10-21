@@ -85,4 +85,50 @@ for i in range(0, len(hide_ids), CHUNK):
     hidden += len(chunk)
 print(f"  Hidden {hidden}")
 
+# --- REMOVE team / relay results ---
+# A team result is not one runner's result: "Open Team 5" entries are team
+# names ("Siemens", "101 АЛМАТИНЕЦ") or a captain's name, and relays are team
+# blobs. Delete those results, then delete runners left with no results
+# (a captain keeps their profile and individual races). Claimed runners are
+# never deleted.
+TEAM_CATEGORY = re.compile(r"\bteam\b|команд|эстафет|relay", re.IGNORECASE)
+cats = client.rpc("get_distance_options").execute().data or []
+team_cats = [c["distance_category"] for c in cats if TEAM_CATEGORY.search(c["distance_category"] or "")]
+# get_distance_options only counts finishers; include DNF-only relay categories too
+team_cats += [c for c in ("21 км 97,5 м Эстафета", "Эстафета Copa Run") if c not in team_cats]
+print(f"\nTeam/relay categories: {team_cats}")
+
+affected: set[int] = set()
+removed = 0
+for cat in team_cats:
+    while True:
+        rows = (
+            client.table("results").select("id, runner_id")
+            .eq("distance_category", cat).limit(CHUNK).execute()
+        ).data or []
+        if not rows:
+            break
+        affected.update(r["runner_id"] for r in rows)
+        client.table("results").delete().in_("id", [r["id"] for r in rows]).execute()
+        removed += len(rows)
+print(f"  Removed {removed} team/relay results")
+
+orphans = []
+ids = sorted(affected)
+for i in range(0, len(ids), CHUNK):
+    chunk = ids[i : i + CHUNK]
+    still = {
+        r["runner_id"] for r in
+        (client.table("results").select("runner_id").in_("runner_id", chunk).execute().data or [])
+    }
+    unclaimed = {
+        r["id"] for r in
+        (client.table("runners").select("id, claimed_by").in_("id", chunk).execute().data or [])
+        if not r["claimed_by"]
+    }
+    orphans += [rid for rid in chunk if rid not in still and rid in unclaimed]
+for i in range(0, len(orphans), CHUNK):
+    client.table("runners").delete().in_("id", orphans[i : i + CHUNK]).execute()
+print(f"  Deleted {len(orphans)} team runners with no other results")
+
 print("\nDone.")

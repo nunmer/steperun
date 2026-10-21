@@ -23,7 +23,7 @@ from typing import Optional
 
 # Courses that are not running results (cycling, relays, kids, sweepers, ...).
 _SKIP_COURSE = re.compile(
-    r"bike|mtb|itt\b|road|gravel|velo|вело|duo|relay|эстафет|zamyk|замык|"
+    r"bike|mtb|itt\b|road|gravel|velo|вело|duo|relay|эстафет|\bteam\b|команд|zamyk|замык|"
     r"canicross|kids|детск|дети|teen|swim|плав|ski\b|skimo|skitour|splitboard|"
     r"snowshoe|лыж|virtual|виртуал|^test$",
     re.IGNORECASE,

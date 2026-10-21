@@ -18,6 +18,7 @@ from typing import Optional
 import requests
 from bs4 import BeautifulSoup
 
+from .runner_matcher import RunnerIndex
 from .db import (
     get_client,
     upsert_event,
@@ -211,6 +212,17 @@ def _scrape_category(
 # DB flush
 # ---------------------------------------------------------------------------
 
+_runner_index: Optional[RunnerIndex] = None
+
+
+def _index(client) -> RunnerIndex:
+    """All visible runners, loaded once per process on first need."""
+    global _runner_index
+    if _runner_index is None:
+        _runner_index = RunnerIndex.load(client)
+    return _runner_index
+
+
 def _flush(rows: list[ResultRow], event_id: int, client) -> int:
     """Upsert runners + results in batches. Returns count of result rows upserted."""
     valid = [
@@ -224,7 +236,12 @@ def _flush(rows: list[ResultRow], event_id: int, client) -> int:
         chunk = valid[start:start + BATCH_SIZE]
         keys = [(r.full_name.strip(), r.country or "", r.city or "") for r in chunk]
         try:
-            runner_ids = get_or_create_runners(client, keys)
+            index = _index(client)
+            runner_ids = get_or_create_runners(
+                client, keys, resolve=lambda k: index.match_strict(k[0], k[2]),
+            )
+            for (name, country, city), rid in runner_ids.items():
+                index.add(rid, name, country, city)  # later rows in this run match too
         except Exception as exc:
             log.warning("Runner batch failed (%d rows): %s", len(chunk), exc)
             continue

@@ -15,7 +15,9 @@ import logging
 from dataclasses import dataclass
 from typing import Optional
 
-from .names import city_key, name_key
+import re
+
+from .names import city_key, fold, name_key
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +29,12 @@ class _Known:
     runner_id: int
     country: str
     city: str  # city key
+    tokens: tuple[str, ...] = ()  # all folded name tokens, sorted
+
+
+def name_tokens(full_name: str) -> tuple[str, ...]:
+    """Every folded name token, sorted: order- and alphabet-insensitive identity."""
+    return tuple(sorted(t for t in re.split(r"[^a-z0-9]+", fold(full_name)) if t))
 
 
 def _agree(a: str, b: str) -> bool:
@@ -64,7 +72,7 @@ class RunnerIndex:
         key = name_key(full_name)
         if key:
             self._by_key.setdefault(key, []).append(
-                _Known(runner_id, (country or "").strip().lower(), city_key(city))
+                _Known(runner_id, (country or "").strip().lower(), city_key(city), name_tokens(full_name))
             )
 
     def match(self, full_name: str, country: str, city: str) -> Optional[int]:
@@ -84,4 +92,17 @@ class RunnerIndex:
             same_city = {k.runner_id for k in candidates if k.city == c_city}
             if len(same_city) == 1:
                 return same_city.pop()
-        return None
+        return self.match_strict(full_name, city)
+
+    def match_strict(self, full_name: str, city: str) -> Optional[int]:
+        """
+        Same person by the duplicate-merge rule: every name token equal (any
+        order, any alphabet) and the same non-blank city. Country is ignored —
+        nearly everyone is "Kazakhstan". Unique candidate only.
+        """
+        key, c_city = name_key(full_name), city_key(city)
+        if not key or not c_city:
+            return None
+        tokens = name_tokens(full_name)
+        ids = {k.runner_id for k in self._by_key.get(key, []) if k.tokens == tokens and k.city == c_city}
+        return ids.pop() if len(ids) == 1 else None

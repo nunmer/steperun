@@ -1,0 +1,4726 @@
+[
+ {
+  "keep": 212,
+  "dropped": [
+   {
+    "id": 12392,
+    "full_name": "Kuanysh Absattarov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T14:04:54.169801+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 223,
+  "dropped": [
+   {
+    "id": 5561,
+    "full_name": "Ersultan Sadu",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T13:10:38.411971+00:00"
+   },
+   {
+    "id": 228419,
+    "full_name": "Sadu Ersultan",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:29.697108+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 887,
+  "dropped": [
+   {
+    "id": 137276,
+    "full_name": "Даурен Данияров",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:43:03.300825+00:00"
+   },
+   {
+    "id": 229220,
+    "full_name": "Daniyarov Dauren",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:57.210393+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 918,
+  "dropped": [
+   {
+    "id": 40727,
+    "full_name": "Константин Нижников",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T18:02:36.874043+00:00"
+   },
+   {
+    "id": 230098,
+    "full_name": "Nizhnikov Konstantin",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:22:06.037026+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 920,
+  "dropped": [
+   {
+    "id": 62212,
+    "full_name": "Жансерік Зейнолла",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:55:48.784763+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 1729,
+  "dropped": [
+   {
+    "id": 26752,
+    "full_name": "Пётр Розман",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T16:01:20.452559+00:00"
+   },
+   {
+    "id": 230824,
+    "full_name": "Rozman Petr",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:22:53.214959+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 5196,
+  "dropped": [
+   {
+    "id": 123395,
+    "full_name": "нұртілеу Рәуя",
+    "country": "Kazakhstan",
+    "city": "Талдықорған",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:48:45.50093+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 5872,
+  "dropped": [
+   {
+    "id": 47927,
+    "full_name": "Assiya Dauletalina",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-02-28T19:07:09.20536+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6185,
+  "dropped": [
+   {
+    "id": 57671,
+    "full_name": "Николай Савин",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:20:21.417177+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6223,
+  "dropped": [
+   {
+    "id": 219769,
+    "full_name": "Ербол Шатыров",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:25:40.33839+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6388,
+  "dropped": [
+   {
+    "id": 166019,
+    "full_name": "Дастан Ахметов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:38:57.686206+00:00"
+   },
+   {
+    "id": 230162,
+    "full_name": "Ahmetov Dastan",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:22:07.084031+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6395,
+  "dropped": [
+   {
+    "id": 16300,
+    "full_name": "Бекарыс Қуан",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T14:38:25.079075+00:00"
+   },
+   {
+    "id": 167611,
+    "full_name": "Bekarys Kuan",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:51:46.119715+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6401,
+  "dropped": [
+   {
+    "id": 218972,
+    "full_name": "Irina Drofa",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:21:49.625227+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6645,
+  "dropped": [
+   {
+    "id": 49228,
+    "full_name": "Айдар Татыгулов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T19:16:52.128302+00:00"
+   },
+   {
+    "id": 228573,
+    "full_name": "Tatygulov Aidar",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:31.320783+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6651,
+  "dropped": [
+   {
+    "id": 226987,
+    "full_name": "Mukhamed-Rakhimova Meruyert",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:32.085413+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6922,
+  "dropped": [
+   {
+    "id": 156511,
+    "full_name": "Ляйля Бестерекова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:21:52.463152+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6926,
+  "dropped": [
+   {
+    "id": 12242,
+    "full_name": "Xueli Guo",
+    "country": "China",
+    "city": "Anhui",
+    "claimed_by": null,
+    "created_at": "2026-02-28T14:03:41.098905+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6943,
+  "dropped": [
+   {
+    "id": 96777,
+    "full_name": "Moldyr Oral",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:27:00.875808+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 6966,
+  "dropped": [
+   {
+    "id": 132567,
+    "full_name": "Дарига Рахметуллина",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:07:22.881194+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 7550,
+  "dropped": [
+   {
+    "id": 222001,
+    "full_name": "Gaukhar Ispatyrova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:35:03.698132+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10488,
+  "dropped": [
+   {
+    "id": 41225,
+    "full_name": "Arslan Rizatdinov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T18:07:32.761798+00:00"
+   },
+   {
+    "id": 218835,
+    "full_name": "Арслан Ризатдинов",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:21:17.004961+00:00"
+   }
+  ],
+  "moved_results": [
+   41205,
+   62011,
+   93476,
+   10488,
+   222526
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10507,
+  "dropped": [
+   {
+    "id": 226883,
+    "full_name": "Korzh Aleksei",
+    "country": "Russia",
+    "city": "Ташкент",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:23.599789+00:00"
+   }
+  ],
+  "moved_results": [
+   266041,
+   269062,
+   272353,
+   283373
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10515,
+  "dropped": [
+   {
+    "id": 115096,
+    "full_name": "ОРЫНБАСАР СӘРСЕМБАЕВ",
+    "country": "Kazakhstan",
+    "city": "Кызылорда",
+    "claimed_by": null,
+    "created_at": "2026-03-01T03:46:00.587267+00:00"
+   }
+  ],
+  "moved_results": [
+   115070
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10517,
+  "dropped": [
+   {
+    "id": 158312,
+    "full_name": "Rustam Kurushev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:37:00.34473+00:00"
+   },
+   {
+    "id": 193851,
+    "full_name": "Курушев Рустам",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T15:05:13.305892+00:00"
+   }
+  ],
+  "moved_results": [
+   158282,
+   193812
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10653,
+  "dropped": [
+   {
+    "id": 214208,
+    "full_name": "Akzhol Madi",
+    "country": "Kazakhstan",
+    "city": "Shymkent",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:05:04.414281+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10687,
+  "dropped": [
+   {
+    "id": 206923,
+    "full_name": "Yernur Turysbayev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:06:41.998232+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10709,
+  "dropped": [
+   {
+    "id": 182298,
+    "full_name": "Yerzhan Esserkepov",
+    "country": "Kazakhstan",
+    "city": "Шымкент",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:20:45.815716+00:00"
+   }
+  ],
+  "moved_results": [
+   182259
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10738,
+  "dropped": [
+   {
+    "id": 158603,
+    "full_name": "Gaukhar Beketayeva",
+    "country": "Kazakhstan",
+    "city": "Atyrau",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:39:08.021927+00:00"
+   }
+  ],
+  "moved_results": [
+   158573,
+   182034
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 10745,
+  "dropped": [
+   {
+    "id": 222898,
+    "full_name": "Zhadra Kabanova",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:23:50.4629+00:00"
+   }
+  ],
+  "moved_results": [
+   249466
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 11334,
+  "dropped": [
+   {
+    "id": 208858,
+    "full_name": "Бахтияр Жалдыбаев",
+    "country": "Kazakhstan",
+    "city": "Shymkent",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:21:23.052687+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 11338,
+  "dropped": [
+   {
+    "id": 137569,
+    "full_name": "Ulagat Maksutbekuly",
+    "country": "Kazakhstan",
+    "city": "Turkistan",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:45:17.970249+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 11360,
+  "dropped": [
+   {
+    "id": 49521,
+    "full_name": "Sagyndyk Dilimbetov",
+    "country": "Kazakhstan",
+    "city": "Арысь",
+    "claimed_by": null,
+    "created_at": "2026-02-28T19:19:05.353902+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 12545,
+  "dropped": [
+   {
+    "id": 226341,
+    "full_name": "Alikin Igor",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:06.984949+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 12554,
+  "dropped": [
+   {
+    "id": 167213,
+    "full_name": "Азамат Контарбаев",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:48:32.933398+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 12557,
+  "dropped": [
+   {
+    "id": 215008,
+    "full_name": "Ruslan Mufazalov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:08:25.505352+00:00"
+   },
+   {
+    "id": 230636,
+    "full_name": "Mufazalov Ruslan",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:22:32.60367+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 12565,
+  "dropped": [
+   {
+    "id": 82714,
+    "full_name": "Айнабек Сыдықов",
+    "country": "Kazakhstan",
+    "city": "Шымкент",
+    "claimed_by": null,
+    "created_at": "2026-02-28T23:40:00.389941+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 13228,
+  "dropped": [
+   {
+    "id": 228186,
+    "full_name": "Makarenko Irina",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:17.933003+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 13234,
+  "dropped": [
+   {
+    "id": 120573,
+    "full_name": "Михаил Варивода",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:26:49.334182+00:00"
+   },
+   {
+    "id": 230934,
+    "full_name": "Varivoda Mikhail",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:23:25.477338+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 13259,
+  "dropped": [
+   {
+    "id": 225821,
+    "full_name": "Dinmukhammed Zhaxembay",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:33:33.405656+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 13269,
+  "dropped": [
+   {
+    "id": 88735,
+    "full_name": "Medet Kalymbetov",
+    "country": "Kazakhstan",
+    "city": "Сарыагаш",
+    "claimed_by": null,
+    "created_at": "2026-03-01T00:24:24.28292+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 14413,
+  "dropped": [
+   {
+    "id": 89819,
+    "full_name": "Ratbek Aknazar",
+    "country": "Kazakhstan",
+    "city": "Шымкент",
+    "claimed_by": null,
+    "created_at": "2026-03-01T00:35:03.698821+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 14417,
+  "dropped": [
+   {
+    "id": 152725,
+    "full_name": "АСАН Сериков",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T08:52:45.999572+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 14881,
+  "dropped": [
+   {
+    "id": 101428,
+    "full_name": "Alizhan Doszhan",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:01:18.359269+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 14883,
+  "dropped": [
+   {
+    "id": 214178,
+    "full_name": "Әли Мәдениет",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:04:54.825065+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15458,
+  "dropped": [
+   {
+    "id": 230138,
+    "full_name": "Varlakova Natalya",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:22:06.565087+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15465,
+  "dropped": [
+   {
+    "id": 58277,
+    "full_name": "Дидар Кажибаев",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:25:07.231395+00:00"
+   },
+   {
+    "id": 94882,
+    "full_name": "Didar Kazhybayev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:12:55.473966+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15497,
+  "dropped": [
+   {
+    "id": 134191,
+    "full_name": "Исмаил Юсупов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:19:39.960513+00:00"
+   },
+   {
+    "id": 233475,
+    "full_name": "Yusupov Ismail",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:25:37.225683+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15498,
+  "dropped": [
+   {
+    "id": 214391,
+    "full_name": "Yerkin Arystanov",
+    "country": "Kazakhstan",
+    "city": "Сарыагаш",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:06:06.086324+00:00"
+   }
+  ],
+  "moved_results": [
+   214661
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15503,
+  "dropped": [
+   {
+    "id": 93858,
+    "full_name": "Kanagat Kerimbay",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:05:22.407938+00:00"
+   }
+  ],
+  "moved_results": [
+   93834
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15513,
+  "dropped": [
+   {
+    "id": 120152,
+    "full_name": "Talgat Dautov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:23:40.336901+00:00"
+   },
+   {
+    "id": 226733,
+    "full_name": "Dautov Talgat",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:11.382827+00:00"
+   }
+  ],
+  "moved_results": [
+   120126,
+   265646,
+   272657
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15789,
+  "dropped": [
+   {
+    "id": 215061,
+    "full_name": "Алмаз Мырзакерім",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:08:34.3712+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 15793,
+  "dropped": [
+   {
+    "id": 151542,
+    "full_name": "Darya Lavrentyeva",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T08:43:55.841805+00:00"
+   },
+   {
+    "id": 226574,
+    "full_name": "Lavrentyeva Darya",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:09.775508+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16158,
+  "dropped": [
+   {
+    "id": 66541,
+    "full_name": "Жан Сулейменов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:29:26.427212+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16293,
+  "dropped": [
+   {
+    "id": 97629,
+    "full_name": "Алеся Нартова",
+    "country": "Kazakhstan",
+    "city": "Усть Каменогорск",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:33:16.756934+00:00"
+   },
+   {
+    "id": 232654,
+    "full_name": "NARTOVA ALESSYA",
+    "country": "Kazakhstan",
+    "city": "Усть-Каменогорск",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:24:59.67584+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16302,
+  "dropped": [
+   {
+    "id": 222697,
+    "full_name": "Rassul Akturin",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:05:28.038767+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16308,
+  "dropped": [
+   {
+    "id": 201770,
+    "full_name": "Batyrbek Aripbayev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:28:13.571846+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16326,
+  "dropped": [
+   {
+    "id": 215248,
+    "full_name": "Rakhymzhan Kalmurzayev",
+    "country": "Kazakhstan",
+    "city": "Сарыагаш",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:09:15.221173+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16327,
+  "dropped": [
+   {
+    "id": 57673,
+    "full_name": "Данияр Рыскулов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:20:22.267489+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16376,
+  "dropped": [
+   {
+    "id": 66559,
+    "full_name": "Жандос Иманбеков",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:29:35.20662+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16380,
+  "dropped": [
+   {
+    "id": 190754,
+    "full_name": "Dana Zerekbayeva",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:36:32.483958+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 16963,
+  "dropped": [
+   {
+    "id": 165290,
+    "full_name": "Aigerim Adilova",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:32:59.003441+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17030,
+  "dropped": [
+   {
+    "id": 215228,
+    "full_name": "Dostan Abduzhalilov",
+    "country": "Kazakhstan",
+    "city": "Сарыагаш",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:09:12.582607+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17038,
+  "dropped": [
+   {
+    "id": 96263,
+    "full_name": "Alibek Abdygapparov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:23:13.167889+00:00"
+   },
+   {
+    "id": 178101,
+    "full_name": "Alibek Abdygaparov",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T12:40:51.14049+00:00"
+   },
+   {
+    "id": 231357,
+    "full_name": "Abdygaparov Alibek",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:24:08.528887+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17048,
+  "dropped": [
+   {
+    "id": 225864,
+    "full_name": "Dina Kudaibergenova",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:33:43.724636+00:00"
+   },
+   {
+    "id": 227758,
+    "full_name": "Kudaibergenova Dina",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:00.744874+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17132,
+  "dropped": [
+   {
+    "id": 218917,
+    "full_name": "Ернар Рустенов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:21:38.160781+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17143,
+  "dropped": [
+   {
+    "id": 57458,
+    "full_name": "Сабина Кусманкулова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:18:42.85355+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17149,
+  "dropped": [
+   {
+    "id": 58427,
+    "full_name": "Станислав Недужий",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:26:17.258511+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17152,
+  "dropped": [
+   {
+    "id": 216267,
+    "full_name": "Duman Imangaliyev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:12:41.918179+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17156,
+  "dropped": [
+   {
+    "id": 159949,
+    "full_name": "Адал Токсангазин",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:49:10.201755+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17157,
+  "dropped": [
+   {
+    "id": 160035,
+    "full_name": "Адильхан Лукпанов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:49:50.640108+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17167,
+  "dropped": [
+   {
+    "id": 64889,
+    "full_name": "Маралбек Касенов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:16:35.617463+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17172,
+  "dropped": [
+   {
+    "id": 130587,
+    "full_name": "Baurzhan Zhussiyev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T05:52:13.335443+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17520,
+  "dropped": [
+   {
+    "id": 65600,
+    "full_name": "Ильяс Сламхан",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:22:06.427021+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17560,
+  "dropped": [
+   {
+    "id": 103658,
+    "full_name": "Nurolla Zhakhayev",
+    "country": "Kazakhstan",
+    "city": "Атырау",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:18:18.418727+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 17567,
+  "dropped": [
+   {
+    "id": 165380,
+    "full_name": "Канагат Сапарбек",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:33:47.108188+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18159,
+  "dropped": [
+   {
+    "id": 59118,
+    "full_name": "Rustam Kebirov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:31:39.827534+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18589,
+  "dropped": [
+   {
+    "id": 59807,
+    "full_name": "Рустам Андекин",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:37:00.92321+00:00"
+   },
+   {
+    "id": 120799,
+    "full_name": "Rustam Andekin",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:28:33.030084+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18598,
+  "dropped": [
+   {
+    "id": 59480,
+    "full_name": "Виктория Майер",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:34:27.488262+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18618,
+  "dropped": [
+   {
+    "id": 59761,
+    "full_name": "Няйла Жабагина",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:36:40.372175+00:00"
+   },
+   {
+    "id": 96955,
+    "full_name": "Nailya Zhabagina",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:28:20.076473+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18731,
+  "dropped": [
+   {
+    "id": 96289,
+    "full_name": "Arukhan Amangeldiyeva",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:23:24.888463+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18743,
+  "dropped": [
+   {
+    "id": 49940,
+    "full_name": "Балым Жасыбек",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-02-28T19:22:13.934498+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18756,
+  "dropped": [
+   {
+    "id": 97569,
+    "full_name": "Ulan Babadilov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:32:50.052935+00:00"
+   }
+  ],
+  "moved_results": [
+   97544
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18771,
+  "dropped": [
+   {
+    "id": 205281,
+    "full_name": "Евгений Паламарчук",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:54:23.537397+00:00"
+   }
+  ],
+  "moved_results": [
+   205232
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18905,
+  "dropped": [
+   {
+    "id": 65926,
+    "full_name": "Али Гамбаров",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:24:38.495038+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18918,
+  "dropped": [
+   {
+    "id": 215653,
+    "full_name": "Дәрия Аманкелді",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:10:36.378631+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 18920,
+  "dropped": [
+   {
+    "id": 132624,
+    "full_name": "Asem Bakytova",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:07:48.571287+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 19115,
+  "dropped": [
+   {
+    "id": 219735,
+    "full_name": "Guldana Kabenova",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:25:29.336736+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 19133,
+  "dropped": [
+   {
+    "id": 59906,
+    "full_name": "Ерсултан Канзадаев",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:37:47.610902+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 19137,
+  "dropped": [
+   {
+    "id": 190990,
+    "full_name": "Marta Bolatova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:38:49.489101+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 19212,
+  "dropped": [
+   {
+    "id": 59603,
+    "full_name": "Гулназира Абдраманова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:35:25.622635+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 19869,
+  "dropped": [
+   {
+    "id": 164759,
+    "full_name": "Gaukhar Tulepova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:28:40.788133+00:00"
+   },
+   {
+    "id": 233505,
+    "full_name": "Tulepova Gauhar",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:25:37.225683+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 19871,
+  "dropped": [
+   {
+    "id": 65836,
+    "full_name": "Аксамал Зинетоллина",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:23:55.293972+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 19873,
+  "dropped": [
+   {
+    "id": 60761,
+    "full_name": "Raushan Aliyeva",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:44:29.864021+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 20789,
+  "dropped": [
+   {
+    "id": 99784,
+    "full_name": "Луиза Амирбаева",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:49:09.588392+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 20793,
+  "dropped": [
+   {
+    "id": 217971,
+    "full_name": "Kymbat Yegizbayeva",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:18:32.810406+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 20801,
+  "dropped": [
+   {
+    "id": 163707,
+    "full_name": "Adelya Amirbekova",
+    "country": "Kazakhstan",
+    "city": "Astana",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:19:45.551178+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 21122,
+  "dropped": [
+   {
+    "id": 217610,
+    "full_name": "Султан Бердигожанов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:17:39.898854+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 21125,
+  "dropped": [
+   {
+    "id": 217773,
+    "full_name": "Сандина Кайратова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:18:03.554511+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 21254,
+  "dropped": [
+   {
+    "id": 217472,
+    "full_name": "Мадина Масалимова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:17:16.016533+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 21264,
+  "dropped": [
+   {
+    "id": 217471,
+    "full_name": "Андамасова Акбала",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:17:16.016533+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 21412,
+  "dropped": [
+   {
+    "id": 163329,
+    "full_name": "Akniyet Omirzak",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:16:31.089511+00:00"
+   },
+   {
+    "id": 217969,
+    "full_name": "Акниет Омирзак",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:18:32.810406+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 21418,
+  "dropped": [
+   {
+    "id": 217044,
+    "full_name": "Karlygash Berkali",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:15:54.350797+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 23918,
+  "dropped": [
+   {
+    "id": 181356,
+    "full_name": "Yerzhan Mussin",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:13:09.954097+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 23927,
+  "dropped": [
+   {
+    "id": 102691,
+    "full_name": "Imanmadi Duisekenov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:10:34.556938+00:00"
+   },
+   {
+    "id": 134992,
+    "full_name": "Imanmadi Duisekenov",
+    "country": "Kazakhstan",
+    "city": "Almata",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:25:45.194762+00:00"
+   },
+   {
+    "id": 226689,
+    "full_name": "Duisekenov Imanmadi",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:10.821325+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 23941,
+  "dropped": [
+   {
+    "id": 181540,
+    "full_name": "Kanat Ismagulov",
+    "country": "Kazakhstan",
+    "city": "Astana",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:14:39.821706+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 24070,
+  "dropped": [
+   {
+    "id": 136064,
+    "full_name": "Николай Грачев",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:33:55.415932+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 24076,
+  "dropped": [
+   {
+    "id": 200226,
+    "full_name": "Олжас Жаксыбеков",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:16:32.016355+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 24641,
+  "dropped": [
+   {
+    "id": 78468,
+    "full_name": "Елена Кондратьева",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T23:08:33.514663+00:00"
+   },
+   {
+    "id": 226821,
+    "full_name": "Kondratyeva Elena",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:23.031944+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 24703,
+  "dropped": [
+   {
+    "id": 221583,
+    "full_name": "ӘСЕТ АҚАН",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:33:33.656548+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 24710,
+  "dropped": [
+   {
+    "id": 105170,
+    "full_name": "Askhat Akhmetov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:29:30.053871+00:00"
+   },
+   {
+    "id": 137718,
+    "full_name": "Askhat Akhmetov",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:46:24.56217+00:00"
+   },
+   {
+    "id": 226610,
+    "full_name": "AHMETOV  Ashat",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:10.317627+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 25542,
+  "dropped": [
+   {
+    "id": 209433,
+    "full_name": "Бауыржан Жақсылық",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:25:47.464764+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 25549,
+  "dropped": [
+   {
+    "id": 160198,
+    "full_name": "Аслан Каратаев",
+    "country": "Kazakhstan",
+    "city": "Атырау",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:51:04.290813+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 25644,
+  "dropped": [
+   {
+    "id": 208721,
+    "full_name": "Madiyar Baiseitov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:20:22.666879+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 25646,
+  "dropped": [
+   {
+    "id": 208193,
+    "full_name": "Iliyas Zhakimbay",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:16:22.38423+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 25647,
+  "dropped": [
+   {
+    "id": 160874,
+    "full_name": "Аслан Амиргалинов",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:56:04.190415+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26371,
+  "dropped": [
+   {
+    "id": 230908,
+    "full_name": "Kiyko Alisa",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:23:23.902944+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26387,
+  "dropped": [
+   {
+    "id": 88797,
+    "full_name": "Aidyn Boshkayev",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T00:24:52.00621+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26389,
+  "dropped": [
+   {
+    "id": 105179,
+    "full_name": "Abay Ayazbaev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:29:35.037351+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26399,
+  "dropped": [
+   {
+    "id": 215534,
+    "full_name": "Erdaulet Razakh",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:10:12.090617+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26409,
+  "dropped": [
+   {
+    "id": 121009,
+    "full_name": "Aslan Valiyev",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:30:07.737101+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26414,
+  "dropped": [
+   {
+    "id": 98818,
+    "full_name": "Александра Кизуб",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:42:02.561761+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26415,
+  "dropped": [
+   {
+    "id": 145371,
+    "full_name": "Бибігүл Русланова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T07:47:56.226333+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26418,
+  "dropped": [
+   {
+    "id": 105232,
+    "full_name": "Ергазы Еркинулы",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:29:58.475096+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26423,
+  "dropped": [
+   {
+    "id": 96783,
+    "full_name": "Asem Zhalbyrova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:27:03.17731+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26941,
+  "dropped": [
+   {
+    "id": 220550,
+    "full_name": "Daniyar Tashim",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:28:49.223726+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 26989,
+  "dropped": [
+   {
+    "id": 65756,
+    "full_name": "Ерлан Алиев",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:23:18.226358+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27007,
+  "dropped": [
+   {
+    "id": 65952,
+    "full_name": "Сейтжан Арман",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:24:50.830389+00:00"
+   },
+   {
+    "id": 227664,
+    "full_name": "Seiitzhan Arman",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:53.636795+00:00"
+   }
+  ],
+  "moved_results": [
+   65931,
+   268075,
+   272699
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27153,
+  "dropped": [
+   {
+    "id": 203867,
+    "full_name": "Арман Болат",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:43:52.544414+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27180,
+  "dropped": [
+   {
+    "id": 99025,
+    "full_name": "Татьяна Иванчина",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:43:34.326472+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27184,
+  "dropped": [
+   {
+    "id": 160580,
+    "full_name": "Dinmukhammed Sarsenbay",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:53:53.017664+00:00"
+   },
+   {
+    "id": 229162,
+    "full_name": "Dinmukhammed Sarsenbay",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:56.597042+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27208,
+  "dropped": [
+   {
+    "id": 217021,
+    "full_name": "Zhengis Adil",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:15:50.77785+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27283,
+  "dropped": [
+   {
+    "id": 221095,
+    "full_name": "Амина Сагинбекова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:30:53.400154+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27291,
+  "dropped": [
+   {
+    "id": 99798,
+    "full_name": "Лана Ким",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:49:16.361695+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27301,
+  "dropped": [
+   {
+    "id": 61219,
+    "full_name": "Балнур Омарова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T20:48:05.551377+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27320,
+  "dropped": [
+   {
+    "id": 203485,
+    "full_name": "ДАНИЯР ӨМИРЖАН",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:41:03.064749+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27348,
+  "dropped": [
+   {
+    "id": 133880,
+    "full_name": "Jamilya Orazova",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:17:22.097841+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 27353,
+  "dropped": [
+   {
+    "id": 100835,
+    "full_name": "Aina Zhangazina",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:56:56.817343+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 39268,
+  "dropped": [
+   {
+    "id": 226706,
+    "full_name": "Kulikov Oleg",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:11.382827+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 39350,
+  "dropped": [
+   {
+    "id": 222587,
+    "full_name": "Togzhan Meiram",
+    "country": "Kazakhstan",
+    "city": "Karaganda",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:00:13.851441+00:00"
+   }
+  ],
+  "moved_results": [
+   239115
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 39362,
+  "dropped": [
+   {
+    "id": 97879,
+    "full_name": "Yuliya Sokolova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:35:08.177534+00:00"
+   },
+   {
+    "id": 227982,
+    "full_name": "Sokolova Yuliya",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:09.78444+00:00"
+   }
+  ],
+  "moved_results": [
+   97854,
+   268908,
+   271488,
+   273408,
+   273536,
+   273880,
+   274205,
+   275590,
+   276111,
+   277266,
+   278140,
+   278898,
+   279838,
+   280220,
+   280885,
+   282288,
+   284404,
+   286913,
+   288901
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 39407,
+  "dropped": [
+   {
+    "id": 203708,
+    "full_name": "Alua Ismagul",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:42:41.817346+00:00"
+   }
+  ],
+  "moved_results": [
+   203659
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 39409,
+  "dropped": [
+   {
+    "id": 65540,
+    "full_name": "Berik Bakhitov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-02-28T21:21:38.953658+00:00"
+   }
+  ],
+  "moved_results": [
+   65519
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 47686,
+  "dropped": [
+   {
+    "id": 158594,
+    "full_name": "Ясмина Жаруллаева",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:39:04.633448+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 47739,
+  "dropped": [
+   {
+    "id": 222835,
+    "full_name": "Yerbolat Satkanbayev",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:23:33.108217+00:00"
+   }
+  ],
+  "moved_results": [
+   249337
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 47741,
+  "dropped": [
+   {
+    "id": 223141,
+    "full_name": "Almas Shabdanov",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:24:42.287228+00:00"
+   }
+  ],
+  "moved_results": [
+   249964
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 47922,
+  "dropped": [
+   {
+    "id": 222770,
+    "full_name": "Tamerlan Suleimenov",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:23:06.987182+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 48270,
+  "dropped": [
+   {
+    "id": 116084,
+    "full_name": "Aibek Bainbetov",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T03:53:21.345512+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 48275,
+  "dropped": [
+   {
+    "id": 208426,
+    "full_name": "Маменов Акимжан",
+    "country": "Kazakhstan",
+    "city": "Шымкент",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:18:09.164865+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 48301,
+  "dropped": [
+   {
+    "id": 182063,
+    "full_name": "Жаслан Тапишев",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:18:52.846516+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 49567,
+  "dropped": [
+   {
+    "id": 116387,
+    "full_name": "Ruslan Kurmangaliyev",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T03:55:34.135483+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 49595,
+  "dropped": [
+   {
+    "id": 183322,
+    "full_name": "Dilnara Gulamova",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:29:00.45762+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 50218,
+  "dropped": [
+   {
+    "id": 191587,
+    "full_name": "Stanislav Alexandrov",
+    "country": "Kazakhstan",
+    "city": "Нур-Султан",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:44:37.354808+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 50224,
+  "dropped": [
+   {
+    "id": 118919,
+    "full_name": "Yessenzhol Zholamanov",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:14:28.544093+00:00"
+   },
+   {
+    "id": 183218,
+    "full_name": "Yessenzhol Zholamanov",
+    "country": "Kazakhstan",
+    "city": "Astana",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:28:09.96897+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 50245,
+  "dropped": [
+   {
+    "id": 117573,
+    "full_name": "Aliya Kobegen",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:04:28.182253+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 50277,
+  "dropped": [
+   {
+    "id": 204107,
+    "full_name": "Rakhat Shalgynbay",
+    "country": "Kazakhstan",
+    "city": "Кызылорда",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:45:41.134779+00:00"
+   }
+  ],
+  "moved_results": [
+   204058
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 50286,
+  "dropped": [
+   {
+    "id": 225908,
+    "full_name": "Назгүл Нұғметұллина",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:33:56.593544+00:00"
+   }
+  ],
+  "moved_results": [
+   255177
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 50289,
+  "dropped": [
+   {
+    "id": 224423,
+    "full_name": "Gulsaya Tatikova",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:28:31.083082+00:00"
+   }
+  ],
+  "moved_results": [
+   252101
+  ],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 51809,
+  "dropped": [
+   {
+    "id": 225578,
+    "full_name": "Iglik Uspanov",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:32:39.743871+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 51815,
+  "dropped": [
+   {
+    "id": 181616,
+    "full_name": "Shakhmurad Yerzhanov",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:15:16.814835+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 57627,
+  "dropped": [
+   {
+    "id": 205262,
+    "full_name": "Егор Рожин",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:54:14.445457+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 57628,
+  "dropped": [
+   {
+    "id": 165750,
+    "full_name": "Chingiz Zhanturiyev",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:36:47.926733+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 57647,
+  "dropped": [
+   {
+    "id": 132285,
+    "full_name": "Ибрагимова Екатерина",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:05:14.512328+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 58187,
+  "dropped": [
+   {
+    "id": 131675,
+    "full_name": "Еламан Шопан",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:00:31.939832+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 58208,
+  "dropped": [
+   {
+    "id": 161120,
+    "full_name": "Дастан Едилов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:58:01.597777+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 58209,
+  "dropped": [
+   {
+    "id": 207329,
+    "full_name": "Мерей Манапбек",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:09:42.96488+00:00"
+   }
+  ],
+  "moved_results": [
+   207280
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 58232,
+  "dropped": [
+   {
+    "id": 201402,
+    "full_name": "Anuar Kemelbekov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:25:27.135357+00:00"
+   }
+  ],
+  "moved_results": [
+   201353,
+   226711
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 58639,
+  "dropped": [
+   {
+    "id": 98068,
+    "full_name": "Dmitry Aleksashov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:36:30.688676+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 58654,
+  "dropped": [
+   {
+    "id": 98437,
+    "full_name": "Темирхан Сагимбай",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:39:12.640372+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 58672,
+  "dropped": [
+   {
+    "id": 94527,
+    "full_name": "Alena Ti",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:10:16.747614+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 60381,
+  "dropped": [
+   {
+    "id": 220717,
+    "full_name": "Мария Королёва",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:29:28.840934+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 60405,
+  "dropped": [
+   {
+    "id": 203512,
+    "full_name": "Даниил Пестриков",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:41:15.115797+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 60407,
+  "dropped": [
+   {
+    "id": 107925,
+    "full_name": "Amina Dyussembinova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:49:48.666164+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 60795,
+  "dropped": [
+   {
+    "id": 133132,
+    "full_name": "Dina Muratkhanova",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:11:39.86901+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 60847,
+  "dropped": [
+   {
+    "id": 97363,
+    "full_name": "Dana Zhunusova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:31:19.553075+00:00"
+   },
+   {
+    "id": 146556,
+    "full_name": "Dana Zhunussova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T08:02:12.57388+00:00"
+   },
+   {
+    "id": 226414,
+    "full_name": "Zhunussova Dana",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:08.121439+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 64418,
+  "dropped": [
+   {
+    "id": 94176,
+    "full_name": "Әлиасқар Мұхаметқұлов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:07:42.184564+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 64485,
+  "dropped": [
+   {
+    "id": 130736,
+    "full_name": "Batyr Nurgazy",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T05:53:21.461832+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 64495,
+  "dropped": [
+   {
+    "id": 105799,
+    "full_name": "Динмухамед Дуйсембаев",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:34:09.04984+00:00"
+   },
+   {
+    "id": 228716,
+    "full_name": "Duisembayev Dinmukhamed",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:32.886604+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65830,
+  "dropped": [
+   {
+    "id": 166069,
+    "full_name": "Azamat Kassymbek",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:39:21.115463+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65857,
+  "dropped": [
+   {
+    "id": 100217,
+    "full_name": "Балнур Нурмуханбет",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:52:22.311977+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65869,
+  "dropped": [
+   {
+    "id": 101202,
+    "full_name": "Sarvinoz Isroilova",
+    "country": "Uzbekistan",
+    "city": "Ташкент",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:59:36.71844+00:00"
+   }
+  ],
+  "moved_results": [
+   101177
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65876,
+  "dropped": [
+   {
+    "id": 102345,
+    "full_name": "Аружан Есқара",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:08:00.27819+00:00"
+   },
+   {
+    "id": 133618,
+    "full_name": "Aruzhan Yeskara",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:15:23.561924+00:00"
+   }
+  ],
+  "moved_results": [
+   102320,
+   133590
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65880,
+  "dropped": [
+   {
+    "id": 209615,
+    "full_name": "Айгерім Қамысбек",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:27:08.321812+00:00"
+   }
+  ],
+  "moved_results": [
+   209566
+  ],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65928,
+  "dropped": [
+   {
+    "id": 203727,
+    "full_name": "Алғазы Асанов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:42:50.953551+00:00"
+   }
+  ],
+  "moved_results": [
+   203678
+  ],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65962,
+  "dropped": [
+   {
+    "id": 99350,
+    "full_name": "Альмира Алатаева",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:45:57.338482+00:00"
+   }
+  ],
+  "moved_results": [
+   99325
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65976,
+  "dropped": [
+   {
+    "id": 107766,
+    "full_name": "Tatyana Lyukshina",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T02:48:38.721212+00:00"
+   }
+  ],
+  "moved_results": [
+   107740
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65995,
+  "dropped": [
+   {
+    "id": 209169,
+    "full_name": "Ulzhalgas Tastanbek",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:23:44.568105+00:00"
+   }
+  ],
+  "moved_results": [
+   209120
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65996,
+  "dropped": [
+   {
+    "id": 162190,
+    "full_name": "Руслан Джарикбасов",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:07:08.931125+00:00"
+   }
+  ],
+  "moved_results": [
+   162159,
+   190997
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 65999,
+  "dropped": [
+   {
+    "id": 99526,
+    "full_name": "Жанна Нұрланқызы",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:47:13.72715+00:00"
+   }
+  ],
+  "moved_results": [
+   99501
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 66110,
+  "dropped": [
+   {
+    "id": 168406,
+    "full_name": "Адылжан Айсаев",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:58:33.182134+00:00"
+   }
+  ],
+  "moved_results": [
+   168375
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 66155,
+  "dropped": [
+   {
+    "id": 97417,
+    "full_name": "Ерлан Нұртанов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:31:43.714386+00:00"
+   }
+  ],
+  "moved_results": [
+   97392
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 66156,
+  "dropped": [
+   {
+    "id": 226877,
+    "full_name": "Avdeeva Kseniia",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:23.599789+00:00"
+   }
+  ],
+  "moved_results": [
+   266020,
+   266116,
+   269206,
+   273608,
+   275815
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 66179,
+  "dropped": [
+   {
+    "id": 202351,
+    "full_name": "Mariyam Talasbayeva",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:32:37.009657+00:00"
+   }
+  ],
+  "moved_results": [
+   202302,
+   221340
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 66183,
+  "dropped": [
+   {
+    "id": 96222,
+    "full_name": "Женисова Аруна",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T01:22:53.59002+00:00"
+   }
+  ],
+  "moved_results": [
+   96197
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 87511,
+  "dropped": [
+   {
+    "id": 132473,
+    "full_name": "Оянжан Макетова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:06:40.334476+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 87578,
+  "dropped": [
+   {
+    "id": 208713,
+    "full_name": "Асет Кали",
+    "country": "Kazakhstan",
+    "city": "Кызылорда",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:20:17.867004+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 87598,
+  "dropped": [
+   {
+    "id": 117885,
+    "full_name": "Gaziza Zhakupova",
+    "country": "Kazakhstan",
+    "city": "Костанай",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:06:46.973212+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 89117,
+  "dropped": [
+   {
+    "id": 183577,
+    "full_name": "Symbat Imanbayeva",
+    "country": "Kazakhstan",
+    "city": "Astana",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:31:07.441153+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 89151,
+  "dropped": [
+   {
+    "id": 166580,
+    "full_name": "Рустембек Пернеш",
+    "country": "Kazakhstan",
+    "city": "шымкент",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:43:28.281076+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 94896,
+  "dropped": [
+   {
+    "id": 160442,
+    "full_name": "Бахтиер Одилов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:52:51.734438+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 94919,
+  "dropped": [
+   {
+    "id": 158993,
+    "full_name": "Rinat Satkangulov",
+    "country": "Kazakhstan",
+    "city": "Atyrau",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:42:00.020505+00:00"
+   }
+  ],
+  "moved_results": [
+   158963
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 94929,
+  "dropped": [
+   {
+    "id": 130786,
+    "full_name": "Арман Саткынов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T05:53:43.078901+00:00"
+   }
+  ],
+  "moved_results": [
+   130759
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 94953,
+  "dropped": [
+   {
+    "id": 160344,
+    "full_name": "Данияр Сыдыгалы",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:52:07.47604+00:00"
+   }
+  ],
+  "moved_results": [
+   160314
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 95015,
+  "dropped": [
+   {
+    "id": 215131,
+    "full_name": "Ерке Ахметжанова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:08:49.204478+00:00"
+   }
+  ],
+  "moved_results": [
+   216178
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 95033,
+  "dropped": [
+   {
+    "id": 131134,
+    "full_name": "Karina Khalidullina",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T05:56:22.970083+00:00"
+   }
+  ],
+  "moved_results": [
+   131107
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 95035,
+  "dropped": [
+   {
+    "id": 160819,
+    "full_name": "Аскар Муханбеткалиев",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:55:39.420598+00:00"
+   }
+  ],
+  "moved_results": [
+   160789
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 95344,
+  "dropped": [
+   {
+    "id": 132287,
+    "full_name": "Aigerim Imankulova",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:05:15.436408+00:00"
+   }
+  ],
+  "moved_results": [
+   132260,
+   152228
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 95356,
+  "dropped": [
+   {
+    "id": 160622,
+    "full_name": "Әлиасқар Сапарғали",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:54:12.814807+00:00"
+   }
+  ],
+  "moved_results": [
+   160592
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 96103,
+  "dropped": [
+   {
+    "id": 162022,
+    "full_name": "Kydyrkhan Yerimbetov",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:05:42.772364+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 96131,
+  "dropped": [
+   {
+    "id": 204997,
+    "full_name": "Nurbol Nadirov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:52:17.271393+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 96195,
+  "dropped": [
+   {
+    "id": 137557,
+    "full_name": "Артем Киприянов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:45:13.193857+00:00"
+   },
+   {
+    "id": 202054,
+    "full_name": "Артем Кипрянов",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:30:21.807553+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 96197,
+  "dropped": [
+   {
+    "id": 191684,
+    "full_name": "Madina Mamyrbekova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:45:30.609949+00:00"
+   }
+  ],
+  "moved_results": [
+   191645
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 97287,
+  "dropped": [
+   {
+    "id": 191805,
+    "full_name": "Алёна Юн",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:46:40.813229+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 97323,
+  "dropped": [
+   {
+    "id": 161546,
+    "full_name": "Bakkeldi Rysbek",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:01:34.588901+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 97343,
+  "dropped": [
+   {
+    "id": 117218,
+    "full_name": "Dinara Makhadiyeva",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T04:01:49.642788+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 97356,
+  "dropped": [
+   {
+    "id": 191298,
+    "full_name": "Адлия Урунова",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:41:52.042871+00:00"
+   },
+   {
+    "id": 209023,
+    "full_name": "Адлия Урунова",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:22:38.262321+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 100026,
+  "dropped": [
+   {
+    "id": 168451,
+    "full_name": "Symbat Myrzabay",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:58:55.634242+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 100041,
+  "dropped": [
+   {
+    "id": 164439,
+    "full_name": "Альмира Мусабаева",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:25:56.233242+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 100057,
+  "dropped": [
+   {
+    "id": 204788,
+    "full_name": "Өтеш Зухра",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:50:44.214662+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 102918,
+  "dropped": [
+   {
+    "id": 206161,
+    "full_name": "Тоқтыбай Иманбаев",
+    "country": "Kazakhstan",
+    "city": "Жаркент",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:00:57.624008+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 102964,
+  "dropped": [
+   {
+    "id": 219472,
+    "full_name": "Aidyn Ibragimov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:24:21.147742+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 103049,
+  "dropped": [
+   {
+    "id": 135359,
+    "full_name": "Никита Назаров",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T06:28:33.388578+00:00"
+   },
+   {
+    "id": 227352,
+    "full_name": "Nazarov Nikita",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:19:42.366379+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 103080,
+  "dropped": [
+   {
+    "id": 181726,
+    "full_name": "Жаксыгельды Игитаев",
+    "country": "Kazakhstan",
+    "city": "Қарағанды",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:16:10.351635+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 103104,
+  "dropped": [
+   {
+    "id": 227942,
+    "full_name": "Kenzhegalieva Dana",
+    "country": "Russia",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T09:20:09.268764+00:00"
+   }
+  ],
+  "moved_results": [
+   268760,
+   275216,
+   275702,
+   278402,
+   278701,
+   280166,
+   280766
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 103110,
+  "dropped": [
+   {
+    "id": 193645,
+    "full_name": "Olzhas Көпбай",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T15:03:29.820692+00:00"
+   }
+  ],
+  "moved_results": [
+   193606
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 104344,
+  "dropped": [
+   {
+    "id": 225792,
+    "full_name": "Timur Tyulegenov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:33:27.645223+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 104384,
+  "dropped": [
+   {
+    "id": 215805,
+    "full_name": "Алпанов Имангали",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:11:10.557833+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 104468,
+  "dropped": [
+   {
+    "id": 219744,
+    "full_name": "Saniya Salykova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:25:32.629586+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 104472,
+  "dropped": [
+   {
+    "id": 202451,
+    "full_name": "Nurlan Kozhabekov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T10:33:20.977946+00:00"
+   }
+  ],
+  "moved_results": [
+   202402
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 116723,
+  "dropped": [
+   {
+    "id": 224065,
+    "full_name": "Daulet Assylbekov",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:27:28.337173+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 116732,
+  "dropped": [
+   {
+    "id": 166089,
+    "full_name": "Ainur Niyetbayeva",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:39:32.384643+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 116748,
+  "dropped": [
+   {
+    "id": 224165,
+    "full_name": "Yelamanov Nariman",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:27:45.498666+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 116773,
+  "dropped": [
+   {
+    "id": 181117,
+    "full_name": "Askhat Tastemirov",
+    "country": "Kazakhstan",
+    "city": "Astana",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:11:13.391166+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 116851,
+  "dropped": [
+   {
+    "id": 184456,
+    "full_name": "Gulzhazira Bazarkulova",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:38:04.974931+00:00"
+   }
+  ],
+  "moved_results": [
+   184417
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 116872,
+  "dropped": [
+   {
+    "id": 183311,
+    "full_name": "Aina Акназарова",
+    "country": "Kazakhstan",
+    "city": "Astana",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:28:55.898103+00:00"
+   }
+  ],
+  "moved_results": [
+   183272
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 118473,
+  "dropped": [
+   {
+    "id": 225832,
+    "full_name": "Abay Turabay",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:33:37.035191+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 118497,
+  "dropped": [
+   {
+    "id": 224509,
+    "full_name": "Амир Шарипбек",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:28:42.443042+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 118587,
+  "dropped": [
+   {
+    "id": 184174,
+    "full_name": "Dametken Bisembayeva",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:35:49.647982+00:00"
+   }
+  ],
+  "moved_results": [
+   184135
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 118605,
+  "dropped": [
+   {
+    "id": 184560,
+    "full_name": "Marat Serik",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:38:52.885818+00:00"
+   }
+  ],
+  "moved_results": [
+   184521
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 118924,
+  "dropped": [
+   {
+    "id": 184269,
+    "full_name": "Kanat Kobessov",
+    "country": "Kazakhstan",
+    "city": "Astana",
+    "claimed_by": null,
+    "created_at": "2026-03-01T13:36:35.625748+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 119050,
+  "dropped": [
+   {
+    "id": 162585,
+    "full_name": "Madi Mukhamejarov",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:10:24.218936+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 119081,
+  "dropped": [
+   {
+    "id": 225750,
+    "full_name": "Tolenov Askhat",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:33:18.281136+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 135209,
+  "dropped": [
+   {
+    "id": 206091,
+    "full_name": "Серік Серікбай",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-04-23T11:00:26.584439+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 135284,
+  "dropped": [
+   {
+    "id": 158798,
+    "full_name": "Иван Кулеш",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T09:40:35.839608+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 137846,
+  "dropped": [
+   {
+    "id": 168507,
+    "full_name": "Ainura Omiraliyeva",
+    "country": "Kazakhstan",
+    "city": "Almaty",
+    "claimed_by": null,
+    "created_at": "2026-03-01T10:59:24.183817+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 137864,
+  "dropped": [
+   {
+    "id": 170013,
+    "full_name": "Зейнегуль Тулеева",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T11:12:10.30745+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 137895,
+  "dropped": [
+   {
+    "id": 222013,
+    "full_name": "Venera Babayeva",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:35:07.663309+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": "Server disconnected",
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 152529,
+  "dropped": [
+   {
+    "id": 218838,
+    "full_name": "Таиров Султан",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:21:17.004961+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 152723,
+  "dropped": [
+   {
+    "id": 189243,
+    "full_name": "Дархан Таған",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:21:35.718572+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 152755,
+  "dropped": [
+   {
+    "id": 215897,
+    "full_name": "Eldar Beibit",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:11:27.457811+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 180254,
+  "dropped": [
+   {
+    "id": 189809,
+    "full_name": "Антон Абраменко",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-03-01T14:27:15.326499+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 180307,
+  "dropped": [
+   {
+    "id": 226009,
+    "full_name": "Kassymzhan Abdulin",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:34:17.559268+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 180359,
+  "dropped": [
+   {
+    "id": 225142,
+    "full_name": "Тимур Придуха",
+    "country": "Kazakhstan",
+    "city": "Степногорск",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:30:29.267316+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 204419,
+  "dropped": [
+   {
+    "id": 217982,
+    "full_name": "Margarita Silayeva",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:18:35.679667+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 204665,
+  "dropped": [
+   {
+    "id": 216630,
+    "full_name": "Sayara Sudzhikova",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:13:50.097729+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 205593,
+  "dropped": [
+   {
+    "id": 225259,
+    "full_name": "Murat Yestay",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:30:47.187399+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 205594,
+  "dropped": [
+   {
+    "id": 225260,
+    "full_name": "Талгат Естай",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:30:47.187399+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 205629,
+  "dropped": [
+   {
+    "id": 221229,
+    "full_name": "Бекболат Балкыбеков",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:31:51.755087+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 205700,
+  "dropped": [
+   {
+    "id": 219075,
+    "full_name": "Дәурен Исабай",
+    "country": "Kazakhstan",
+    "city": "Караганда",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:22:19.249777+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 208804,
+  "dropped": [
+   {
+    "id": 220029,
+    "full_name": "Yussuf Suleiman",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:26:41.36512+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 208844,
+  "dropped": [
+   {
+    "id": 220222,
+    "full_name": "Тимур Рембеков",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:27:33.134676+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 208857,
+  "dropped": [
+   {
+    "id": 220584,
+    "full_name": "Nariman Shaikhyslamov",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:29:01.895463+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 208969,
+  "dropped": [
+   {
+    "id": 216226,
+    "full_name": "Элеонора Ізбасар",
+    "country": "Kazakhstan",
+    "city": "Алматы",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:12:35.113111+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 208980,
+  "dropped": [
+   {
+    "id": 221061,
+    "full_name": "Радкевич Ольга",
+    "country": "Russia",
+    "city": "Красноярск",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:30:42.035482+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 221161,
+  "dropped": [
+   {
+    "id": 222549,
+    "full_name": "Нұрдәулет Әзкен",
+    "country": "Kazakhstan",
+    "city": "Актобе",
+    "claimed_by": null,
+    "created_at": "2026-10-21T07:59:40.674917+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 221473,
+  "dropped": [
+   {
+    "id": 225576,
+    "full_name": "Динара Нурмагамбетова",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:32:39.743871+00:00"
+   }
+  ],
+  "moved_results": [],
+  "error": null,
+  "keep_claimed_by": null
+ },
+ {
+  "keep": 221605,
+  "dropped": [
+   {
+    "id": 225616,
+    "full_name": "Alikhan Satybaldiyev",
+    "country": "Kazakhstan",
+    "city": "Астана",
+    "claimed_by": null,
+    "created_at": "2026-10-21T08:32:48.810461+00:00"
+   }
+  ],
+  "moved_results": [
+   254547
+  ],
+  "error": null,
+  "keep_claimed_by": null
+ }
+]

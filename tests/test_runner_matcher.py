@@ -48,3 +48,27 @@ def test_ambiguous_name_resolved_by_city():
 def test_unknown_runner():
     index = make_index([(1, "Petrov Petr", "Kazakhstan", "Алматы")])
     assert index.match("Ivanov Ivan", "Kazakhstan", "Almaty") is None
+
+
+def test_match_strict_same_person_other_spelling():
+    idx = RunnerIndex()
+    idx.add(1, "Ержан Джанарстанов", "Kazakhstan", "Алматы")
+    # Latin, reversed order, English city, different country text: same person
+    assert idx.match_strict("Dzhanarstanov Erzhan", "Almaty") == 1
+    assert idx.match_strict("Yerzhan Janarstanov", "Алматы") == 1
+
+
+def test_match_strict_needs_city_and_all_tokens():
+    idx = RunnerIndex()
+    idx.add(1, "Sanzhar Yermek", "Kazakhstan", "Астана")
+    idx.add(2, "Санжар Ермек", "Kazakhstan", "Алматы")
+    assert idx.match_strict("Yermek Sanzhar", "") is None          # no city: ambiguous
+    assert idx.match_strict("Yermek Sanzhar", "Астана") == 1
+    assert idx.match_strict("Sanzhar Yermek Ivanovich", "Астана") is None  # extra token
+
+
+def test_match_strict_refuses_two_candidates():
+    idx = RunnerIndex()
+    idx.add(1, "Elena Kim", "Kazakhstan", "Алматы")
+    idx.add(2, "Елена Ким", "Kazakhstan", "Алматы")
+    assert idx.match_strict("Kim Elena", "Almaty") is None

@@ -6,7 +6,7 @@ Handles upserts for events, runners, and results with batching.
 import os
 import logging
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Callable, Optional
 from supabase import create_client, Client
 
 log = logging.getLogger(__name__)
@@ -88,11 +88,19 @@ def upsert_runner(client: Client, full_name: str, country: Optional[str], city: 
 RunnerKey = tuple[str, str, str]  # (full_name, country, city) — matches the unique index
 
 
-def get_or_create_runners(client: Client, keys: list[RunnerKey]) -> dict[RunnerKey, int]:
+def get_or_create_runners(
+    client: Client,
+    keys: list[RunnerKey],
+    resolve: Optional[Callable[[RunnerKey], Optional[int]]] = None,
+) -> dict[RunnerKey, int]:
     """
     Resolve many runners in two requests: one SELECT for existing rows, one
     INSERT for the missing ones. Avoids a write per result row — existing
     runners are never rewritten.
+
+    `resolve` is asked for keys with no exact row before one is created, so the
+    same person spelled differently ("Almaty"/"Алматы", Latin/Cyrillic, name
+    order) reuses the existing runner instead of becoming a duplicate.
     """
     unique_keys = list(dict.fromkeys(keys))
     if not unique_keys:
@@ -121,6 +129,12 @@ def get_or_create_runners(client: Client, keys: list[RunnerKey]) -> dict[RunnerK
         ids[(r["full_name"], r["country"] or "", r["city"] or "")] = r["id"]
 
     missing = [k for k in simple_keys if k not in ids]
+    if resolve:
+        for key in missing:
+            found = resolve(key)
+            if found is not None:
+                ids[key] = found
+        missing = [k for k in missing if k not in ids]
     if missing:
         created = (
             client.table("runners")
