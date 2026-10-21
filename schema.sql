@@ -79,3 +79,9 @@ SELECT
 FROM results res
 JOIN runners r ON r.id = res.runner_id
 JOIN events  e ON e.id = res.event_id;
+
+-- RLS: app + scraper use the service key (bypasses RLS); no anon access.
+ALTER TABLE runners ENABLE ROW LEVEL SECURITY;
+ALTER TABLE events  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE results ENABLE ROW LEVEL SECURITY;
+ALTER VIEW v_results SET (security_invoker = true);
