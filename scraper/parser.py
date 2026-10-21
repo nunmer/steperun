@@ -83,15 +83,15 @@ def count_pages(html: str) -> int:
 
     nums: list[int] = []
     for a in pager.find_all("a"):
-        # Only look at the query-string portion of the href to avoid
-        # matching years in the path (e.g. winter_run_2026 → 2026)
+        # Only the page parameter counts: other query values such as the
+        # category id (?d=105) are not page numbers, and years in the path
+        # (winter_run_2026) aren't either.
         href = a.get("href", "")
         if "?" in href:
             qs = href[href.index("?") + 1:]
-            for val in parse_qs(qs).values():
-                for v in val:
-                    if v.isdigit():
-                        nums.append(int(v))
+            for v in parse_qs(qs).get("Results_page", []):
+                if v.isdigit():
+                    nums.append(int(v))
         # Also trust plain digit link text (page number buttons)
         txt = a.get_text(strip=True)
         if txt.isdigit():

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-21 (later): scraper page-count bug
+
+- `count_pages()` treated the category id (`?d=105`) as a page number, so the
+  scraper fetched 105 pages where the site has 14. The site repeats the last
+  page past the end, so every repeat was re-upserted. That meant about 8× the
+  requests and DB writes per event, and **inflated `total_results`** (the
+  "finishers" on event cards): 31 events corrected, from a sum of 286,593 to
+  172,225. No rows were lost.
+- Fixed: the page count uses only `Results_page`; the scraper stops when a page
+  repeats the previous one; `total_results` is now the stored row count.
+
 ## 2026-10-21 (later): site audit fixes
 
 Everything in `AUDIT-2026-10-21.md` except item 17; see its status table.

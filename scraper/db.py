@@ -33,10 +33,21 @@ def upsert_event(client: Client, slug: str, name: str, year: int, url: str, orga
     return resp.data[0]["id"]
 
 
+def count_event_results(client: Client, event_id: int) -> int:
+    """Rows actually stored for an event (upserts can overwrite, so the number
+    of rows sent overstates it)."""
+    return (
+        client.table("results").select("id", count="exact")
+        .eq("event_id", event_id).limit(1).execute()
+    ).count or 0
+
+
 def mark_event_scraped(client: Client, event_id: int, total: int):
+    """Mark an event done; total_results is the stored row count, not `total`."""
+    stored = count_event_results(client, event_id)
     client.table("events").update({
         "scraped_at": datetime.now(timezone.utc).isoformat(),
-        "total_results": total,
+        "total_results": stored if stored or not total else total,
     }).eq("id", event_id).execute()
 
 

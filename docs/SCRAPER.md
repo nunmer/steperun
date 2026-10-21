@@ -43,6 +43,9 @@ The concurrency group `scrape-results` means runs queue and never overlap.
   `total_results > 0`. Empty events are retried.
 - CLI flags: `--min-year YEAR`, `--event SLUG` (one event), `--full` (ignore
   resume).
+- Pagination: the page count comes only from `Results_page` links in the pager.
+  Past the last page the site serves the last page again, so the scraper stops
+  when a page repeats. `events.total_results` is the stored row count.
 - Older history (about 79 events from 2016–2023) is only scraped with
   `min_year=0`.
 

@@ -184,6 +184,7 @@ def _scrape_category(
 
     rows = parse_results_table(html, cat.label)
     inserted = _flush(rows, event_id, client)
+    prev_bibs = [r.bib_number for r in rows]
 
     # Pages 2..N
     for page in range(2, total_pages + 1):
@@ -193,6 +194,12 @@ def _scrape_category(
         if not rows:
             log.debug("    No rows on page %d – stopping early", page)
             break
+        # Past the last page the site serves the last page again.
+        bibs = [r.bib_number for r in rows]
+        if bibs == prev_bibs:
+            log.debug("    Page %d repeats page %d – stopping", page, page - 1)
+            break
+        prev_bibs = bibs
         inserted += _flush(rows, event_id, client)
         log.debug("    page %d/%d → %d rows", page, total_pages, len(rows))
         time.sleep(DELAY)
