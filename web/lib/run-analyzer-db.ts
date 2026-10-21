@@ -29,6 +29,7 @@ export interface RunSession {
   analysis: unknown;
   overall_score: number | null;
   error: string | null;
+  coins_charged: number;
   created_at: string;
   updated_at: string;
 }
@@ -90,16 +91,34 @@ export async function transitionSessionStatus(
   userId: string,
   fromStatus: RunSession["status"],
   toStatus: RunSession["status"],
+  extra: { error?: string | null; olderThan?: string } = {},
 ): Promise<boolean> {
-  const { data, error } = await db()
+  let query = db()
     .from("run_sessions")
-    .update({ status: toStatus, error: null, updated_at: new Date().toISOString() })
+    .update({ status: toStatus, error: extra.error ?? null, updated_at: new Date().toISOString() })
     .eq("id", id)
     .eq("user_id", userId)
-    .eq("status", fromStatus)
-    .select("id");
+    .eq("status", fromStatus);
+  if (extra.olderThan) query = query.lt("updated_at", extra.olderThan);
+
+  const { data, error } = await query.select("id");
   if (error) throw new Error(`Failed to update session status: ${error.message}`);
   return (data?.length ?? 0) > 0;
+}
+
+/** Sessions stuck in a working state since before `olderThan` (ISO timestamp). */
+export async function getStaleSessions(userId: string, olderThan: string) {
+  return db()
+    .from("run_sessions")
+    .select("id, status, coins_charged")
+    .eq("user_id", userId)
+    .in("status", ["extracting", "analyzing"])
+    .lt("updated_at", olderThan);
+}
+
+/** Record how many coins a session cost, so cleanup can refund it. */
+export async function setSessionCoinsCharged(id: string, coins: number) {
+  return db().from("run_sessions").update({ coins_charged: coins }).eq("id", id);
 }
 
 // ----- run_frames -----

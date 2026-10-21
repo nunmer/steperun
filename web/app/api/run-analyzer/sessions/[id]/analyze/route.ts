@@ -6,9 +6,11 @@ import {
   getSessionFrames,
   getFramePublicUrl,
   transitionSessionStatus,
+  setSessionCoinsCharged,
 } from "@/lib/run-analyzer-db";
 import { COIN_ECONOMY } from "@/lib/coins-config";
 import { getQuotaUsedCount, refundCoins, spendCoins } from "@/lib/services/coins";
+import { expireStaleSessions } from "@/lib/services/session-cleanup";
 
 const EXTRACTOR_URL = process.env.RUN_ANALYZER_API_URL || "http://localhost:8000";
 
@@ -44,6 +46,9 @@ export async function POST(
     );
   }
 
+  // Stuck sessions would otherwise count as "analyzing" against free quota.
+  await expireStaleSessions(user.id);
+
   // Quota / payment gate
   const quotaUsed = await getQuotaUsedCount(user.id, id);
   const requiresPayment = quotaUsed >= COIN_ECONOMY.FREE_ANALYSES;
@@ -66,14 +71,26 @@ export async function POST(
       }
       return NextResponse.json({ error: spend.message }, { status: 500 });
     }
+
+    // Lets stale-session cleanup refund this charge if the request dies.
+    const { error: chargeErr } = await setSessionCoinsCharged(id, COIN_ECONOMY.ANALYSIS_COST);
+    if (chargeErr) {
+      console.error(`[analyze] Session ${id}: could not record coins_charged`, chargeErr.message);
+    }
   }
 
   const userId = user.id;
 
   /** Mark the session failed and give the coins back if this run was paid. */
   async function fail(message: string, status: number) {
-    await updateSession(id, { status: "error", error: message });
-    if (requiresPayment) {
+    // Conditional: if cleanup already expired (and refunded) this session,
+    // don't refund a second time.
+    const won = await transitionSessionStatus(id, userId, "analyzing", "error", { error: message })
+      .catch((e) => {
+        console.error(`[analyze] Session ${id}: could not mark failed`, e);
+        return false;
+      });
+    if (won && requiresPayment) {
       await refundCoins(userId, COIN_ECONOMY.ANALYSIS_COST);
     }
     return NextResponse.json({ error: message }, { status });

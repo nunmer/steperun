@@ -3,6 +3,7 @@ import { getAuthUser } from "@/lib/supabase-server";
 import { getUserSessions, getUserSessionCount, createSession } from "@/lib/run-analyzer-db";
 import { COIN_ECONOMY } from "@/lib/coins-config";
 import { getBalance, getCompletedAnalysisCount } from "@/lib/services/coins";
+import { expireStaleSessions } from "@/lib/services/session-cleanup";
 
 // Soft cap on lifetime sessions per user (storage safeguard).
 const MAX_SESSIONS_PER_USER = 100;
@@ -11,6 +12,9 @@ const MAX_SESSIONS_PER_USER = 100;
 export async function GET() {
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // Resolve stuck sessions (and refund them) before showing status + balance.
+  await expireStaleSessions(user.id);
 
   const [{ data: sessions, error }, balance, completedCount] = await Promise.all([
     getUserSessions(user.id),
