@@ -4,14 +4,14 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getAuthUser } from "@/lib/supabase-server";
-import { getBalance, getCoinHistory } from "@/lib/services/coins";
+import { COIN_REWARDS, getBalance, getCoinHistory } from "@/lib/services/coins";
 import { CoinBalance } from "@/components/coin-balance";
 import { CoinPacks } from "@/components/coin-packs";
 import { COIN_PACKS, COIN_ECONOMY, getPaddleClientConfig } from "@/lib/coins-config";
 
 export const metadata: Metadata = {
   title: "Coins",
-  description: "Buy coins to unlock AI Coach analyses.",
+  description: "Earn and spend coins on AI Coach analyses.",
 };
 
 const REASON_LABELS: Record<string, string> = {
@@ -22,6 +22,12 @@ const REASON_LABELS: Record<string, string> = {
   analysis_spent:      "AI Coach analysis",
   analysis_refund:     "Analysis refund",
 };
+
+const EARN_WAYS = [
+  { label: "Connect Strava", coins: COIN_REWARDS.STRAVA_CONNECTED, perEvent: false },
+  { label: "Get your runner profile claim approved", coins: COIN_REWARDS.CLAIM_APPROVED, perEvent: false },
+  { label: "Each race in your claimed profile", coins: COIN_REWARDS.EVENT_PARTICIPATION, perEvent: true },
+];
 
 export default async function CoinsPage({
   searchParams,
@@ -39,7 +45,9 @@ export default async function CoinsPage({
   ]);
 
   const paddle = getPaddleClientConfig();
-  // Show all configured packs (and any unconfigured ones as "Coming soon").
+  // Purchases are only offered once Paddle is configured; until then coins
+  // are earn-only and the buy section is replaced by ways to earn.
+  const paymentsEnabled = paddle.clientToken !== null;
   const packs = COIN_PACKS;
 
   return (
@@ -61,6 +69,27 @@ export default async function CoinsPage({
         </div>
       )}
 
+      {!paymentsEnabled && (
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold">Earn coins</h2>
+          <ul className="rounded-lg border border-border divide-y divide-border text-sm">
+            {EARN_WAYS.map((w) => (
+              <li key={w.label} className="flex items-center justify-between gap-4 px-4 py-3">
+                <span>{w.label}</span>
+                <span className="font-mono tabular-nums font-semibold text-emerald-500 shrink-0">
+                  +{w.coins}{w.perEvent ? " / race" : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-muted-foreground">
+            Connect Strava and claim your runner profile from the{" "}
+            <Link href="/profile" className="underline hover:text-foreground">Profile</Link> page.
+          </p>
+        </section>
+      )}
+
+      {paymentsEnabled && (
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Buy coins</h2>
         <CoinPacks
@@ -75,6 +104,7 @@ export default async function CoinsPage({
           <Link href="/legal/refund" className="underline hover:text-foreground">Refund Policy</Link>.
         </p>
       </section>
+      )}
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Transaction history</h2>

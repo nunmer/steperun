@@ -318,7 +318,7 @@ export default function RunAnalyzerPage() {
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       if (body.code === "INSUFFICIENT_COINS") {
-        setError(`Not enough coins (have ${body.balance}, need ${body.cost}). Buy more on the Coins page.`);
+        setError(`Not enough coins (have ${body.balance}, need ${body.cost}). Get more on the Coins page.`);
       } else {
         setError(body.error || "Analysis failed");
       }
@@ -1076,7 +1076,7 @@ function QuotaPanel({ quota }: { quota: Quota | null }) {
           href="/coins"
           className="mt-2 block text-center py-1.5 rounded-md text-xs font-semibold bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors"
         >
-          Buy coins
+          Get coins
         </Link>
       )}
     </div>
@@ -1100,7 +1100,7 @@ function AnalyzeCTA({ quota, onAnalyze }: { quota: Quota | null; onAnalyze: () =
           className="block text-center w-full py-3.5 font-semibold bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors"
           style={{ borderRadius: "9999px" }}
         >
-          Buy coins
+          Get coins
         </Link>
       </div>
     );
