@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS events (
     url         TEXT NOT NULL,
     date_of_event DATE,
     scraped_at  TIMESTAMPTZ,
-    total_results INTEGER DEFAULT 0
+    total_results INTEGER DEFAULT 0,
+    organizer   TEXT                    -- "Almaty Marathon", "Athletex"
 );
 
 -- Runners: deduplicated across all events

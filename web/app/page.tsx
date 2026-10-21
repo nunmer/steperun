@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { getStats, getEvents } from "@/lib/queries";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { SeasonCard } from "@/components/season-card";
+import { EventCard } from "@/components/event-card";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { carouselPhotos } from "@/lib/carousel-photos";
 
@@ -85,16 +84,7 @@ export default async function HomePage() {
               </h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {byYear[year].map((event) => (
-                  <Link key={event.slug} href={`/events/${event.slug}`} className="block">
-                    <SeasonCard dateOfEvent={event.date_of_event}>
-                      <h3 className="text-sm font-medium leading-snug mb-2">
-                        {event.name}
-                      </h3>
-                      <Badge variant="secondary">
-                        {event.total_results.toLocaleString()} finishers
-                      </Badge>
-                    </SeasonCard>
-                  </Link>
+                  <EventCard key={event.slug} event={event} />
                 ))}
               </div>
             </div>

@@ -22,11 +22,11 @@ def get_client() -> Client:
 # Events
 # ---------------------------------------------------------------------------
 
-def upsert_event(client: Client, slug: str, name: str, year: int, url: str) -> int:
+def upsert_event(client: Client, slug: str, name: str, year: int, url: str, organizer: str) -> int:
     """Insert or update an event. Returns the event id."""
     resp = (
         client.table("events")
-        .upsert({"slug": slug, "name": name, "year": year, "url": url},
+        .upsert({"slug": slug, "name": name, "year": year, "url": url, "organizer": organizer},
                 on_conflict="slug")
         .execute()
     )

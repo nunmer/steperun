@@ -7,6 +7,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { PieChart } from "@/components/pie-chart";
+import { OrganizerPin } from "@/components/organizer-pin";
+import { formatEventDate } from "@/lib/utils";
+import { CalendarDays, ExternalLink, Route, Users } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -58,16 +61,34 @@ export default async function EventPage({
         >
           ← All events
         </Link>
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
-            <p className="text-muted-foreground mt-1">
-              {event.year} · {event.total_results.toLocaleString()} finishers
-            </p>
-          </div>
-          <Badge variant="outline" className="text-sm shrink-0">
-            {event.year}
-          </Badge>
+        <OrganizerPin organizer={event.organizer} className="mb-3" />
+        <h1 className="text-2xl sm:text-3xl font-bold leading-tight">{event.name}</h1>
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <CalendarDays className="size-4" aria-hidden />
+            {formatEventDate(event.date_of_event) ?? event.year}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="size-4" aria-hidden />
+            <span className="tabular-nums">{event.total_results.toLocaleString()}</span> finishers
+          </span>
+          {categories.length > 0 && (
+            <span className="inline-flex items-center gap-1.5">
+              <Route className="size-4" aria-hidden />
+              {categories.length} {categories.length === 1 ? "distance" : "distances"}
+            </span>
+          )}
+          {event.url && (
+            <a
+              href={event.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 hover:text-foreground"
+            >
+              Official results
+              <ExternalLink className="size-3.5" aria-hidden />
+            </a>
+          )}
         </div>
       </div>
 

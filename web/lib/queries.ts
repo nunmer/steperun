@@ -28,6 +28,7 @@ export type EventRow = {
   date_of_event: string | null;
   scraped_at: string | null;
   total_results: number;
+  organizer: string | null;
 };
 
 export type RunnerRow = {
@@ -96,7 +97,7 @@ export async function getStats() {
 export async function getEvents(year?: number): Promise<EventRow[]> {
   let q = supabase
     .from("events")
-    .select("id, slug, name, year, date_of_event, total_results, scraped_at")
+    .select("id, slug, name, year, date_of_event, total_results, scraped_at, organizer")
     .not("scraped_at", "is", null)
     .order("year", { ascending: false })
     .order("name");
@@ -125,7 +126,7 @@ export const getEventYears = cache(async (): Promise<number[]> => {
 export const getEvent = cache(async (slug: string): Promise<EventRow | null> => {
   const { data } = await supabase
     .from("events")
-    .select("id, slug, name, year, total_results, scraped_at, url")
+    .select("id, slug, name, year, date_of_event, total_results, scraped_at, url, organizer")
     .eq("slug", slug)
     .single();
   return data as EventRow | null;

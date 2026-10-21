@@ -115,7 +115,7 @@ export function SeasonCard({
         {style.icon}
       </span>
       {/* Content */}
-      <div className="relative">{children}</div>
+      <div className="relative flex h-full flex-col">{children}</div>
     </div>
   );
 }

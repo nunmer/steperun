@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getEvents, getEventYears } from "@/lib/queries";
-import { Badge } from "@/components/ui/badge";
-import { SeasonCard } from "@/components/season-card";
+import { EventCard } from "@/components/event-card";
 
 export const metadata = { title: "Events" };
 export const revalidate = 3600;
@@ -62,16 +61,7 @@ export default async function EventsPage({
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {byYear[y].map((event) => (
-                <Link key={event.slug} href={`/events/${event.slug}`} className="block">
-                  <SeasonCard dateOfEvent={event.date_of_event}>
-                    <h3 className="text-sm font-medium leading-snug mb-2">
-                      {event.name}
-                    </h3>
-                    <Badge variant="secondary">
-                      {event.total_results.toLocaleString()} finishers
-                    </Badge>
-                  </SeasonCard>
-                </Link>
+                <EventCard key={event.slug} event={event} />
               ))}
             </div>
           </section>

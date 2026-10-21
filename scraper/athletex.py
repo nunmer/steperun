@@ -43,6 +43,7 @@ LIVE = "https://live.myrace.info"
 DELAY = float(os.getenv("SCRAPER_DELAY", "0.6"))
 BATCH_SIZE = int(os.getenv("SCRAPER_BATCH_SIZE", "50"))
 SLUG_PREFIX = "athletex_"
+ORGANIZER = "Athletex"  # Экстремальная атлетика (ИП ATHLETEX EVENTS)
 ALMATY_TZ = timezone(timedelta(hours=5))
 
 # Competition slugs that are never running events (XCO = cross-country MTB).
@@ -173,7 +174,9 @@ def _resolve_runners(client, index: RunnerIndex, results: tuple[ClaxResult, ...]
 
 
 def import_event(client, index: RunnerIndex, source: ClaxSource, event: ClaxEvent) -> int:
-    event_id = upsert_event(client, source.slug, event.name or source.slug, source.year, source.page_url)
+    event_id = upsert_event(
+        client, source.slug, event.name or source.slug, source.year, source.page_url, ORGANIZER
+    )
     if event.event_date:
         client.table("events").update(
             {"date_of_event": event.event_date.isoformat()}

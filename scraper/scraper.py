@@ -37,6 +37,7 @@ from .parser import (
 log = logging.getLogger(__name__)
 
 BASE_URL   = "https://almaty-marathon.kz"
+ORGANIZER  = "Almaty Marathon"
 INDEX_URL  = f"{BASE_URL}/ru/results/"
 DELAY      = float(os.getenv("SCRAPER_DELAY", "0.6"))
 BATCH_SIZE = int(os.getenv("SCRAPER_BATCH_SIZE", "50"))
@@ -136,7 +137,7 @@ def scrape_event(event: dict, client) -> int:
     url  = event["url"]
     log.info("── Scraping: %s", slug)
 
-    event_id = upsert_event(client, slug, event["name"], event["year"], url)
+    event_id = upsert_event(client, slug, event["name"], event["year"], url, ORGANIZER)
 
     # Fetch landing page
     html = _get(url)
