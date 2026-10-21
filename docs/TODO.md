@@ -32,8 +32,9 @@ product plan is in `ROADMAP.md`.
   rrspring2025, rrautumn24.
 - [ ] **Share Supabase → Reports → Query Performance** so the remaining Disk IO
   consumers can be found.
-- [ ] *Optional:* delete the unused Vercel project `steperun-dqxd`, and the stale
-  `SCRAPER_*` env vars on the `steperun` project.
+- [ ] **Delete the unused Vercel project `steperun-dqxd`**: Settings → General → Delete
+  Project (the API can't delete it). *Optional:* also remove the stale `SCRAPER_*`
+  env vars on the `steperun` project.
 - [ ] *Optional:* rotate the analyzer shared key and the OpenAI key. Both passed
   through a chat transcript while being set up (runbook in `DEPLOYMENT.md`).
 
@@ -53,6 +54,6 @@ product plan is in `ROADMAP.md`.
   non-commercial only.
 - [ ] **Lint debt:** `@typescript-eslint/no-explicit-any` in
   `web/app/events/[slug]/page.tsx` and `web/lib/queries.ts`.
-- [ ] **Uncommitted local leftovers:** `run_analyzer/pose_landmarker_heavy.task`
-  (30 MB, unused, gitignored) and the root `venv/` (local scraper env). Both
-  are safe to delete.
+- [ ] **Local leftover:** the root `venv/` (local scraper env, gitignored) can be
+  deleted if you use another Python env. (`pose_landmarker_heavy.task` was
+  deleted on 2026-10-21.)
