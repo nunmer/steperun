@@ -66,7 +66,14 @@ def slug_to_name(slug: str) -> str:
 
 
 # Fetch all events
-resp = client.table("events").select("id, slug, name").execute()
+# Only almaty-marathon.kz events have slug-derived names; other sources
+# (e.g. athletex_*) keep the name from their result file.
+resp = (
+    client.table("events")
+    .select("id, slug, name")
+    .like("url", "%almaty-marathon.kz%")
+    .execute()
+)
 events = resp.data
 
 updates = []

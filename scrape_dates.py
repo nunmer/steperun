@@ -108,6 +108,7 @@ def main():
         .not_.is_("url", "null")
         .not_.is_("scraped_at", "null")
         .is_("date_of_event", "null")  # only events still missing a date
+        .like("url", "%almaty-marathon.kz%")  # other sources set their own dates
         .order("id")
         .execute()
     )
