@@ -138,7 +138,7 @@ ALTER TABLE rate_limit_log    ENABLE ROW LEVEL SECURITY;
 
 -- user_profiles: own row + admins read all
 CREATE POLICY "users_read_own_profile"   ON user_profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "users_update_own_profile" ON user_profiles FOR UPDATE USING (auth.uid() = id);
+-- No user UPDATE policy: profiles (coins, is_admin, trust_score) are written server-side only.
 CREATE POLICY "admins_read_all_profiles" ON user_profiles FOR SELECT
   USING (EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_admin = TRUE));
 

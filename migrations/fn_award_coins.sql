@@ -82,3 +82,7 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- Admin-only: never callable via PostgREST with the anon key.
+REVOKE EXECUTE ON FUNCTION award_coins_once(TEXT, INT, TEXT, INT) FROM PUBLIC, anon, authenticated;
+GRANT  EXECUTE ON FUNCTION award_coins_once(TEXT, INT, TEXT, INT) TO service_role;

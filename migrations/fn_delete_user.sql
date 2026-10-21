@@ -34,3 +34,7 @@ BEGIN
   RETURN 'Deleted user ' || p_email || ' (' || uid || ')';
 END;
 $$;
+
+-- Admin-only: never callable via PostgREST with the anon key.
+REVOKE EXECUTE ON FUNCTION delete_user_by_email(TEXT) FROM PUBLIC, anon, authenticated;
+GRANT  EXECUTE ON FUNCTION delete_user_by_email(TEXT) TO service_role;
