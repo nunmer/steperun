@@ -80,6 +80,28 @@ export async function updateSession(id: string, data: Record<string, unknown>) {
     .eq("id", id);
 }
 
+/**
+ * Atomically move a session from `fromStatus` to `toStatus`.
+ * Returns true only for the single request that won the transition —
+ * concurrent callers (double-click, two tabs) get false.
+ */
+export async function transitionSessionStatus(
+  id: string,
+  userId: string,
+  fromStatus: RunSession["status"],
+  toStatus: RunSession["status"],
+): Promise<boolean> {
+  const { data, error } = await db()
+    .from("run_sessions")
+    .update({ status: toStatus, error: null, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("status", fromStatus)
+    .select("id");
+  if (error) throw new Error(`Failed to update session status: ${error.message}`);
+  return (data?.length ?? 0) > 0;
+}
+
 // ----- run_frames -----
 
 export interface RunFrame {

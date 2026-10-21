@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -8,6 +9,8 @@ import {
   Play, Pause, SkipBack, SkipForward,
   Upload, Plus, ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
 } from "lucide-react";
+import { CoinBalance } from "@/components/coin-balance";
+import { COIN_ECONOMY } from "@/lib/coins-config";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -20,6 +23,14 @@ interface Session {
   frame_count: number;
   overall_score: number | null;
   created_at: string;
+}
+
+interface Quota {
+  balance: number;
+  freeRemaining: number;
+  freeTotal: number;
+  analysisCost: number;
+  completed: number;
 }
 
 interface Frame {
@@ -152,6 +163,7 @@ export default function RunAnalyzerPage() {
   const [authLoading, setAuthLoading] = useState(true);
 
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [quota, setQuota] = useState<Quota | null>(null);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   const [frames, setFrames] = useState<Frame[]>([]);
@@ -197,7 +209,10 @@ export default function RunAnalyzerPage() {
   /* ----- Load sessions ----- */
   const loadSessions = useCallback(async () => {
     const res = await fetch("/api/run-analyzer/sessions");
-    if (res.ok) setSessions((await res.json()).sessions || []);
+    if (!res.ok) return;
+    const data = await res.json();
+    setSessions(data.sessions || []);
+    if (data.quota) setQuota(data.quota as Quota);
   }, []);
 
   useEffect(() => { if (user) loadSessions(); }, [user, loadSessions]);
@@ -301,7 +316,13 @@ export default function RunAnalyzerPage() {
     const res = await fetch(`/api/run-analyzer/sessions/${activeSessionId}/analyze`, { method: "POST" });
     setLoading(false);
     if (!res.ok) {
-      setError((await res.json()).error || "Analysis failed");
+      const body = await res.json().catch(() => ({}));
+      if (body.code === "INSUFFICIENT_COINS") {
+        setError(`Not enough coins (have ${body.balance}, need ${body.cost}). Buy more on the Coins page.`);
+      } else {
+        setError(body.error || "Analysis failed");
+      }
+      loadSessions();
       return;
     }
     const data = await res.json();
@@ -346,7 +367,7 @@ export default function RunAnalyzerPage() {
         <button onClick={signIn} className="px-8 py-3 bg-foreground text-background font-semibold text-base hover:opacity-90 transition-opacity" style={{ borderRadius: "9999px" }}>
           Sign in with Google to start
         </button>
-        <p className="text-sm text-muted-foreground opacity-60">2 free analyses per account</p>
+        <p className="text-sm text-muted-foreground opacity-60">{COIN_ECONOMY.FREE_ANALYSES} free analyses, then {COIN_ECONOMY.ANALYSIS_COST} coins each</p>
       </div>
     );
   }
@@ -368,8 +389,9 @@ export default function RunAnalyzerPage() {
               <PanelLeftClose size={18} />
             </button>
           </div>
+          <QuotaPanel quota={quota} />
           <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-medium">
-            Sessions ({sessions.filter(s => s.status !== "error").length}/2 free)
+            Sessions
           </div>
           <div className="flex-1 overflow-y-auto space-y-1">
             {sessions.map((s) => (
@@ -442,9 +464,7 @@ export default function RunAnalyzerPage() {
                   <SectionHeader num="02" label="Key Frames" />
                   <FrameCarousel frames={frames} currentFrame={currentFrame} setCurrentFrame={setCurrentFrame} playing={playing} setPlaying={setPlaying} speed={speed} setSpeed={setSpeed} />
                   {needsAnalysis && (
-                    <button onClick={handleAnalyze} className="w-full py-3.5 font-semibold bg-foreground text-background hover:opacity-90 transition-opacity" style={{ borderRadius: "9999px" }}>
-                      Analyze Technique with AI
-                    </button>
+                    <AnalyzeCTA quota={quota} onAnalyze={handleAnalyze} />
                   )}
                 </div>
               )}
@@ -1033,6 +1053,81 @@ function AnalysisPlayer({
 
 function Spinner() {
   return <div className="w-10 h-10 rounded-full animate-spin border-3 border-border" style={{ borderTopColor: "var(--foreground)" }} />;
+}
+
+function QuotaPanel({ quota }: { quota: Quota | null }) {
+  if (!quota) return null;
+  const onFreeTier = quota.freeRemaining > 0;
+  return (
+    <div className="mb-4 p-3 rounded-lg bg-muted/40 border border-border">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {onFreeTier ? "Free analyses" : "Balance"}
+        </span>
+        {!onFreeTier && <CoinBalance amount={quota.balance} size="sm" />}
+      </div>
+      {onFreeTier && (
+        <div className="mt-1.5 text-sm font-semibold text-foreground">
+          {quota.freeRemaining} of {quota.freeTotal} remaining
+        </div>
+      )}
+      {!onFreeTier && (
+        <Link
+          href="/coins"
+          className="mt-2 block text-center py-1.5 rounded-md text-xs font-semibold bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors"
+        >
+          Buy coins
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function AnalyzeCTA({ quota, onAnalyze }: { quota: Quota | null; onAnalyze: () => void }) {
+  const onFreeTier = (quota?.freeRemaining ?? 1) > 0;
+  const canPay = !!quota && quota.balance >= quota.analysisCost;
+  const needsCoins = !onFreeTier && !canPay;
+
+  if (needsCoins) {
+    return (
+      <div className="space-y-2">
+        <div className="text-sm text-muted-foreground text-center">
+          You need {quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST} coins to analyze.
+          You have {quota?.balance ?? 0}.
+        </div>
+        <Link
+          href="/coins"
+          className="block text-center w-full py-3.5 font-semibold bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors"
+          style={{ borderRadius: "9999px" }}
+        >
+          Buy coins
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={onAnalyze}
+      className="w-full py-3.5 font-semibold bg-foreground text-background hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
+      style={{ borderRadius: "9999px" }}
+    >
+      <span>Analyze Technique with AI</span>
+      {onFreeTier ? (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500 text-emerald-950 text-[11px] font-bold uppercase tracking-wider">
+          Free
+        </span>
+      ) : (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500 text-amber-950">
+          <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 shrink-0" fill="none">
+            <circle cx="10" cy="10" r="9" fill="#fef3c7" stroke="#92400e" strokeWidth="1" />
+            <text x="10" y="10.5" textAnchor="middle" dominantBaseline="central" fill="#92400e" fontSize="8" fontWeight="bold" fontFamily="system-ui, sans-serif">S</text>
+          </svg>
+          <span className="font-mono tabular-nums text-sm font-bold">−{quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST}</span>
+        </span>
+      )}
+    </button>
+  );
 }
 
 function StatusDot({ status }: { status: string }) {

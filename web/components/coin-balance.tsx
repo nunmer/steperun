@@ -1,23 +1,21 @@
-/**
- * Coin balance — wallet-style currency display.
- * Compact pill with coin icon and balance, like in-game currency.
- */
+import Link from "next/link";
 
 interface CoinBalanceProps {
   amount: number;
   size?: "sm" | "md";
+  asLink?: boolean;
 }
 
-export function CoinBalance({ amount, size = "md" }: CoinBalanceProps) {
+export function CoinBalance({ amount, size = "md", asLink = true }: CoinBalanceProps) {
   const isSm = size === "sm";
 
-  return (
+  const content = (
     <div className={`
       inline-flex items-center gap-1.5 rounded-full
       bg-amber-500/10 border border-amber-500/20
       ${isSm ? "px-2.5 py-0.5" : "px-3 py-1"}
+      ${asLink ? "hover:bg-amber-500/20 transition-colors" : ""}
     `}>
-      {/* Coin icon */}
       <svg
         viewBox="0 0 20 20"
         className={`${isSm ? "w-3.5 h-3.5" : "w-4 h-4"} shrink-0`}
@@ -45,4 +43,9 @@ export function CoinBalance({ amount, size = "md" }: CoinBalanceProps) {
       </span>
     </div>
   );
+
+  if (asLink) {
+    return <Link href="/coins" aria-label="Coins">{content}</Link>;
+  }
+  return content;
 }
