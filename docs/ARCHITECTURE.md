@@ -39,10 +39,16 @@ GitHub Actions. Fly.io was dropped on 2026-10-21 (see `CHANGELOG.md`).
 2. `scripts/scrape_almaty_marathon.py` walks almaty-marathon.kz events from last
    year onward and skips events that already have results.
 3. `scripts/scrape_athletex.py` discovers athletex competitions and imports their
-   Wiclax `.clax` files. Runners are matched to existing profiles across sources
-   (`scraper/runner_matcher.py`).
-4. If either step added rows: normalize names, hide relay teams, fill dates,
-   recalculate ELO (changed runners only).
+   Wiclax `.clax` files (team, relay, kids and bike courses are skipped).
+4. Both importers resolve each result to a runner in this order:
+   - the exact `(name, country, city)` row;
+   - the **same-person rule**: same folded name tokens in any order or
+     alphabet, plus the same city (`RunnerIndex.match_strict`);
+   - (athletex only) the looser cross-source match;
+   - otherwise, a new runner.
+5. If either step added rows: normalize names, remove team/relay results, fill
+   dates, recalculate ELO (changed runners only), and purge the site cache
+   (`POST /api/revalidate`).
 
 Details: `docs/SCRAPER.md`.
 
@@ -84,6 +90,22 @@ MediaPipe's GUI OpenCV for the headless build.
   idempotent on Paddle transaction id).
 - Buying coins (Paddle) is disabled unless the `PADDLE_*` env vars are set; the
   `/coins` page then shows earn-only options.
+
+## Caching
+
+Supabase is slow under its Disk IO budget (300–1100 ms for a trivial query),
+so pages never query it per visit:
+
+| Layer | What | Invalidated by |
+|---|---|---|
+| Data cache | `cachedQuery()` wraps every public read (`unstable_cache`, 1 h, tag `results`; runner reads also `runner:<id>`) | `/api/revalidate` (scraper workflow, merge scripts), `invalidateRunner(id)` (claims) |
+| ISR | `/runners/[id]` (rendered on first visit), `/` | same, via `revalidatePath` |
+| CDN | `/api/runners/search` (`s-maxage=300`) | expires after 5 min |
+| Crawlers | `robots.txt` disallows filter/pagination variants and private areas; `sitemap.xml` lists canonical pages | — |
+
+Pages with `searchParams` (rankings, power rankings, runners, events) are still
+rendered per request, but from cached data, so cached requests take about
+20–75 ms on the server.
 
 ## Security model
 

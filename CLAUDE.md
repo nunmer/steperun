@@ -30,12 +30,16 @@ python -m pytest tests -q                                  # scraper tests
 python scripts/scrape_almaty_marathon.py --min-year 2025   # almaty-marathon.kz
 python scripts/scrape_athletex.py [--backfill --min-year 2023]
 python scripts/smoke_test_analyzer.py [--analyze]          # analyzer end to end
+python scripts/merge_duplicates.py [--apply]               # bulk-merge duplicate runners (dry run first)
+python scripts/merge_runners.py --keep ID --drop ID [--apply]  # merge one confirmed pair
 cd web && npm run dev | npm run build | npx tsc --noEmit | npx eslint <files>
 cd run_analyzer && uv sync && uv run uvicorn web:app --port 8000
 ```
 
 Never run `scripts/calculate_elo.py`, `clean_runners.py`, `fix_event_names.py`,
 `scrape_dates.py` casually: they write to the production database on start.
+After any manual data fix, purge the site cache (`POST /api/revalidate`, bearer
+`REVALIDATE_SECRET` from `.env`); the merge scripts do this themselves.
 
 ## Conventions and rules that matter
 
@@ -58,5 +62,20 @@ Never run `scripts/calculate_elo.py`, `clean_runners.py`, `fix_event_names.py`,
   the uv override to headless OpenCV. Don't remove either.
 - Event slugs: almaty-marathon.kz uses the site slug; athletex uses
   `athletex_<folder>`. `events.organizer` is set by the scraper per source.
-- Server Components + ISR (`revalidate = 3600`); `PAGE_SIZE = 30`.
+- **Caching:** public reads go through `cachedQuery` (`lib/cache.ts`: 1 h,
+  tag `results`; runner data also `runner:<id>`). Pages with `searchParams` are
+  dynamic but read cached data; `/runners/[id]` is ISR. The scraper workflow
+  calls `/api/revalidate`; claim changes call `invalidateRunner(id)`.
+  `PAGE_SIZE = 30`.
+- **Lists:** totals are exact (from aggregate RPCs where possible), every
+  paginated query ends with `id` as a tiebreaker, and `page` is parsed with
+  `parsePage`. Pagination uses `components/pagination.tsx`.
+- **Runner identity:** the same person means the same folded name tokens (any
+  order or alphabet) and the same non-blank city. Country is ignored, because
+  everyone is "Kazakhstan" (`RunnerIndex.match_strict`). Never merge on a name
+  alone: same-name different people exist (26194 vs 20451).
+- **Teams and relays are not runners.** Team courses are skipped at import, and
+  `clean_runners.py` deletes team/relay results.
+- **DNF** is `chip_time = '--:--:--'`. Exclude it from PBs, finish counts and
+  rankings (`isFinishTime` in `lib/params.ts`).
 - Commits: conventional commits (`feat:`, `fix:`, …).

@@ -53,11 +53,19 @@ All pages are **server-rendered** (Next.js Server Components) with 1-hour ISR ca
 - Event timeline grouped by year (most recent 4 years shown, cards link to event detail)
 
 ### Rankings `/rankings`
-- All-time leaderboard per distance (e.g., 42 km, 21 km, 10 km)
-- Distance selector shows up to 12 most-populated categories
-- Year filter: All time + individual years
-- Shows: rank (with medal icons for top 3), runner name, country, city, best chip time, event achieved at
-- Deduplicates to one best result per runner
+- Default view: the top 10 for each main distance (42.2 km, 21.1 km, 10 km),
+  each with a "Full ranking →" link
+- Single distance: every ranked runner, paginated (30 per page), with the exact
+  number of runners ranked (`get_rankings_page`). For example, 10 km: 47,851
+  runners on 1,596 pages
+- Distance picker: chips for the 8 most popular distances, plus a dropdown with
+  all 129 (with finisher counts)
+- Season filter: all-time or a single year
+- One row per runner: best chip time, event achieved at; DNFs excluded
+
+### Power Rankings `/power-rankings`
+- ELO leaderboard with level cards (exact counts per level), level filter,
+  pagination over every runner in the level
 
 ### Events `/events`
 - Complete list of all scraped events
@@ -71,7 +79,8 @@ All pages are **server-rendered** (Next.js Server Components) with 1-hour ISR ca
 - Paginated results table (30 per page): place, runner name, country, city, bib number, distance, gun time, chip time
 
 ### Runner Directory `/runners`
-- Full-text search by name (case-insensitive, partial match)
+- Search works across alphabets and word order: "ivan" = "иван",
+  "kelmanov rakymzhan" = "Rakymzhan Kelmanov" (`search_runners`, `fold_name`)
 - Paginated list (30 per page): name, country, city
 - Each row links to the runner's profile
 

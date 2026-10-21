@@ -1,10 +1,9 @@
 # Open items
 
-Operational to-dos and known gaps, last updated 2026-10-21. The longer-term
+Operational to-dos and known gaps, last updated 2026-10-22. The longer-term
 product plan is in `ROADMAP.md`.
 
 ## Needs you (owner actions)
-
 
 - [ ] **Send the Fly waiver email** to billing@fly.io (or the dashboard support
   form). The app is already destroyed, so the draft below is accurate:
@@ -43,11 +42,19 @@ product plan is in `ROADMAP.md`.
 
 - [ ] **Junk runner names** like `] Ivan` (leading punctuation) slip past
   `clean_runners.py`. Extend its junk rules.
+- [ ] **Duplicates left for a human** (see `scripts/merge_duplicates.py` output):
+  - about 100 same-name groups with no city (e.g. 26194 vs 20451 "Sanzhar
+    Yermek": different people);
+  - 300 groups whose profiles finished the same event (usually different people,
+    sometimes the same person in two distances);
+  - 252 groups whose paces differ by more than 35%;
+  - name variants the rule doesn't catch, such as "A Yassavi" vs "ALIBAYEV
+    Yassavi" (228634).
+
+  Merge confirmed cases with `scripts/merge_runners.py --keep <id> --drop <id> --apply`.
 - [ ] **Soft 404s** (audit item 17): unknown slugs/ids render the not-found page
   with status 200, because of streaming from `loading.tsx`.
 
-- [ ] **Disk IO:** add `robots.txt` and caching for the dynamic filtered pages
-  (rankings, runners search) so crawlers don't hit the DB.
 - [ ] **athletex:** store birth year and sex. They're in the `.clax` files but
   there are no columns yet (`runners.birth_year`, `results.sex`?).
 - [ ] **almaty-marathon.kz history:** 79 events from 2016–2023 have never been
@@ -58,8 +65,9 @@ product plan is in `ROADMAP.md`.
 - [ ] **Paddle:** re-enable coin packs once product verification passes (set the
   `PADDLE_*` env vars). That requires moving off Vercel Hobby, which is
   non-commercial only.
-- [ ] **Lint debt:** `@typescript-eslint/no-explicit-any` in
-  `web/app/events/[slug]/page.tsx` and `web/lib/queries.ts`.
+- [ ] **Lint debt:** `@typescript-eslint/no-explicit-any` in the admin claims
+  actions, `lib/services/claims.ts`, and the rankings/runner pages; a
+  setState-in-effect error in `app/run-analyzer/page.tsx` (AI Coach, left as is).
 - [ ] **Local leftover:** the root `venv/` (local scraper env, gitignored) can be
   deleted if you use another Python env. (`pose_landmarker_heavy.task` was
   deleted on 2026-10-21.)

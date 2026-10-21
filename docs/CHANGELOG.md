@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-22: docs brought up to date
+
+- `CLAUDE.md`: caching, exact-totals and tiebreaker rules, the runner identity
+  rule, teams/relays, DNF handling, the merge scripts, and the cache purge
+  after manual fixes.
+- `ARCHITECTURE.md`: runner resolution order in the scraper flow; a new
+  Caching section (data cache, ISR, CDN, crawlers).
+- `FEATURES.md`: paginated rankings with the distance picker, power rankings,
+  cross-alphabet search.
+- `README.md`: structure (`data/merges/`, merge scripts), current totals.
+- `TODO.md`: duplicates left for a human; removed the robots/caching item
+  (done).
+- Note: after the 2026-10-21 cleanup (about 13k merge writes, 4.8k ELO updates,
+  team removal), Supabase was throttled (uncached queries timed out). The
+  cached site kept working. Batch heavy data fixes, or spread them out.
+
 ## 2026-10-21 (later): duplicates merged, teams removed
 
 - **Duplicate runners:** `scripts/merge_duplicates.py` merged 5,364 groups and

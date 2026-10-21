@@ -2,7 +2,7 @@
 
 Running results portal for Kazakhstan. Think **worldathletics.org**, but local: road races from almaty-marathon.kz and trail/road races from athletex.kz.
 
-**Live:** [steppe.run](https://www.steppe.run) | **Data:** 172k results, 86k runners, 75 events (updated daily)
+**Live:** [steppe.run](https://www.steppe.run) | **Data:** 171k results, 78k runners, 75 events (updated daily)
 
 ---
 
@@ -105,12 +105,14 @@ steperun/
 ├── scripts/                  # Entry points + maintenance (run from repo root)
 │   ├── scrape_almaty_marathon.py, scrape_athletex.py
 │   ├── fix_event_names.py, clean_runners.py, scrape_dates.py, calculate_elo.py
+│   ├── merge_duplicates.py, merge_runners.py   # duplicate runner profiles
 │   └── smoke_test_analyzer.py
 ├── tests/                    # pytest (scraper, no network/DB)
 ├── migrations/               # SQL migrations, run in Supabase (order: docs/DB_MANAGEMENT.md)
 ├── schema.sql                # Core schema
 ├── web/                      # Next.js app → Vercel project `steperun`
 ├── run_analyzer/             # FastAPI analyzer → Vercel project `steperun-analyzer`
+├── data/merges/              # Undo logs of runner merges (moved results, deleted rows)
 ├── samples/                  # Local test media (gitignored)
 └── .github/workflows/scrape-results.yml   # Daily scrape
 ```
