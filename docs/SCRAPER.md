@@ -90,6 +90,15 @@ athletex rows go through `scraper/runner_matcher.py`:
 In the dry run, about 47% of athletex results matched an existing runner, and
 all 30 sampled matches were correct.
 
+**Merging duplicates.** When a match is ambiguous (for example, the athletex
+row has no city and two runners share the name), a new runner is created.
+Merge it once someone confirms it's the same person:
+`python scripts/merge_runners.py --keep <id> --drop <id>` (dry run), then
+`--apply`. It refuses if the duplicate is claimed by someone else or if both
+have a result in the same event and distance. Afterwards, recalculate ELO and
+purge the site cache. Claimed users are owed +20 coins per newly attached
+event (`apply_coin_tx`, reason `event_participation`, ref = event id).
+
 ## Keeping Supabase Disk IO low
 
 Rules every script follows, and new code must follow too:

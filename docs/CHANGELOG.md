@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-21 (later): duplicate runner merge
+
+- `scripts/merge_runners.py` merges a duplicate profile (dry run by default).
+- Merged 233970 (athletex "Yermek Sanzhar", no city) into 26194 (claimed
+  "Sanzhar Yermek", Astana). The name was ambiguous because 20451
+  "Санжар Ермек" (Almaty) has the same key. +20 event coins awarded for the
+  moved Zerenda result.
+
 ## 2026-10-21 (later): scraper page-count bug
 
 - `count_pages()` treated the category id (`?d=105`) as a page number, so the
