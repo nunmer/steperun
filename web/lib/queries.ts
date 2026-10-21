@@ -4,9 +4,11 @@ import { cachedQuery, runnerTag } from "./cache";
 
 export const PAGE_SIZE = 30;
 
-// Remember which RPCs are missing (404 from PostgREST) so we stop probing them.
-// Applies per server process; a restart clears it (so newly applied migrations pick up).
-const missingRpcs = new Set<string>();
+// Remember which RPCs are missing (404 from PostgREST) so we don't probe them on
+// every request, but re-check after a while so a newly applied migration is
+// picked up without a redeploy.
+const MISSING_RPC_RECHECK_MS = 10 * 60 * 1000;
+const missingRpcs = new Map<string, number>(); // name -> when it was found missing
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isMissingFunctionError(error: any): boolean {
   if (!error) return false;
@@ -17,11 +19,15 @@ function isMissingFunctionError(error: any): boolean {
 }
 
 async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T | null> {
-  if (missingRpcs.has(name)) return null;
+  const missingSince = missingRpcs.get(name);
+  if (missingSince !== undefined && Date.now() - missingSince < MISSING_RPC_RECHECK_MS) return null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase.rpc as any)(name, args);
-  if (!error && data !== null && data !== undefined) return data as T;
-  if (isMissingFunctionError(error)) missingRpcs.add(name);
+  if (!error && data !== null && data !== undefined) {
+    missingRpcs.delete(name);
+    return data as T;
+  }
+  if (isMissingFunctionError(error)) missingRpcs.set(name, Date.now());
   else if (error) console.error(`[queries] rpc ${name} failed`, error.message);
   return null;
 }
