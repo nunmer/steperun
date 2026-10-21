@@ -40,6 +40,9 @@ product plan is in `ROADMAP.md`.
 
 ## Engineering follow-ups
 
+- [ ] **Site audit fixes:** 23 findings, ranked, in `AUDIT-2026-10-21.md` (caching,
+  incomplete lists, DNF-as-PB, pagination bugs).
+
 - [ ] **Disk IO:** add `robots.txt` and caching for the dynamic filtered pages
   (rankings, runners search) so crawlers don't hit the DB.
 - [ ] **athletex:** store birth year and sex. They're in the `.clax` files but

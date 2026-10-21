@@ -151,6 +151,7 @@ setup, env vars, DNS and runbooks: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
 | [docs/SCRAPER.md](docs/SCRAPER.md) | Sources, pipeline, runner matching, low-IO rules, adding a source |
 | [docs/DB_MANAGEMENT.md](docs/DB_MANAGEMENT.md) | Migration order/status, access model, buckets, admin SQL |
 | [docs/TODO.md](docs/TODO.md) | Open items and owner actions |
+| [docs/AUDIT-2026-10-21.md](docs/AUDIT-2026-10-21.md) | Site audit: performance, incomplete lists, bugs |
 | [docs/CHANGELOG.md](docs/CHANGELOG.md) | What changed and when |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Product roadmap |
 | [docs/FEATURES.md](docs/FEATURES.md) | Implemented features |
