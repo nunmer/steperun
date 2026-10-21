@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 
 export const metadata = { title: "Power Rankings" };
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // Level config: name, color, min ELO
 const LEVELS: Record<number, { name: string; color: string; bg: string }> = {

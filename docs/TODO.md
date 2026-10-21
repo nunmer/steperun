@@ -30,6 +30,8 @@ product plan is in `ROADMAP.md`.
 - [ ] **Send athletex competition page links** for editions that slug guessing
   missed: Amangeldy 2023–24, Salomon 2023, Oskemen 2024–25, astanatrail25,
   rrspring2025, rrautumn24.
+- [ ] **Bring Supabase back** (down since 2026-10-22, Disk IO budget): runbook
+  "Supabase throttled" in `DEPLOYMENT.md` (restart project, wait for the budget).
 - [ ] **Share Supabase → Reports → Query Performance** so the remaining Disk IO
   consumers can be found.
 - [ ] **Delete the unused Vercel project `steperun-dqxd`**: Settings → General → Delete

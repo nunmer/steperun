@@ -5,7 +5,7 @@ import { parseIntInRange } from "@/lib/params";
 import { EventCard } from "@/components/event-card";
 
 export const metadata = { title: "Events" };
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export default async function EventsPage({
   searchParams,

@@ -62,7 +62,7 @@ After any manual data fix, purge the site cache (`POST /api/revalidate`, bearer
   the uv override to headless OpenCV. Don't remove either.
 - Event slugs: almaty-marathon.kz uses the site slug; athletex uses
   `athletex_<folder>`. `events.organizer` is set by the scraper per source.
-- **Caching:** public reads go through `cachedQuery` (`lib/cache.ts`: 1 h,
+- **Caching:** public reads go through `cachedQuery` (`lib/cache.ts`: 24 h,
   tag `results`; runner data also `runner:<id>`). Pages with `searchParams` are
   dynamic but read cached data; `/runners/[id]` is ISR. The scraper workflow
   calls `/api/revalidate`; claim changes call `invalidateRunner(id)`.

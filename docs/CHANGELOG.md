@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-22: Supabase outage, cache TTL raised to 24 h
+
+- **Incident:** Supabase stopped answering (REST and `/auth/v1/health` time
+  out or return 504) after the 2026-10-21 bulk work: two 2-hour backfill
+  scrapes, about 13k merge writes, 4.8k ELO updates and the team removal used
+  up the Disk IO budget. The public site stayed up from cache.
+- **Cache TTL 1 h → 24 h** (`lib/cache.ts` and the `revalidate` of every
+  public page). Data only changes on the daily scrape and on claims, which
+  already purge on demand, so the hourly expiry only made crawlers trigger
+  fresh DB reads (each runner profile once an hour).
+- `DEPLOYMENT.md`: "Supabase throttled" runbook and troubleshooting row.
+
 ## 2026-10-22: docs brought up to date
 
 - `CLAUDE.md`: caching, exact-totals and tiebreaker rules, the runner identity

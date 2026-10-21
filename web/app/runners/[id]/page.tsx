@@ -10,7 +10,7 @@ import {
 import { ClaimButton } from "@/components/claim-button";
 import { isFinishTime, timeToSeconds } from "@/lib/params";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // No paths at build time; each profile is rendered on first visit, then
 // cached (ISR) until revalidated by the scraper or a claim change.

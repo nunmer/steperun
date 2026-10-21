@@ -23,7 +23,7 @@ GitHub Actions. Fly.io was dropped on 2026-10-21 (see `CHANGELOG.md`).
 
 | Part | Where | Notes |
 |---|---|---|
-| Web app | `web/` → Vercel `steperun` | Next.js App Router, Server Components, ISR 1 h. Domains: steppe.run → www.steppe.run |
+| Web app | `web/` → Vercel `steperun` | Next.js App Router, Server Components, ISR 24 h. Domains: steppe.run → www.steppe.run |
 | Run analyzer | `run_analyzer/` → Vercel `steperun-analyzer` | FastAPI, `app.py` entrypoint, 300 s max, 2 GB / 1 vCPU |
 | Scraper | `scraper/` + `scripts/` → GitHub Actions | Python 3.11, requests + BeautifulSoup + supabase-py |
 | Database | Supabase Postgres | Core: `events`, `runners`, `results`, view `v_results`; plus auth/claims/coins/run-analyzer tables |
@@ -98,7 +98,7 @@ so pages never query it per visit:
 
 | Layer | What | Invalidated by |
 |---|---|---|
-| Data cache | `cachedQuery()` wraps every public read (`unstable_cache`, 1 h, tag `results`; runner reads also `runner:<id>`) | `/api/revalidate` (scraper workflow, merge scripts), `invalidateRunner(id)` (claims) |
+| Data cache | `cachedQuery()` wraps every public read (`unstable_cache`, 24 h, tag `results`; runner reads also `runner:<id>`) | `/api/revalidate` (scraper workflow, merge scripts), `invalidateRunner(id)` (claims) |
 | ISR | `/runners/[id]` (rendered on first visit), `/` | same, via `revalidatePath` |
 | CDN | `/api/runners/search` (`s-maxage=300`) | expires after 5 min |
 | Crawlers | `robots.txt` disallows filter/pagination variants and private areas; `sitemap.xml` lists canonical pages | — |

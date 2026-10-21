@@ -104,9 +104,9 @@ Generate a new value and set it as `ANALYZER_API_KEY` (analyzer) and
 use Redeploy in the dashboard.
 
 ### Caching
-Public pages read through `unstable_cache` (1 h, tag `results`; runner data is
+Public pages read through `unstable_cache` (24 h, tag `results`; runner data is
 also tagged `runner:<id>`). Runner profiles are ISR. New results appear when
-the scraper workflow calls `POST /api/revalidate`, or within an hour.
+the scraper workflow calls `POST /api/revalidate`, or within a day.
 Manual purge:
 `curl -X POST -H "Authorization: Bearer $REVALIDATE_SECRET" https://www.steppe.run/api/revalidate`.
 Claim approvals purge that runner automatically (`invalidateRunner`).
@@ -126,3 +126,27 @@ Claim approvals purge that runner automatically (`invalidateRunner`).
 | Events list empty after a schema change | A query selects a column that the DB doesn't have yet. Run the migration before deploying |
 | Scraper job writes nothing for days | Expected when no new races; summary shows `new result rows: 0` |
 | Supabase "Disk IO budget" warning | Look for full-table rewrites. Scraper/ELO should only touch changed rows |
+| Supabase REST/Auth time out (even `/auth/v1/health` → 504), site still up from cache | Disk IO budget exhausted after bulk writes. Stop all scripts, Dashboard → Settings → General → **Restart project**, then wait for the budget to refill (check Reports → Database → Disk IO). See "Supabase throttled" below |
+
+## Runbook: Supabase throttled (Disk IO budget)
+
+Symptom: every Supabase request hangs or returns 504, including
+`/auth/v1/health`. The public site keeps working from the 24 h data cache, but
+login, claims and the run analyzer fail.
+
+1. **Stop writers.** No GitHub Actions scrape in progress (`gh run list`), no
+   local `scripts/*.py` running. Don't run `calculate_elo.py`, merges or other
+   bulk fixes until it recovers.
+2. **Check the cause** in the dashboard: Reports → Database → *Disk IO % consumed*
+   and *Memory/Swap*. A burst budget at 0% means throttled to baseline IO;
+   high swap on a small instance makes every query hit disk.
+3. **Recover.** Settings → General → *Restart project* clears a wedged
+   instance. The burst budget refills over the following hours. If it must be
+   fast, temporarily raise the compute size (Settings → Compute and Disk).
+4. **Verify:**
+   `curl -s -o /dev/null -w "%{http_code} %{time_total}
+" "$SUPABASE_URL/rest/v1/events?select=id&limit=1" -H "apikey: $SUPABASE_SERVICE_KEY"`
+   should return 200 in well under 1 s.
+5. **Prevent:** spread bulk data fixes over several days (or chunk them with
+   pauses), and run ELO only once after a batch of fixes.
+

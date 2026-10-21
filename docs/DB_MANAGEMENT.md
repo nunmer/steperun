@@ -33,7 +33,7 @@ Otherwise queries that select a missing column return nothing, and pages show
 up empty.
 After a migration that changes what pages show, purge the site cache:
 `curl -X POST -H "Authorization: Bearer $REVALIDATE_SECRET" https://www.steppe.run/api/revalidate`.
-Otherwise cached pages keep the old data for up to an hour, and new RPCs are
+Otherwise cached pages keep the old data for up to a day, and new RPCs are
 picked up within 10 minutes.
 
 Quick checks:

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 
 export const metadata = { title: "Rankings" };
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const OVERVIEW_SIZE = 10;
 const CHIP_COUNT = 8;

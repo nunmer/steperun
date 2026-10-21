@@ -7,7 +7,7 @@ import { EventCard } from "@/components/event-card";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { carouselPhotos } from "@/lib/carousel-photos";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 function StatCard({ value, label }: { value: number; label: string }) {
   return (

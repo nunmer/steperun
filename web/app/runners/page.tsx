@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 
 export const metadata = { title: "Runners" };
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export default async function RunnersPage({
   searchParams,

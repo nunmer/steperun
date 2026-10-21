@@ -12,7 +12,7 @@ import { OrganizerPin } from "@/components/organizer-pin";
 import { formatEventDate } from "@/lib/utils";
 import { CalendarDays, ExternalLink, Route, Users } from "lucide-react";
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

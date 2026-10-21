@@ -2,13 +2,13 @@ import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 
 /**
  * Public race data changes only when the scraper imports results (daily) or a
- * profile is claimed, so reads are cached for an hour and purged on demand:
+ * profile is claimed, so reads are cached for a day and purged on demand:
  *   - scraper workflow → POST /api/revalidate → invalidateAllResults()
  *   - claim approval / dispute → invalidateRunner(id)
  */
 export const RESULTS_TAG = "results";
 export const runnerTag = (id: number) => `runner:${id}`;
-const ONE_HOUR = 3600;
+const ONE_DAY = 86400;
 
 export function cachedQuery<Args extends unknown[], R>(
   fn: (...args: Args) => Promise<R>,
@@ -17,7 +17,7 @@ export function cachedQuery<Args extends unknown[], R>(
 ): (...args: Args) => Promise<R> {
   return (...args: Args) =>
     unstable_cache(() => fn(...args), [key, JSON.stringify(args)], {
-      revalidate: ONE_HOUR,
+      revalidate: ONE_DAY,
       tags: [RESULTS_TAG, ...extraTags(...args)],
     })();
 }
