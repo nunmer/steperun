@@ -13,7 +13,7 @@ from mediapipe.tasks.python.vision import (
 from pathlib import Path
 from dataclasses import dataclass
 
-MODEL_PATH = Path(__file__).parent / "pose_landmarker_heavy.task"
+MODEL_PATH = Path(__file__).parent / "pose_landmarker_lite.task"
 
 # Landmark indices
 LEFT_HIP = PoseLandmark.LEFT_HIP

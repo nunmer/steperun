@@ -11,8 +11,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download pose model at build time (not every cold start)
-RUN curl -sL -o pose_landmarker_heavy.task \
-    "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/latest/pose_landmarker_heavy.task"
+RUN curl -sL -o pose_landmarker_lite.task \
+    "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task"
 
 COPY . .
 

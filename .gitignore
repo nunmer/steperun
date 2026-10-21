@@ -9,3 +9,5 @@ venv/
 web/.next/
 web/node_modules/
 output/
+run_analyzer/*.task
+uploads/

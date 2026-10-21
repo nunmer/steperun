@@ -54,45 +54,47 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 502 });
   }
 
-  // Store frames in Supabase Storage + DB
-  const frames: Array<{
-    session_id: string;
-    idx: number;
+  // Only persist key frames — motion frames stay in the response for
+  // ephemeral playback but are not uploaded (keeps storage quota low).
+  type ExtractedFrame = {
+    src: string;
     phase: string;
     frame_number: number;
     timestamp_ms: number;
-    image_path: string;
-    is_key_frame: boolean;
-  }> = [];
+    is_key_frame?: boolean;
+  };
 
-  for (let i = 0; i < extractResult.frames.length; i++) {
-    const f = extractResult.frames[i];
-    const isKey = f.is_key_frame ?? true;
+  const keyFrames: Array<ExtractedFrame & { idx: number }> = (extractResult.frames as ExtractedFrame[])
+    .map((f, i) => ({ ...f, idx: i }))
+    .filter((f) => (f.is_key_frame ?? true));
 
-    // Only persist key frames. Motion frames stay in the response for
-    // ephemeral playback but are not uploaded — keeps storage quota low.
-    if (!isKey) continue;
+  // Upload all key frames to Supabase Storage in parallel.
+  const uploadResults = await Promise.all(
+    keyFrames.map(async (f) => {
+      const base64 = f.src.replace(/^data:image\/\w+;base64,/, "");
+      const buffer = Buffer.from(base64, "base64");
+      const storagePath = `${user.id}/${sessionId}/${String(f.idx).padStart(3, "0")}_key_${f.phase}.jpg`;
 
-    const base64 = f.src.replace(/^data:image\/\w+;base64,/, "");
-    const buffer = Buffer.from(base64, "base64");
-    const storagePath = `${user.id}/${sessionId}/${String(i).padStart(3, "0")}_key_${f.phase}.jpg`;
+      const { error: uploadErr } = await uploadFrame(storagePath, buffer);
+      if (uploadErr) {
+        console.error("Upload error:", uploadErr);
+        return null;
+      }
+      return {
+        session_id: sessionId,
+        idx: f.idx,
+        phase: f.phase,
+        frame_number: f.frame_number,
+        timestamp_ms: f.timestamp_ms,
+        image_path: storagePath,
+        is_key_frame: true,
+      };
+    }),
+  );
 
-    const { error: uploadErr } = await uploadFrame(storagePath, buffer);
-    if (uploadErr) {
-      console.error("Upload error:", uploadErr);
-      continue;
-    }
-
-    frames.push({
-      session_id: sessionId,
-      idx: i,
-      phase: f.phase,
-      frame_number: f.frame_number,
-      timestamp_ms: f.timestamp_ms,
-      image_path: storagePath,
-      is_key_frame: isKey,
-    });
-  }
+  const frames = uploadResults
+    .filter((r): r is NonNullable<typeof r> => r !== null)
+    .sort((a, b) => a.idx - b.idx);
 
   if (frames.length > 0) {
     await insertFrames(frames);

@@ -143,6 +143,7 @@ def _analyze_openai(frame_paths: list[Path], model: str) -> str:
             "type": "image_url",
             "image_url": {
                 "url": f"data:{media_type};base64,{image_data}",
+                "detail": "low",
             },
         })
         content.append({
@@ -181,7 +182,8 @@ def analyze_frames(
         key_paths = frame_paths  # fallback: treat all as key frames
 
     total_image_bytes = sum(p.stat().st_size for p in key_paths)
-    est_image_tokens = len(key_paths) * 765  # ~765 per low-detail image
+    # detail="low" → 85 tokens flat per image on gpt-4o
+    est_image_tokens = len(key_paths) * 85
     est_system_tokens = len(SYSTEM_PROMPT) // 4
     est_total = est_image_tokens + est_system_tokens
 

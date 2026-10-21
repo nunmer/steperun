@@ -42,8 +42,8 @@ COPY run_analyzer/requirements.txt /app/run-analyzer/requirements.txt
 RUN pip install --no-cache-dir -r /app/run-analyzer/requirements.txt
 
 # Download pose model at build time
-RUN curl -sL -o /app/run-analyzer/pose_landmarker_heavy.task \
-    "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/latest/pose_landmarker_heavy.task"
+RUN curl -sL -o /app/run-analyzer/pose_landmarker_lite.task \
+    "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/latest/pose_landmarker_lite.task"
 
 COPY run_analyzer/web.py          /app/run-analyzer/
 COPY run_analyzer/analyzer.py     /app/run-analyzer/
