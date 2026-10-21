@@ -25,7 +25,7 @@ Status checked against the live database on 2026-10-21.
 | 12 | `add_session_coins_charged.sql` | `run_sessions.coins_charged` + `(user_id, status, updated_at)` index | ✅ |
 | 13 | `003_enable_rls_core_tables.sql` | RLS on `runners`/`events`/`results`, `v_results` `security_invoker` | ✅ |
 | 14 | `004_event_organizer.sql` | `events.organizer` + fill by source | ✅ |
-| 15 | `005_site_audit_fixes.sql` | `get_event_categories_by_id` (was missing), `get_distance_options` (formalized), `get_rankings_page`, `fold_name` + `search_runners` (Latin/Cyrillic search), composite event-results index, drops 4 redundant indexes, null-year fix | ⏳ **run it** |
+| 15 | `005_site_audit_fixes.sql` | `get_event_categories_by_id` (was missing), `get_distance_options` (formalized), `get_rankings_page`, `fold_name` + `search_runners` (Latin/Cyrillic search), composite event-results index, drops 4 redundant indexes, null-year fix | ✅ |
 
 **New migrations:** name them `NNN_description.sql` (next is `006_…`), add a row
 here, and run the migration *before* deploying code that depends on it.

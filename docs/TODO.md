@@ -5,9 +5,6 @@ product plan is in `ROADMAP.md`.
 
 ## Needs you (owner actions)
 
-- [ ] **Run `migrations/005_site_audit_fixes.sql`** in the Supabase SQL Editor. It
-  enables full rankings pagination, Latin/Cyrillic search and the index cleanup.
-  The site works without it, using the older, limited behaviour.
 
 - [ ] **Send the Fly waiver email** to billing@fly.io (or the dashboard support
   form). The app is already destroyed, so the draft below is accurate:
