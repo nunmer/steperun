@@ -72,6 +72,8 @@ events = resp.data
 updates = []
 for e in events:
     new_name = slug_to_name(e["slug"])
+    if new_name == e["name"]:
+        continue  # already normalized — skip the write
     updates.append((e["id"], e["slug"], new_name))
     print(f"  {e['slug']:<45s} -> {new_name}")
 

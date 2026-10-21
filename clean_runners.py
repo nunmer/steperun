@@ -13,15 +13,23 @@ client = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_
 
 print("Fetching runners...")
 PAGE = 1000
-offset = 0
 all_runners = []
+last_id = 0
 while True:
-    resp = client.table("runners").select("id, full_name").range(offset, offset + PAGE - 1).execute()
+    # Keyset pagination: OFFSET would rescan all earlier rows on every page.
+    resp = (
+        client.table("runners")
+        .select("id, full_name, is_hidden")
+        .gt("id", last_id)
+        .order("id")
+        .limit(PAGE)
+        .execute()
+    )
     batch = resp.data or []
     all_runners.extend(batch)
     if len(batch) < PAGE:
         break
-    offset += PAGE
+    last_id = batch[-1]["id"]
 
 print(f"Total runners: {len(all_runners)}")
 
@@ -43,7 +51,12 @@ def is_relay_team(name: str) -> bool:
 
 
 to_delete = [r for r in all_runners if is_number_junk(r["full_name"])]
-to_hide   = [r for r in all_runners if not is_number_junk(r["full_name"]) and is_relay_team(r["full_name"])]
+to_hide   = [
+    r for r in all_runners
+    if not r.get("is_hidden")  # already hidden — skip the write
+    and not is_number_junk(r["full_name"])
+    and is_relay_team(r["full_name"])
+]
 
 print(f"\nTo DELETE (numbers):    {len(to_delete)}")
 print(f"To HIDE  (relay teams): {len(to_hide)}")

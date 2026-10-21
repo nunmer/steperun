@@ -41,11 +41,17 @@ def mark_event_scraped(client: Client, event_id: int, total: int):
 
 
 def get_scraped_slugs(client: Client) -> set[str]:
-    """Return slugs of events that have already been scraped."""
+    """
+    Return slugs of events already scraped *with results*.
+
+    Events scraped while their results page was still empty (total_results
+    0/NULL) are left out, so the next run picks them up once results appear.
+    """
     resp = (
         client.table("events")
         .select("slug")
         .not_.is_("scraped_at", "null")
+        .gt("total_results", 0)
         .execute()
     )
     return {row["slug"] for row in resp.data}
@@ -66,6 +72,57 @@ def upsert_runner(client: Client, full_name: str, country: Optional[str], city: 
         .execute()
     )
     return resp.data[0]["id"]
+
+
+RunnerKey = tuple[str, str, str]  # (full_name, country, city) — matches the unique index
+
+
+def get_or_create_runners(client: Client, keys: list[RunnerKey]) -> dict[RunnerKey, int]:
+    """
+    Resolve many runners in two requests: one SELECT for existing rows, one
+    INSERT for the missing ones. Avoids a write per result row — existing
+    runners are never rewritten.
+    """
+    unique_keys = list(dict.fromkeys(keys))
+    if not unique_keys:
+        return {}
+
+    # postgrest-py does not escape quotes/backslashes inside in_() values,
+    # so resolve those (rare) names one at a time via the single-row upsert.
+    ids: dict[RunnerKey, int] = {}
+    simple_keys: list[RunnerKey] = []
+    for key in unique_keys:
+        if '"' in key[0] or "\\" in key[0]:
+            ids[key] = upsert_runner(client, *key)
+        else:
+            simple_keys.append(key)
+    if not simple_keys:
+        return ids
+
+    names = list({k[0] for k in simple_keys})
+    resp = (
+        client.table("runners")
+        .select("id, full_name, country, city")
+        .in_("full_name", names)
+        .execute()
+    )
+    for r in resp.data:
+        ids[(r["full_name"], r["country"] or "", r["city"] or "")] = r["id"]
+
+    missing = [k for k in simple_keys if k not in ids]
+    if missing:
+        created = (
+            client.table("runners")
+            .upsert(
+                [{"full_name": n, "country": c, "city": ci} for n, c, ci in missing],
+                on_conflict="full_name,country,city",
+            )
+            .execute()
+        )
+        for r in created.data:
+            ids[(r["full_name"], r["country"] or "", r["city"] or "")] = r["id"]
+
+    return ids
 
 
 # ---------------------------------------------------------------------------

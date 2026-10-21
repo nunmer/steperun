@@ -1,0 +1,86 @@
+name: Scrape race results
+
+on:
+  schedule:
+    # 03:00 UTC = 08:00 Almaty, daily
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      min_year:
+        description: "Only scrape events from this year onward. Empty = last year onward. 0 = full history backfill."
+        required: false
+        default: ""
+
+concurrency:
+  group: scrape-results
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Scrape new results
+        id: scrape
+        env:
+          INPUT_MIN_YEAR: ${{ inputs.min_year }}
+        run: |
+          MIN_YEAR="${INPUT_MIN_YEAR:-}"
+          if [ -z "$MIN_YEAR" ]; then
+            MIN_YEAR=$(( $(date -u +%Y) - 1 ))
+          fi
+          if ! [[ "$MIN_YEAR" =~ ^[0-9]{1,4}$ ]]; then
+            echo "::error::min_year must be a year or 0, got '$MIN_YEAR'"
+            exit 1
+          fi
+          if [ "$MIN_YEAR" = "0" ]; then
+            echo "Full history backfill"
+            python run.py
+          else
+            echo "Scraping events from $MIN_YEAR onward"
+            python run.py --min-year "$MIN_YEAR"
+          fi
+
+      # Post-processing only when something new landed — keeps daily no-op
+      # runs to a couple of reads, protecting the Supabase Disk IO budget.
+      - name: Normalize event names
+        if: steps.scrape.outputs.new_results != '0'
+        run: python fix_event_names.py
+
+      - name: Hide relay teams / delete junk runners
+        if: steps.scrape.outputs.new_results != '0'
+        run: python clean_runners.py
+
+      - name: Fill missing event dates
+        if: steps.scrape.outputs.new_results != '0'
+        run: python scrape_dates.py
+
+      - name: Recalculate ELO (changed runners only)
+        if: steps.scrape.outputs.new_results != '0'
+        run: python calculate_elo.py
+
+      - name: Summary
+        if: always()
+        env:
+          NEW_RESULTS: ${{ steps.scrape.outputs.new_results || 'n/a' }}
+        run: |
+          echo "New result rows this run: $NEW_RESULTS" >> "$GITHUB_STEP_SUMMARY"

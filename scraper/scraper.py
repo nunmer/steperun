@@ -23,7 +23,7 @@ from .db import (
     upsert_event,
     mark_event_scraped,
     get_scraped_slugs,
-    upsert_runner,
+    get_or_create_runners,
     upsert_results_batch,
 )
 from .parser import (
@@ -204,37 +204,37 @@ def _scrape_category(
 # ---------------------------------------------------------------------------
 
 def _flush(rows: list[ResultRow], event_id: int, client) -> int:
-    """Upsert runners + results. Returns count of result rows inserted."""
-    batch: list[dict] = []
+    """Upsert runners + results in batches. Returns count of result rows upserted."""
+    valid = [
+        r for r in rows
+        if r.full_name.strip()
+        and r.full_name.strip().lower() not in ("фио", "name", "участник", "runner")
+    ]
+
     inserted = 0
-
-    for row in rows:
-        name = row.full_name.strip()
-        if not name or name.lower() in ("фио", "name", "участник", "runner"):
-            continue
+    for start in range(0, len(valid), BATCH_SIZE):
+        chunk = valid[start:start + BATCH_SIZE]
+        keys = [(r.full_name.strip(), r.country or "", r.city or "") for r in chunk]
         try:
-            runner_id = upsert_runner(client, name, row.country, row.city)
+            runner_ids = get_or_create_runners(client, keys)
         except Exception as exc:
-            log.warning("Runner upsert failed for %r: %s", name, exc)
+            log.warning("Runner batch failed (%d rows): %s", len(chunk), exc)
             continue
 
-        batch.append({
-            "runner_id":         runner_id,
-            "event_id":          event_id,
-            "bib_number":        row.bib_number or None,
-            "distance_category": row.distance_category or None,
-            "place":             row.place,
-            "checkpoint_times":  row.checkpoint_times or None,
-            "finish_time":       row.finish_time or None,
-            "chip_time":         row.chip_time or None,
-        })
-
-        if len(batch) >= BATCH_SIZE:
-            upsert_results_batch(client, batch)
-            inserted += len(batch)
-            batch = []
-
-    if batch:
+        batch = [
+            {
+                "runner_id":         runner_ids[key],
+                "event_id":          event_id,
+                "bib_number":        row.bib_number or None,
+                "distance_category": row.distance_category or None,
+                "place":             row.place,
+                "checkpoint_times":  row.checkpoint_times or None,
+                "finish_time":       row.finish_time or None,
+                "chip_time":         row.chip_time or None,
+            }
+            for row, key in zip(chunk, keys)
+            if key in runner_ids
+        ]
         upsert_results_batch(client, batch)
         inserted += len(batch)
 
@@ -245,12 +245,16 @@ def _flush(rows: list[ResultRow], event_id: int, client) -> int:
 # Orchestrator
 # ---------------------------------------------------------------------------
 
-def run(resume: bool = True):
+def run(resume: bool = True, min_year: Optional[int] = None) -> int:
     """
     Scrape all events.
 
     Args:
-        resume: Skip events already marked scraped_at IS NOT NULL.
+        resume: Skip events already scraped with results.
+        min_year: If set, only scrape events whose year is >= min_year.
+
+    Returns:
+        Total result rows upserted (0 means nothing new).
     """
     logging.basicConfig(
         level=logging.INFO,
@@ -265,6 +269,9 @@ def run(resume: bool = True):
         log.info("Resuming – %d events already scraped", len(done))
 
     events = fetch_event_list()
+    if min_year is not None:
+        events = [e for e in events if e["year"] is not None and e["year"] >= min_year]
+        log.info("Limiting to %d events from %d onward", len(events), min_year)
     grand_total = 0
 
     for i, event in enumerate(events, 1):
@@ -279,3 +286,4 @@ def run(resume: bool = True):
             log.error("Failed on %s: %s", slug, exc, exc_info=True)
 
     log.info("═══ Grand total rows: %d ═══", grand_total)
+    return grand_total

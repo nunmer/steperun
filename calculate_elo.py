@@ -42,42 +42,47 @@ PAGE = 1000
 # ── Fetch all visible runners ──────────────────────────────────────────
 
 print("Fetching runners...")
-offset = 0
+# Keyset pagination (id > last) instead of OFFSET, which rescans earlier rows.
+last_id = 0
 all_runners = []
 while True:
     resp = (
         client.table("runners")
-        .select("id, full_name")
+        .select("id, full_name, elo_score, elo_level")
         .eq("is_hidden", False)
-        .range(offset, offset + PAGE - 1)
+        .gt("id", last_id)
+        .order("id")
+        .limit(PAGE)
         .execute()
     )
     batch = resp.data or []
     all_runners.extend(batch)
     if len(batch) < PAGE:
         break
-    offset += PAGE
+    last_id = batch[-1]["id"]
 print(f"  {len(all_runners)} runners")
 
 # ── Fetch all valid results ────────────────────────────────────────────
 
 print("Fetching results...")
-offset = 0
+last_id = 0
 all_results = []
 while True:
     resp = (
         client.table("results")
-        .select("runner_id, event_id, distance_category, place, chip_time")
+        .select("id, runner_id, event_id, distance_category, place, chip_time")
         .not_.is_("chip_time", "null")
         .neq("chip_time", "--:--:--")
-        .range(offset, offset + PAGE - 1)
+        .gt("id", last_id)
+        .order("id")
+        .limit(PAGE)
         .execute()
     )
     batch = resp.data or []
     all_results.extend(batch)
     if len(batch) < PAGE:
         break
-    offset += PAGE
+    last_id = batch[-1]["id"]
 print(f"  {len(all_results)} results")
 
 # ── Fetch events for year info ─────────────────────────────────────────
@@ -338,8 +343,14 @@ import time
 # For each level, update all runners at once using .in_()
 
 # Group by level for fewer API calls
+# Only write runners whose score or level actually changed — rewriting all
+# ~66k rows on every run burns the Supabase Disk IO budget.
+current = {r["id"]: (r.get("elo_score"), r.get("elo_level")) for r in all_runners}
+changed = [(rid, elo, level) for rid, elo, level in elo_results if current.get(rid) != (elo, level)]
+print(f"  {len(changed)} of {len(elo_results)} runners changed")
+
 level_groups = defaultdict(list)
-for rid, elo, level in elo_results:
+for rid, elo, level in changed:
     level_groups[level].append((rid, elo))
 
 CHUNK = 300  # IDs per request
@@ -374,7 +385,7 @@ for level in sorted(level_groups.keys()):
             updated += len(chunk)
             time.sleep(0.15)  # Rate limit: ~6 req/s
 
-    print(f"    Updated {updated}/{len(elo_results)} so far")
+    print(f"    Updated {updated}/{len(changed)} so far")
 
 print(f"  Updated {updated} runners.")
 print("\nDone!")

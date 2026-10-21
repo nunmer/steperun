@@ -107,6 +107,7 @@ def main():
         .select("id, slug, url, year")
         .not_.is_("url", "null")
         .not_.is_("scraped_at", "null")
+        .is_("date_of_event", "null")  # only events still missing a date
         .order("id")
         .execute()
     )

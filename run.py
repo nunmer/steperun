@@ -6,6 +6,7 @@ Usage:
     python run.py              # scrape all events (skipping already-done)
     python run.py --full       # re-scrape everything from scratch
     python run.py --event winter_run_2026   # scrape one specific event
+    python run.py --min-year 2025           # only events from 2025 onward (daily cron)
 """
 
 import argparse
@@ -30,6 +31,8 @@ def main():
     parser = argparse.ArgumentParser(description="Scrape Almaty Marathon results into Supabase")
     parser.add_argument("--full",  action="store_true", help="Re-scrape all events, ignoring resume state")
     parser.add_argument("--event", metavar="SLUG",      help="Scrape only this one event slug")
+    parser.add_argument("--min-year", type=int, metavar="YEAR",
+                        help="Only scrape events from this year onward (skips events with unknown year)")
     args = parser.parse_args()
 
     from scraper.scraper import run, scrape_event, fetch_event_list
@@ -49,9 +52,20 @@ def main():
                 "year": None,
                 "url": f"https://almaty-marathon.kz/ru/results/{slug}",
             }
-        scrape_event(match, client)
+        total = scrape_event(match, client)
     else:
-        run(resume=not args.full)
+        total = run(resume=not args.full, min_year=args.min_year)
+
+    _write_github_output(total)
+
+
+def _write_github_output(total: int) -> None:
+    """Expose row count to GitHub Actions so later steps can skip when nothing is new."""
+    output_path = os.getenv("GITHUB_OUTPUT")
+    if not output_path:
+        return
+    with open(output_path, "a", encoding="utf-8") as f:
+        f.write(f"new_results={total}\n")
 
 
 if __name__ == "__main__":
