@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getAuthUser } from "@/lib/supabase-server";
 import { logAudit } from "@/lib/services/audit";
+import { invalidateRunner } from "@/lib/cache";
 
 export async function POST(
   request: NextRequest,
@@ -52,6 +53,7 @@ export async function POST(
 
   if (body.action === "approve") {
     await db.from("runners").update({ claimed_by: claim.user_id }).eq("id", claim.runner_id);
+    invalidateRunner(claim.runner_id);
   }
 
   await logAudit({

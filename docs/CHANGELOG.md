@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-21 (later): site audit fixes
+
+Everything in `AUDIT-2026-10-21.md` except item 17; see its status table.
+- **Caching:** cached repeat page loads take 20–75 ms (were 1–9 s).
+  `/api/revalidate` is called by the scraper workflow.
+- **Complete lists:** exact totals, unique sort keys; every event distance in
+  the filter; paginated rankings for every distance.
+- **Bugs fixed:**
+  - DNF no longer shown as PB;
+  - page 0 and bad `page` params handled;
+  - year "0" group gone;
+  - 7 athletex dates recovered.
+- **New:** `robots.txt`, `sitemap.xml`. Migration `005` (search, rankings,
+  indexes).
+
 ## 2026-10-21
 
 ### Hosting: everything on free tiers

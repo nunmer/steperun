@@ -1,7 +1,9 @@
 from datetime import date
 
 from scraper.athletex import clax_links, year_variants
-from scraper.clax import category_label, parse_clax, parse_event_date, parse_time
+from scraper.clax import (
+    category_label, parse_clax, parse_event_date, parse_page_date, parse_serial_date, parse_time,
+)
 
 SAMPLE = """<?xml version="1.0" encoding="utf-8"?>
 <Epreuve nom="TEST TRAIL 2026" dates="воскресенье, 6 сентября 2026 г.">
@@ -96,3 +98,23 @@ def test_clax_links():
     html = ('<a href="https://live.myrace.info/?f=bases/kz/2026/irbis2026/air2026.clax">x</a>'
             '<a href="https://live.myrace.info/?f=bases/kz/2026/irbis2026/air2026.clax">y</a>')
     assert clax_links(html) == [("bases/kz/2026/irbis2026/air2026.clax", 2026, "irbis2026")]
+
+
+def test_parse_serial_date():
+    assert parse_serial_date("45346") == date(2024, 2, 24)
+    assert parse_serial_date("46235") == date(2026, 8, 1)
+    assert parse_serial_date("") is None
+    assert parse_serial_date("12") is None      # out of range
+    assert parse_serial_date("abc") is None
+
+
+def test_parse_page_date():
+    assert parse_page_date("<p>Старт 12 октября 2025 в 9:00</p>") == date(2025, 10, 12)
+    assert parse_page_date("Дата: 20.06.2026") == date(2026, 6, 20)
+    assert parse_page_date("no date here") is None
+    assert parse_page_date(None) is None
+
+
+def test_parse_clax_falls_back_to_serial_date():
+    xml = SAMPLE.replace('dates="воскресенье, 6 сентября 2026 г."'.encode(), b'dates="" date="45346"')
+    assert parse_clax(xml).event_date == date(2024, 2, 24)

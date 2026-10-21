@@ -46,6 +46,7 @@ covers `steppe.run` and `www.steppe.run`).
 | `SECRET_KEY` | HMAC for Strava OAuth state |
 | `RUN_ANALYZER_API_URL` | `https://steperun-analyzer.vercel.app` |
 | `RUN_ANALYZER_API_KEY` | Shared secret, same value as the analyzer's `ANALYZER_API_KEY` |
+| `REVALIDATE_SECRET` | Bearer token for `POST /api/revalidate` (same value as the GitHub secret) |
 | `PADDLE_CLIENT_TOKEN`, `PADDLE_ENVIRONMENT`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRICE_ID_PACK_10/_50/_200` | *Unset* = earn-only coins. Set all of them to sell coin packs |
 | `SCRAPER_DELAY`, `SCRAPER_BATCH_SIZE` | Unused by the web app (leftovers) |
 
@@ -59,7 +60,7 @@ covers `steppe.run` and `www.steppe.run`).
 
 ### GitHub repo secrets (scraper)
 
-`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`.
+`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `REVALIDATE_SECRET` (the workflow purges the site cache after an import).
 
 ### Local files (gitignored)
 
@@ -101,6 +102,14 @@ See `docs/SCRAPER.md`.
 Generate a new value and set it as `ANALYZER_API_KEY` (analyzer) and
 `RUN_ANALYZER_API_KEY` (web). Then redeploy both projects: push a commit, or
 use Redeploy in the dashboard.
+
+### Caching
+Public pages read through `unstable_cache` (1 h, tag `results`; runner data is
+also tagged `runner:<id>`). Runner profiles are ISR. New results appear when
+the scraper workflow calls `POST /api/revalidate`, or within an hour.
+Manual purge:
+`curl -X POST -H "Authorization: Bearer $REVALIDATE_SECRET" https://www.steppe.run/api/revalidate`.
+Claim approvals purge that runner automatically (`invalidateRunner`).
 
 ### Hide bad data
 `python scripts/clean_runners.py` (production write). Or in SQL:

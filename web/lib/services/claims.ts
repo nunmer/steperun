@@ -14,6 +14,7 @@ import type { StravaActivity } from "./strava";
 import { fetchAthleteActivities, refreshAccessToken } from "./strava";
 import { logAudit } from "./audit";
 import { awardCoins, awardEventParticipationCoins, COIN_REWARDS } from "./coins";
+import { invalidateRunner } from "@/lib/cache";
 
 function adminClient() {
   return createClient(
@@ -228,6 +229,7 @@ export async function createClaim(
   // If auto-approved, update runner.claimed_by and award coins
   if (autoApproved) {
     await db.from("runners").update({ claimed_by: userId }).eq("id", runnerId);
+    invalidateRunner(runnerId);
 
     // Update user trust_score
     await db.from("user_profiles")
@@ -345,6 +347,7 @@ export async function attachEvidence(
     if (decision === "auto_approved") {
       await db.from("runner_claims").update({ status: "approved", auto_approved: true }).eq("id", claimId);
       await db.from("runners").update({ claimed_by: userId }).eq("id", claim.runner_id);
+      invalidateRunner(claim.runner_id);
 
       // Award coins on evidence-triggered auto-approval
       await awardCoins(userId, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claimId);

@@ -11,7 +11,7 @@ export default function HomeLoading() {
           <span className="text-primary">Database</span>
         </h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-          Every runner. Every race. Every finish line — from 2015 to today.
+          Every runner. Every race. Every finish line.
         </p>
         <div className="flex gap-3 justify-center">
           <Skeleton className="h-11 w-36 rounded-md" />

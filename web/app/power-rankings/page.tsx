@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getPowerRankings, getEloStats, PAGE_SIZE } from "@/lib/queries";
+import { parseIntInRange, parsePage } from "@/lib/params";
+import { Pagination, buildHref } from "@/components/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -38,15 +40,16 @@ export default async function PowerRankingsPage({
   searchParams: Promise<{ level?: string; page?: string }>;
 }) {
   const { level: levelParam, page: pageParam } = await searchParams;
-  const level = levelParam ? Number(levelParam) : undefined;
-  const page = pageParam ? Number(pageParam) : 1;
+  const level = parseIntInRange(levelParam, 1, 10);
 
-  const [{ runners, total }, eloStats] = await Promise.all([
-    getPowerRankings({ level, page }),
-    getEloStats(),
-  ]);
-
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  // Exact totals from the per-level counts (same numbers as the level cards).
+  const eloStats = await getEloStats();
+  const total = level
+    ? eloStats.find((s) => s.level === level)?.count ?? 0
+    : eloStats.reduce((sum, s) => sum + s.count, 0);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(parsePage(pageParam), totalPages);
+  const runners = await getPowerRankings(level, page);
   const globalRankOffset = (page - 1) * PAGE_SIZE;
 
   return (
@@ -171,29 +174,12 @@ export default async function PowerRankingsPage({
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          {page > 1 && (
-            <Link
-              href={`/power-rankings?${level ? `level=${level}&` : ""}page=${page - 1}`}
-              className="px-4 py-2 rounded-md border text-sm hover:bg-muted"
-            >
-              Previous
-            </Link>
-          )}
-          <span className="px-4 py-2 text-sm text-muted-foreground">
-            Page {page} of {totalPages} ({total.toLocaleString()} runners)
-          </span>
-          {page < totalPages && (
-            <Link
-              href={`/power-rankings?${level ? `level=${level}&` : ""}page=${page + 1}`}
-              className="px-4 py-2 rounded-md border text-sm hover:bg-muted"
-            >
-              Next
-            </Link>
-          )}
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        label={`${total.toLocaleString()} runners`}
+        href={(p) => buildHref("/power-rankings", { level, page: p })}
+      />
     </div>
   );
 }

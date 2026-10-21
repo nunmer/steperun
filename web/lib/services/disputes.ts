@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { decideDispute } from "./trust-scoring";
 import { logAudit } from "./audit";
+import { invalidateRunner } from "@/lib/cache";
 
 function adminClient() {
   return createClient(
@@ -75,6 +76,7 @@ export async function createDispute(
     }).eq("id", dispute.id);
 
     await db.from("runners").update({ claimed_by: claimantUserId }).eq("id", claim.runner_id);
+    invalidateRunner(claim.runner_id);
   }
 
   await logAudit({

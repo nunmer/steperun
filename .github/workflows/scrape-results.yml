@@ -100,6 +100,19 @@ jobs:
         if: steps.scrape.outputs.new_results != '0' || steps.athletex.outputs.new_results != '0'
         run: python scripts/calculate_elo.py
 
+      # Purge the site's cached race data so new results show up right away
+      # (otherwise they appear within an hour).
+      - name: Refresh site cache
+        if: steps.scrape.outputs.new_results != '0' || steps.athletex.outputs.new_results != '0'
+        env:
+          REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
+        run: |
+          if [ -z "$REVALIDATE_SECRET" ]; then
+            echo "::warning::REVALIDATE_SECRET not set; site cache refreshes within an hour"
+            exit 0
+          fi
+          curl -fsS -X POST -H "Authorization: Bearer $REVALIDATE_SECRET" https://www.steppe.run/api/revalidate
+
       - name: Summary
         if: always()
         env:

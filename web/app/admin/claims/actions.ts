@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getAuthUser } from "@/lib/supabase-server";
 import { logAudit } from "@/lib/services/audit";
 import { awardCoins, awardEventParticipationCoins, COIN_REWARDS } from "@/lib/services/coins";
+import { invalidateRunner } from "@/lib/cache";
 
 function adminClient() {
   return createClient(
@@ -33,6 +34,7 @@ export async function approveClaimAction(claimId: number, notes?: string) {
     .single();
 
   if (!claim) throw new Error("Claim not found");
+  const { runner_id: runnerId, user_id: userId } = claim as { runner_id: number; user_id: string };
 
   await db.from("runner_claims").update({
     status: "approved",
@@ -42,11 +44,12 @@ export async function approveClaimAction(claimId: number, notes?: string) {
     updated_at: new Date().toISOString(),
   }).eq("id", claimId);
 
-  await db.from("runners").update({ claimed_by: (claim as any).user_id }).eq("id", (claim as any).runner_id);
+  await db.from("runners").update({ claimed_by: userId }).eq("id", runnerId);
+  invalidateRunner(runnerId);
 
   // Award coins: +10 for claim, +20 per event participation
-  await awardCoins((claim as any).user_id, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claimId);
-  await awardEventParticipationCoins((claim as any).user_id, (claim as any).runner_id);
+  await awardCoins(userId, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claimId);
+  await awardEventParticipationCoins(userId, runnerId);
 
   await logAudit({ event_type: "admin_claim_approved", user_id: admin.id, claim_id: claimId });
   revalidatePath("/admin/claims");

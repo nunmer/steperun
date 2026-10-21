@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getEvents, getEventYears } from "@/lib/queries";
+import { groupByYear } from "@/lib/events";
+import { parseIntInRange } from "@/lib/params";
 import { EventCard } from "@/components/event-card";
 
 export const metadata = { title: "Events" };
@@ -11,16 +13,11 @@ export default async function EventsPage({
   searchParams: Promise<{ year?: string }>;
 }) {
   const { year: yearParam } = await searchParams;
-  const year = yearParam ? Number(yearParam) : undefined;
+  const year = parseIntInRange(yearParam, 2000, 2100);
 
   const [events, years] = await Promise.all([getEvents(year), getEventYears()]);
 
-  const byYear = events.reduce<Record<number, typeof events>>((acc, e) => {
-    const y = e.year ?? 0;
-    (acc[y] ??= []).push(e);
-    return acc;
-  }, {});
-  const sortedYears = Object.keys(byYear).map(Number).sort((a, b) => b - a);
+  const groups = groupByYear(events);
 
   return (
     <div className="space-y-8">
@@ -54,13 +51,13 @@ export default async function EventsPage({
 
       {/* Events grouped by year */}
       <div className="space-y-10">
-        {sortedYears.map((y) => (
-          <section key={y}>
+        {groups.map(({ label, events: list }) => (
+          <section key={label}>
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              {y}
+              {label}
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {byYear[y].map((event) => (
+              {list.map((event) => (
                 <EventCard key={event.slug} event={event} />
               ))}
             </div>

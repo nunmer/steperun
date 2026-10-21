@@ -5,6 +5,10 @@ product plan is in `ROADMAP.md`.
 
 ## Needs you (owner actions)
 
+- [ ] **Run `migrations/005_site_audit_fixes.sql`** in the Supabase SQL Editor. It
+  enables full rankings pagination, Latin/Cyrillic search and the index cleanup.
+  The site works without it, using the older, limited behaviour.
+
 - [ ] **Send the Fly waiver email** to billing@fly.io (or the dashboard support
   form). The app is already destroyed, so the draft below is accurate:
 
@@ -40,8 +44,10 @@ product plan is in `ROADMAP.md`.
 
 ## Engineering follow-ups
 
-- [ ] **Site audit fixes:** 23 findings, ranked, in `AUDIT-2026-10-21.md` (caching,
-  incomplete lists, DNF-as-PB, pagination bugs).
+- [ ] **Junk runner names** like `] Ivan` (leading punctuation) slip past
+  `clean_runners.py`. Extend its junk rules.
+- [ ] **Soft 404s** (audit item 17): unknown slugs/ids render the not-found page
+  with status 200, because of streaming from `loading.tsx`.
 
 - [ ] **Disk IO:** add `robots.txt` and caching for the dynamic filtered pages
   (rankings, runners search) so crawlers don't hit the DB.

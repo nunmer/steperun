@@ -19,13 +19,13 @@ import logging
 import os
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta, timezone
 from typing import Iterable, Optional
 
 import requests
 
-from .clax import ClaxEvent, ClaxResult, parse_clax
+from .clax import ClaxEvent, ClaxResult, parse_clax, parse_page_date
 from .db import (
     get_or_create_runners,
     get_scraped_slugs,
@@ -204,6 +204,38 @@ def import_event(client, index: RunnerIndex, source: ClaxSource, event: ClaxEven
     return len(rows)
 
 
+def fill_missing_dates(client) -> int:
+    """Set date_of_event (and year) for athletex events imported without one."""
+    session = requests.Session()
+    rows = (
+        client.table("events").select("id, slug, url, year")
+        .like("slug", f"{SLUG_PREFIX}%").is_("date_of_event", "null").execute()
+    ).data or []
+    fixed = 0
+    for row in rows:
+        page = _get(session, row["url"])
+        if page is None:
+            continue
+        found = None
+        folder = row["slug"][len(SLUG_PREFIX):]
+        for path, _, link_folder in clax_links(page.text):
+            if link_folder.lower() == folder:
+                clax = _get(session, f"{LIVE}/{path}")
+                found = parse_clax(clax.content).event_date if clax is not None else None
+                break
+        found = found or parse_page_date(page.text)
+        if found:
+            update = {"date_of_event": found.isoformat()}
+            if not row.get("year"):
+                update["year"] = found.year
+            client.table("events").update(update).eq("id", row["id"]).execute()
+            log.info("  %s → %s", row["slug"], found)
+            fixed += 1
+        else:
+            log.warning("  %s: no date found", row["slug"])
+    return fixed
+
+
 def run(client, min_year: int, backfill: bool = False) -> int:
     """Import new athletex events. Returns total result rows upserted."""
     session = requests.Session()
@@ -223,6 +255,9 @@ def run(client, min_year: int, backfill: bool = False) -> int:
                 log.warning("  %s: result file unavailable", source.slug)
                 continue
             event = parse_clax(resp.content)
+            if event.event_date is None:  # some files carry no date; the page does
+                page = _get(session, source.page_url)
+                event = replace(event, event_date=parse_page_date(page.text if page else None))
             if event.event_date and event.event_date >= today:
                 log.info("  %s: race on %s not finished yet — skipping", source.slug, event.event_date)
                 continue

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getStats, getEvents } from "@/lib/queries";
+import { groupByYear } from "@/lib/events";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EventCard } from "@/components/event-card";
@@ -22,12 +23,8 @@ function StatCard({ value, label }: { value: number; label: string }) {
 export default async function HomePage() {
   const [stats, events] = await Promise.all([getStats(), getEvents()]);
 
-  const byYear = events.reduce<Record<number, typeof events>>((acc, e) => {
-    const y = e.year ?? 0;
-    (acc[y] ??= []).push(e);
-    return acc;
-  }, {});
-  const years = Object.keys(byYear).map(Number).sort((a, b) => b - a);
+  const groups = groupByYear(events).filter((g) => g.label !== "Other").slice(0, 4);
+  const firstYear = events.reduce((min, e) => (e.year && e.year < min ? e.year : min), Infinity);
 
   return (
     <div className="space-y-12">
@@ -39,7 +36,8 @@ export default async function HomePage() {
           <span className="text-primary">Database</span>
         </h1>
         <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-          Every runner. Every race. Every finish line — from 2015 to today.
+          Every runner. Every race. Every finish line
+          {Number.isFinite(firstYear) ? ` — from ${firstYear} to today.` : "."}
         </p>
         <div className="flex gap-3 justify-center">
           <Button asChild size="lg">
@@ -77,13 +75,13 @@ export default async function HomePage() {
           </Button>
         </div>
         <div className="space-y-8">
-          {years.slice(0, 4).map((year) => (
-            <div key={year}>
+          {groups.map(({ label, events: list }) => (
+            <div key={label}>
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                {year}
+                {label}
               </h3>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {byYear[year].map((event) => (
+                {list.map((event) => (
                   <EventCard key={event.slug} event={event} />
                 ))}
               </div>

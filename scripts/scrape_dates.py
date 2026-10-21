@@ -21,7 +21,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 from supabase import create_client
 
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")  # repo-root .env
+import sys
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))  # for the scraper package
+load_dotenv(ROOT / ".env")
 
 log = logging.getLogger(__name__)
 
@@ -132,9 +136,10 @@ def main():
             date_str = extract_date(html, year)
 
             if date_str:
-                client.table("events").update(
-                    {"date_of_event": date_str}
-                ).eq("id", event["id"]).execute()
+                update = {"date_of_event": date_str}
+                if not year:  # slug had no year (e.g. tour_of_world_class_almaty)
+                    update["year"] = int(date_str[:4])
+                client.table("events").update(update).eq("id", event["id"]).execute()
                 log.info("  → %s", date_str)
                 updated += 1
             else:
@@ -148,6 +153,10 @@ def main():
         time.sleep(DELAY)
 
     log.info("Done: %d updated, %d failed", updated, failed)
+
+    # athletex events: date from the .clax file or the competition page
+    from scraper.athletex import fill_missing_dates
+    log.info("athletex: %d event dates filled", fill_missing_dates(client))
 
 
 if __name__ == "__main__":

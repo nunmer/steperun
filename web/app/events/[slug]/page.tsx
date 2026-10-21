@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getEvent, getEventResults, getEventCategories, getEventStats } from "@/lib/queries";
+import { getEvent, getEventResults, getEventStats, PAGE_SIZE } from "@/lib/queries";
+import { parsePage } from "@/lib/params";
+import { Pagination, buildHref } from "@/components/pagination";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -19,8 +20,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: event?.name ?? slug };
 }
 
-const PAGE_SIZE = 30;
-
 export default async function EventPage({
   params,
   searchParams,
@@ -29,26 +28,26 @@ export default async function EventPage({
   searchParams: Promise<{ category?: string; page?: string }>;
 }) {
   const { slug } = await params;
-  const { category, page: pageParam } = await searchParams;
-  const page = Number(pageParam ?? 1);
+  const { category: categoryParam, page: pageParam } = await searchParams;
 
   const event = await getEvent(slug);
   if (!event) notFound();
 
-  const [categories, stats, { rows, total }] = await Promise.all([
-    getEventCategories(event.id),
-    getEventStats(event.id),
-    getEventResults(event.id, { category, page }),
-  ]);
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  // Distances, counts and totals all come from the stats RPC (one aggregate),
+  // so the filter lists every distance and pagination totals are exact.
+  const stats = await getEventStats(event.id);
+  const categories = stats.distances.map((d) => d.label);
+  const category = categoryParam && categories.includes(categoryParam) ? categoryParam : undefined;
+  const total = category
+    ? stats.distances.find((d) => d.label === category)?.count ?? 0
+    : stats.distances.reduce((sum, d) => sum + d.count, 0);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(parsePage(pageParam), totalPages);
+  const rows = await getEventResults(event.id, category, page);
 
-  function hrefWithParams(overrides: Record<string, string | undefined>) {
-    const p = new URLSearchParams();
+  function hrefWithParams(overrides: { category?: string; page?: string }) {
     const merged = { category, page: String(page), ...overrides };
-    if (merged.category) p.set("category", merged.category);
-    if (merged.page && merged.page !== "1") p.set("page", merged.page);
-    const qs = p.toString();
-    return `/events/${slug}${qs ? `?${qs}` : ""}`;
+    return buildHref(`/events/${slug}`, { category: merged.category, page: merged.page });
   }
 
   return (
@@ -132,8 +131,9 @@ export default async function EventPage({
 
       {/* Results count */}
       <p className="text-sm text-muted-foreground">
-        Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of{" "}
-        {total.toLocaleString()} results
+        {total === 0
+          ? "No finishers recorded."
+          : `Showing ${((page - 1) * PAGE_SIZE + 1).toLocaleString()}–${Math.min(page * PAGE_SIZE, total).toLocaleString()} of ${total.toLocaleString()} results`}
       </p>
 
       {/* Results table */}
@@ -153,9 +153,9 @@ export default async function EventPage({
           </TableHeader>
           <TableBody>
             {rows.map((row, i) => {
-              const runner = row.runners as any;
+              const runner = row.runners;
               return (
-                <TableRow key={i} className="hover:bg-muted/50">
+                <TableRow key={`${runner.id}-${row.distance_category}-${i}`} className="hover:bg-muted/50">
                   <TableCell className="font-mono text-muted-foreground text-sm">
                     {row.place ?? "—"}
                   </TableCell>
@@ -189,19 +189,11 @@ export default async function EventPage({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between gap-2">
-          <Button asChild variant="outline" disabled={page <= 1}>
-            <Link href={hrefWithParams({ page: String(page - 1) })}>← Previous</Link>
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
-          </span>
-          <Button asChild variant="outline" disabled={page >= totalPages}>
-            <Link href={hrefWithParams({ page: String(page + 1) })}>Next →</Link>
-          </Button>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        href={(p) => hrefWithParams({ page: String(p) })}
+      />
     </div>
   );
 }

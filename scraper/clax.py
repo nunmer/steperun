@@ -18,7 +18,7 @@ Pure parsing only — no network or DB access.
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 
 # Courses that are not running results (cycling, relays, kids, sweepers, ...).
@@ -100,6 +100,35 @@ def parse_event_date(raw: Optional[str]) -> Optional[date]:
         return None
     try:
         return date(int(m.group(3)), _RU_MONTHS[m.group(2)], int(m.group(1)))
+    except ValueError:
+        return None
+
+
+_SERIAL_EPOCH = date(1899, 12, 30)  # spreadsheet/OLE day 0
+
+
+def parse_serial_date(raw: Optional[str]) -> Optional[date]:
+    """Wiclax `date="45346"` (days since 1899-12-30) -> date(2024, 2, 24)."""
+    if not raw or not raw.strip().isdigit():
+        return None
+    days = int(raw)
+    if not 36526 <= days <= 73051:  # 2000-01-01 .. 2099-12-31
+        return None
+    return _SERIAL_EPOCH + timedelta(days=days)
+
+
+def parse_page_date(text: Optional[str]) -> Optional[date]:
+    """First race date on an event web page: "12 октября 2025" or "12.10.2025"."""
+    if not text:
+        return None
+    found = parse_event_date(text)
+    if found:
+        return found
+    m = re.search(r"\b(\d{2})\.(\d{2})\.(20\d{2})\b", text)
+    if not m:
+        return None
+    try:
+        return date(int(m.group(3)), int(m.group(2)), int(m.group(1)))
     except ValueError:
         return None
 
@@ -199,4 +228,5 @@ def parse_clax(xml_bytes: bytes) -> ClaxEvent:
     name = (root.get("nom") or "").strip()
     if name.isupper():
         name = name.title()
-    return ClaxEvent(name=name, event_date=parse_event_date(root.get("dates")), results=tuple(ranked))
+    event_date = parse_event_date(root.get("dates")) or parse_serial_date(root.get("date"))
+    return ClaxEvent(name=name, event_date=event_date, results=tuple(ranked))

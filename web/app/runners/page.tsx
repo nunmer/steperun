@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getRunners } from "@/lib/queries";
-import { Badge } from "@/components/ui/badge";
+import { getRunners, PAGE_SIZE } from "@/lib/queries";
+import { parsePage } from "@/lib/params";
+import { Pagination, buildHref } from "@/components/pagination";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,19 +9,20 @@ import {
 } from "@/components/ui/table";
 
 export const metadata = { title: "Runners" };
-export const revalidate = 60;
-
-const PAGE_SIZE = 30;
+export const revalidate = 3600;
 
 export default async function RunnersPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const { q, page: pageParam } = await searchParams;
-  const page = Number(pageParam ?? 1);
-  const { runners, total } = await getRunners({ search: q, page });
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const { q: rawQ, page: pageParam } = await searchParams;
+  const q = rawQ?.trim().slice(0, 80) || undefined;
+  const requested = parsePage(pageParam);
+  let { rows: runners, total } = await getRunners(q, requested);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(requested, totalPages);
+  if (page !== requested) ({ rows: runners, total } = await getRunners(q, page));
 
   return (
     <div className="space-y-6">
@@ -34,7 +36,7 @@ export default async function RunnersPage({
         <Input
           name="q"
           defaultValue={q}
-          placeholder="Search by name…"
+          placeholder="Search by name (Latin or Cyrillic)…"
           className="flex-1"
         />
         <Button type="submit">Search</Button>
@@ -78,23 +80,11 @@ export default async function RunnersPage({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <Button asChild variant="outline" disabled={page <= 1}>
-            <Link href={`/runners?${q ? `q=${encodeURIComponent(q)}&` : ""}page=${page - 1}`}>
-              ← Previous
-            </Link>
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages}
-          </span>
-          <Button asChild variant="outline" disabled={page >= totalPages}>
-            <Link href={`/runners?${q ? `q=${encodeURIComponent(q)}&` : ""}page=${page + 1}`}>
-              Next →
-            </Link>
-          </Button>
-        </div>
-      )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        href={(p) => buildHref("/runners", { q, page: p })}
+      />
     </div>
   );
 }

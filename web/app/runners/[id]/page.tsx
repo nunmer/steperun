@@ -2,15 +2,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRunnerFull } from "@/lib/queries";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { EloCard, StatCard } from "@/components/elo-badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { ClaimButton } from "@/components/claim-button";
+import { isFinishTime, timeToSeconds } from "@/lib/params";
 
 export const revalidate = 3600;
+
+// No paths at build time; each profile is rendered on first visit, then
+// cached (ISR) until revalidated by the scraper or a claim change.
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,30 +24,32 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: data?.runner.full_name ?? "Runner" };
 }
 
-// Parse "HH:MM:SS" or "MM:SS" into total seconds for comparison
-function toSeconds(t: string): number {
-  const parts = t.split(":").map(Number);
-  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  if (parts.length === 2) return parts[0] * 60 + parts[1];
-  return Infinity;
+type Result = NonNullable<Awaited<ReturnType<typeof getRunnerFull>>>["results"][number];
+
+/** Chip time, else gun time; null for DNF / DNS ("--:--:--"). */
+function bestTime(r: Result): string | null {
+  return isFinishTime(r.chip_time) ? r.chip_time : isFinishTime(r.finish_time) ? r.finish_time : null;
 }
 
-// Derive personal bests: best chip_time per distance_category
-function getPersonalBests(results: NonNullable<Awaited<ReturnType<typeof getRunnerFull>>>["results"]) {
-  const bests = new Map<string, (typeof results)[0]>();
+// Personal bests: fastest finish per distance. DNFs never count.
+function getPersonalBests(results: Result[]) {
+  const bests = new Map<string, Result>();
   for (const r of results) {
+    if (!bestTime(r)) continue;
     const cat = r.distance_category ?? "Unknown";
     const cur = bests.get(cat);
-    if (!cur || (r.chip_time && (!cur.chip_time || toSeconds(r.chip_time) < toSeconds(cur.chip_time)))) {
-      bests.set(cat, r);
-    }
+    if (!cur || timeToSeconds(bestTime(r)) < timeToSeconds(bestTime(cur))) bests.set(cat, r);
   }
   return [...bests.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
 
+function showTime(t: string | null): string {
+  return isFinishTime(t) ? t : t ? "DNF" : "—";
+}
+
 export default async function RunnerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const data = await getRunnerFull(Number(id));
+  const data = /^\d+$/.test(id) ? await getRunnerFull(Number(id)) : null;
   if (!data) notFound();
 
   const { runner, results, cityRank, countryRank } = data;
@@ -49,13 +57,14 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
 
   // Sort race history by year desc, then event name
   const history = [...results].sort((a, b) => {
-    const yearA = (a.events as any)?.year ?? 0;
-    const yearB = (b.events as any)?.year ?? 0;
-    return (yearB - yearA) || ((a.events as any)?.name?.localeCompare((b.events as any)?.name) ?? 0);
+    const yearA = a.events?.year ?? 0;
+    const yearB = b.events?.year ?? 0;
+    return (yearB - yearA) || (a.events?.name?.localeCompare(b.events?.name ?? "") ?? 0);
   });
 
-  const totalRaces = results.length;
-  const uniqueYears = new Set(results.map((r) => (r.events as any)?.year)).size;
+  const finishes = results.filter((r) => bestTime(r));
+  const totalRaces = finishes.length;
+  const uniqueYears = new Set(finishes.map((r) => r.events?.year)).size;
   const eloRanks = { cityRank, countryRank };
 
   return (
@@ -121,12 +130,12 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
               </TableHeader>
               <TableBody>
                 {pbs.map(([cat, r]) => {
-                  const event = r.events as any;
+                  const event = r.events;
                   return (
                     <TableRow key={cat}>
                       <TableCell className="font-medium">{cat}</TableCell>
                       <TableCell className="font-mono font-semibold tabular-nums text-[#22c55e]">
-                        {r.chip_time ?? r.finish_time ?? "—"}
+                        {bestTime(r)}
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
                         <Link
@@ -168,7 +177,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
             </TableHeader>
             <TableBody>
               {history.map((r, i) => {
-                const event = r.events as any;
+                const event = r.events;
                 return (
                   <TableRow key={i} className="hover:bg-muted/50">
                     <TableCell className="font-medium">
@@ -188,9 +197,9 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                     <TableCell className="text-muted-foreground">
                       {r.place ? `#${r.place}` : "—"}
                     </TableCell>
-                    <TableCell className="font-mono tabular-nums">{r.finish_time ?? "—"}</TableCell>
+                    <TableCell className="font-mono tabular-nums">{showTime(r.finish_time)}</TableCell>
                     <TableCell className="font-mono tabular-nums text-muted-foreground hidden sm:table-cell">
-                      {r.chip_time ?? "—"}
+                      {showTime(r.chip_time)}
                     </TableCell>
                   </TableRow>
                 );
