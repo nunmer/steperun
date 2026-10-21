@@ -14,3 +14,7 @@ downloaded from its signed Storage URLs).
 Vercel runtime lacks; see `gl_preload.py`.
 
 Local: `uv sync && uv run uvicorn web:app --port 8000`
+
+End-to-end check (uploads `samples/running-side-view.mov`, extracts, optionally
+analyzes): `python scripts/smoke_test_analyzer.py [--analyze]` from the repo root.
+Architecture and limits: `docs/ARCHITECTURE.md`.

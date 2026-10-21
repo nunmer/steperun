@@ -6,7 +6,7 @@ Reads event URLs from the database, fetches each page, extracts the date
 and updates the date_of_event column.
 
 Usage:
-    python scrape_dates.py
+    python scripts/scrape_dates.py
 """
 
 import os
@@ -16,10 +16,12 @@ import logging
 
 import requests
 from bs4 import BeautifulSoup
+from pathlib import Path
+
 from dotenv import load_dotenv
 from supabase import create_client
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")  # repo-root .env
 
 log = logging.getLogger(__name__)
 

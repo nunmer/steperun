@@ -5,10 +5,12 @@ e.g. "winter_run_2026" → "Winter Run 2026"
 
 import re
 import os
+from pathlib import Path
+
 from dotenv import load_dotenv
 from supabase import create_client
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")  # repo-root .env
 
 client = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"])
 

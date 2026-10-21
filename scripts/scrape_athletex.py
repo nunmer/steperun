@@ -3,9 +3,9 @@
 Import athletex.kz race results (Wiclax .clax files on live.myrace.info).
 
 Usage:
-    python run_athletex.py                         # current season, new events only
-    python run_athletex.py --min-year 2025         # skip events before 2025
-    python run_athletex.py --backfill --min-year 2023   # also look for past seasons
+    python scripts/scrape_athletex.py                         # current season, new events only
+    python scripts/scrape_athletex.py --min-year 2025         # skip events before 2025
+    python scripts/scrape_athletex.py --backfill --min-year 2023   # also look for past seasons
 """
 
 import argparse
@@ -17,7 +17,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv(Path(__file__).parent / ".env")
+# Scripts live in scripts/; the .env and the scraper package are at the repo root.
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+load_dotenv(ROOT / ".env")
 
 _missing = [v for v in ("SUPABASE_URL", "SUPABASE_SERVICE_KEY") if not os.getenv(v)]
 if _missing:

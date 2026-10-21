@@ -24,17 +24,19 @@ Levels (Faceit-style):
   Challenger: Top 1000 runners (special designation, stored separately)
 
 Usage:
-  python calculate_elo.py
+  python scripts/calculate_elo.py
 """
 
 import os
 import math
 from datetime import datetime, timezone
 from collections import defaultdict
+from pathlib import Path
+
 from dotenv import load_dotenv
 from supabase import create_client
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")  # repo-root .env
 client = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"])
 
 PAGE = 1000

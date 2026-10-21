@@ -1,26 +1,32 @@
 # Steperun — Implemented Features
 
-Steperun is an Almaty running results portal. This document describes what is currently built and working.
+Steppe RUN (steppe.run) is a running results portal for Kazakhstan. This document describes what is currently built and working.
 
 ---
 
 ## Data Pipeline
 
-### Web Scraper (`scraper/`)
-- Scrapes **almaty-marathon.kz** — all running events (marathons, half-marathons, fun runs, trail races)
-- Automatically discovers all events from the `/ru/results/` index page
-- Skips non-running events (cycling, swimming) by slug keyword detection
-- Handles multi-distance events (marathon, half, 10k, 5k within one event) via category detection
-- Paginates through all result pages per category
-- Retry logic with exponential backoff (3 attempts per request)
-- Configurable request delay (default 0.6s) and batch size (default 50)
+Runs daily on GitHub Actions. Details in `docs/SCRAPER.md`.
 
-### Runner Deduplication
-- Runners are matched across events by `(full_name, country, city)` — the same person across multiple races gets a single `runner_id`
-- Relay teams and junk entries can be flagged `is_hidden = true` via `clean_runners.py`
+### Sources
+- **almaty-marathon.kz** (`scraper/scraper.py`, `parser.py`): event index,
+  distance categories, paginated result tables. Cycling/swim events are skipped.
+- **athletex.kz** (`scraper/athletex.py`, `clax.py`): competition pages → Wiclax
+  `.clax` XML on live.myrace.info. Running courses only; places are recomputed
+  per category. Past seasons are found by swapping the year in the slug.
+- Every event is tagged with its **organizer** ("Almaty Marathon" / "Athletex").
 
-### Event Name Normalization
-- `fix_event_names.py` converts raw slugs (`winter_run_2026`) to human-readable names (`Winter Run 2026`) with Russian-to-English keyword mapping
+### Runner identity
+- Within almaty-marathon.kz: exact `(full_name, country, city)`.
+- Across sources: transliteration-tolerant name matching with city and country
+  agreement (`scraper/runner_matcher.py`). Ambiguous cases create a new runner
+  instead of merging.
+- Relay teams and junk entries are hidden (`is_hidden`) by
+  `scripts/clean_runners.py`.
+
+### Post-processing (only when new results arrive)
+- Event name normalization, event dates, and ELO recalculation (changed runners
+  only).
 
 ---
 
@@ -28,7 +34,7 @@ Steperun is an Almaty running results portal. This document describes what is cu
 
 | Table | Purpose |
 |-------|---------|
-| `events` | One row per race event with slug, name, year, source URL, scrape timestamp |
+| `events` | One row per race event: slug, name, year, date, organizer, source URL, scrape timestamp |
 | `runners` | Deduplicated runner registry with name, country, city, hidden flag |
 | `results` | One result per runner per distance per event: place, bib, chip time, finish time, checkpoint splits (JSONB) |
 
@@ -56,10 +62,11 @@ All pages are **server-rendered** (Next.js Server Components) with 1-hour ISR ca
 ### Events `/events`
 - Complete list of all scraped events
 - Filterable by year (tab navigation)
-- Cards show event name and finisher count
+- Season-themed cards show organizer pin, event name, date and finisher count
 
 ### Event Detail `/events/[slug]`
-- Event header with year and total finishers
+- Header: organizer pin, date, finishers, number of distances, link to official results
+- Distance / country / city pie charts
 - Distance category filter buttons
 - Paginated results table (30 per page): place, runner name, country, city, bib number, distance, gun time, chip time
 
@@ -76,6 +83,20 @@ All pages are **server-rendered** (Next.js Server Components) with 1-hour ISR ca
 
 ---
 
+### Run Analyzer `/run-analyzer`
+- Upload a running video (≤50 MB). Key frames per gait phase (foot strike, mid
+  stance, toe off) are extracted with MediaPipe pose detection.
+- GPT-4o technique report: sections, recommendations, overall score.
+- 2 free analyses, then 10 coins each. Failed or stuck analyses are refunded.
+
+### Accounts, claims and coins
+- Google sign-in, runner profile claiming with Strava verification and trust
+  scoring, admin review queue (`/admin/claims`), disputes.
+- Coins: +10 for a claimed profile, +20 for connecting Strava, +20 per event.
+  Paddle coin packs exist but are off unless configured (earn-only mode).
+
+---
+
 ## UI / Design
 
 - **Component library:** shadcn/ui (Badge, Button, Card, Input, Select, Separator, Skeleton, Table, Tabs)
@@ -88,7 +109,7 @@ All pages are **server-rendered** (Next.js Server Components) with 1-hour ISR ca
 
 ## Deployment
 
-- Frontend deployed on **Vercel** (auto-deploy from `main` branch)
-- Scraper runs locally (or can be scheduled via cron/GitHub Actions)
-- Database hosted on **Supabase** (free tier)
-- See `docs/DEPLOYMENT.md` for full setup instructions
+- Web and run analyzer: two **Vercel** projects, auto-deployed from `main`
+- Scraper: **GitHub Actions**, daily at 03:00 UTC
+- Database, auth and storage: **Supabase** (free tier)
+- See `docs/DEPLOYMENT.md`

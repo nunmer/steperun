@@ -5,10 +5,12 @@ Clean up bad runner entries:
 """
 
 import os, re
+from pathlib import Path
+
 from dotenv import load_dotenv
 from supabase import create_client
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")  # repo-root .env
 client = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"])
 
 print("Fetching runners...")

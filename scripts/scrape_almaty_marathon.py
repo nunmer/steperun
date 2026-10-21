@@ -3,10 +3,10 @@
 Entry point for the Almaty Marathon scraper.
 
 Usage:
-    python run.py              # scrape all events (skipping already-done)
-    python run.py --full       # re-scrape everything from scratch
-    python run.py --event winter_run_2026   # scrape one specific event
-    python run.py --min-year 2025           # only events from 2025 onward (daily cron)
+    python scripts/scrape_almaty_marathon.py              # scrape all events (skipping already-done)
+    python scripts/scrape_almaty_marathon.py --full       # re-scrape everything from scratch
+    python scripts/scrape_almaty_marathon.py --event winter_run_2026   # scrape one specific event
+    python scripts/scrape_almaty_marathon.py --min-year 2025           # only events from 2025 onward (daily cron)
 """
 
 import argparse
@@ -16,8 +16,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Load .env from project root
-load_dotenv(Path(__file__).parent / ".env")
+# Scripts live in scripts/; the .env and the scraper package are at the repo root.
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+load_dotenv(ROOT / ".env")
 
 # Validate env vars before importing anything that uses them
 _missing = [v for v in ("SUPABASE_URL", "SUPABASE_SERVICE_KEY") if not os.getenv(v)]

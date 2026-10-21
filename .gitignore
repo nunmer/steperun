@@ -1,13 +1,23 @@
+# Secrets
 .env
 .env.local
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
-.DS_Store
+.pytest_cache/
 venv/
 .venv/
+
+# Web
 web/.next/
 web/node_modules/
+
+# Local test media (see samples/README.md) and generated analyzer output
+samples/*
+!samples/README.md
 output/
-run_analyzer/*.task
 uploads/
+
+.DS_Store

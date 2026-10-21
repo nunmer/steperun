@@ -61,10 +61,10 @@ jobs:
           fi
           if [ "$MIN_YEAR" = "0" ]; then
             echo "Full history backfill"
-            python run.py
+            python scripts/scrape_almaty_marathon.py
           else
             echo "Scraping events from $MIN_YEAR onward"
-            python run.py --min-year "$MIN_YEAR"
+            python scripts/scrape_almaty_marathon.py --min-year "$MIN_YEAR"
           fi
 
       - name: Import athletex.kz results
@@ -74,9 +74,9 @@ jobs:
         run: |
           FROM="${INPUT_BACKFILL_FROM:-}"
           if [ -z "$FROM" ]; then
-            python run_athletex.py
+            python scripts/scrape_athletex.py
           elif [[ "$FROM" =~ ^20[0-9]{2}$ ]]; then
-            python run_athletex.py --backfill --min-year "$FROM"
+            python scripts/scrape_athletex.py --backfill --min-year "$FROM"
           else
             echo "::error::athletex_backfill_from must be a year like 2023, got '$FROM'"
             exit 1
@@ -86,19 +86,19 @@ jobs:
       # runs to a couple of reads, protecting the Supabase Disk IO budget.
       - name: Normalize event names
         if: steps.scrape.outputs.new_results != '0' || steps.athletex.outputs.new_results != '0'
-        run: python fix_event_names.py
+        run: python scripts/fix_event_names.py
 
       - name: Hide relay teams / delete junk runners
         if: steps.scrape.outputs.new_results != '0' || steps.athletex.outputs.new_results != '0'
-        run: python clean_runners.py
+        run: python scripts/clean_runners.py
 
       - name: Fill missing event dates
         if: steps.scrape.outputs.new_results != '0' || steps.athletex.outputs.new_results != '0'
-        run: python scrape_dates.py
+        run: python scripts/scrape_dates.py
 
       - name: Recalculate ELO (changed runners only)
         if: steps.scrape.outputs.new_results != '0' || steps.athletex.outputs.new_results != '0'
-        run: python calculate_elo.py
+        run: python scripts/calculate_elo.py
 
       - name: Summary
         if: always()

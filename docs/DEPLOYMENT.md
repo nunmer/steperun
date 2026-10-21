@@ -1,253 +1,119 @@
-# Deployment Guide
+# Deployment & operations
 
-This guide covers setting up Steperun from scratch: database, web frontend, and scraper.
+Everything is free tier: **Vercel Hobby** (two projects), **Supabase free**,
+**GitHub Actions**. Pushing to `main` deploys both Vercel projects. Nothing
+needs a manual deploy step.
 
----
+> Vercel Hobby is for non-commercial use. If paid coin packs (Paddle) are
+> switched on, move to Vercel Pro or another host.
 
-## Prerequisites
+## Hosting map
 
-- **Node.js** 20+ and **npm**
-- **Python** 3.11+
-- A **Supabase** account (free tier is sufficient)
-- A **Vercel** account (free tier is sufficient)
+| What | Host | Source | URL |
+|---|---|---|---|
+| Web app | Vercel project `steperun` (team `nunmers-projects`) | `web/` | https://www.steppe.run (apex `steppe.run` → 308 to www), steperun.vercel.app |
+| Run analyzer | Vercel project `steperun-analyzer` | `run_analyzer/` | https://steperun-analyzer.vercel.app |
+| Scraper | GitHub Actions `scrape-results.yml` | `scraper/`, `scripts/` | daily 03:00 UTC |
+| DB / Auth / Storage | Supabase project `ddohlplxshswvbittecv` | `schema.sql`, `migrations/` | — |
+| DNS | Porkbun (`steppe.run`) | — | — |
 
----
+`steperun-dqxd` is a second Vercel project that also deploys `main`. Nothing
+uses it, so it can be deleted from the Vercel dashboard.
 
-## 1. Database Setup (Supabase)
+`steperun-analyzer` skips builds when `run_analyzer/` didn't change (ignored
+build step `git diff --quiet HEAD^ HEAD -- .`).
 
-### Create a project
-1. Go to [supabase.com](https://supabase.com) → New project
-2. Choose a region close to your users
-3. Save the database password
+### DNS (Porkbun)
 
-### Run the schema
-1. Open the **SQL Editor** in the Supabase dashboard
-2. Paste and run the contents of `schema.sql` from the root of this repo
-3. Verify three tables appear: `events`, `runners`, `results`
+| Type | Host | Value |
+|---|---|---|
+| A | @ | 216.198.79.1 |
+| A | @ | 64.29.17.1 |
+| CNAME | www | be17cc8e4d6254bd.vercel-dns-017.com |
 
-### Get credentials
-From **Project Settings → API**:
-- `SUPABASE_URL` — the Project URL (e.g., `https://abcdefgh.supabase.co`)
-- `SUPABASE_SERVICE_KEY` — the `service_role` secret key (not the `anon` key)
+Vercel issues and auto-renews the certificate (`cert_yS2LLcjKpqAaL0V4nDHwfAeY`
+covers `steppe.run` and `www.steppe.run`).
 
-> The service role key bypasses Row Level Security. Keep it secret and only use it server-side.
+## Environment variables
 
-### Optional: Create the RPC function for distance options
-Run this in the SQL Editor for faster distance filtering on the rankings page:
+### Vercel `steperun` (web)
 
-```sql
-CREATE OR REPLACE FUNCTION get_distance_options()
-RETURNS TABLE(distance_category TEXT) AS $$
-  SELECT distance_category, COUNT(*) as cnt
-  FROM results
-  WHERE distance_category IS NOT NULL
-    AND chip_time IS NOT NULL
-    AND chip_time != '--:--:--'
-  GROUP BY distance_category
-  ORDER BY cnt DESC;
-$$ LANGUAGE SQL STABLE;
-```
+| Var | Purpose |
+|---|---|
+| `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` | Server-side DB access (service role) |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser auth + signed uploads |
+| `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`, `STRAVA_REDIRECT_URI` | Strava OAuth for claims |
+| `SECRET_KEY` | HMAC for Strava OAuth state |
+| `RUN_ANALYZER_API_URL` | `https://steperun-analyzer.vercel.app` |
+| `RUN_ANALYZER_API_KEY` | Shared secret, same value as the analyzer's `ANALYZER_API_KEY` |
+| `PADDLE_CLIENT_TOKEN`, `PADDLE_ENVIRONMENT`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRICE_ID_PACK_10/_50/_200` | *Unset* = earn-only coins. Set all of them to sell coin packs |
+| `SCRAPER_DELAY`, `SCRAPER_BATCH_SIZE` | Unused by the web app (leftovers) |
 
-Without this function the app falls back to a paginated scan — slower but still works.
+### Vercel `steperun-analyzer`
 
----
+| Var | Purpose |
+|---|---|
+| `ANALYZER_API_KEY` | Required header `X-Analyzer-Key` on `/api/*` |
+| `OPENAI_API_KEY` | GPT-4o analysis |
+| `SUPABASE_URL` | Only signed URLs under `<SUPABASE_URL>/storage/v1/object/sign/` are downloaded |
 
-## 2. Running the Scraper
+### GitHub repo secrets (scraper)
 
-### Install dependencies
-```bash
-pip install -r requirements.txt
-```
+`SUPABASE_URL`, `SUPABASE_SERVICE_KEY`.
 
-### Configure environment
-Copy the example file and fill in your credentials:
-```bash
-cp .env.example .env
-```
+### Local files (gitignored)
 
-Edit `.env`:
-```
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...your-service-role-key...
-SCRAPER_DELAY=0.6
-SCRAPER_BATCH_SIZE=50
-```
+- `.env` (root) holds `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, and optionally
+  `SCRAPER_DELAY`/`SCRAPER_BATCH_SIZE`. Template: `.env.example`.
+- `web/.env.local` holds the web vars above. Template: `web/.env.example`.
+- `run_analyzer/.env` holds `OPENAI_API_KEY` (plus `ANALYZER_API_KEY` and
+  `SUPABASE_URL` if you test auth locally).
 
-### Run the scraper
-```bash
-# First run — scrapes all events
-python run.py
+## Supabase setup (from scratch)
 
-# Resume after interruption — skips already-completed events
-python run.py
+1. Run `schema.sql`, then the migrations in the order listed in
+   `docs/DB_MANAGEMENT.md`.
+2. Storage buckets:
+   - `run-frames`: public.
+   - `run-videos`: private, 50 MB file limit, `video/*` only.
+3. Auth: enable the Google provider. Redirect URL `https://www.steppe.run/auth/callback`.
 
-# Force re-scrape everything
-python run.py --force
-```
+## Runbooks
 
-The scraper logs progress to stdout. A full scrape of all events takes 20-60 minutes depending on network speed and the configured delay.
+### Deploy
+Push to `main`. Check deployments in the Vercel dashboard. A failed analyzer
+build usually means a dependency change; see `run_analyzer/README.md`.
 
-### Post-scrape cleanup
-After the initial scrape, run these utilities once:
+### Scrape now / backfill
+GitHub → Actions → **Scrape race results** → Run workflow:
+- Empty inputs: same as the daily run (last year onward, both sources).
+- `min_year=0`: full almaty-marathon.kz history (79 older events, slow).
+- `athletex_backfill_from=2023`: also probe past athletex seasons.
 
-```bash
-# Hide relay teams and delete junk entries (numeric-only names, etc.)
-python clean_runners.py
+CLI: `gh workflow run scrape-results.yml -f athletex_backfill_from=2023`.
+See `docs/SCRAPER.md`.
 
-# Normalize event names (converts slugs to human-readable names)
-python fix_event_names.py
-```
+### Check the analyzer
+`python scripts/smoke_test_analyzer.py`, plus `--analyze` for the GPT-4o step
+(costs about $0.02). Extraction takes about 60 s on Vercel; the budget is 300 s.
 
-### Re-scraping new events
-Run `python run.py` again at any time — it skips events already marked as scraped. New events published on almaty-marathon.kz will be picked up automatically.
+### Rotate the analyzer key
+Generate a new value and set it as `ANALYZER_API_KEY` (analyzer) and
+`RUN_ANALYZER_API_KEY` (web). Then redeploy both projects: push a commit, or
+use Redeploy in the dashboard.
 
----
-
-## 3. Web Frontend (Local Development)
-
-### Install dependencies
-```bash
-cd web
-npm install
-```
-
-### Configure environment
-Create `web/.env.local`:
-```
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_KEY=eyJ...your-service-role-key...
-```
-
-### Start dev server
-```bash
-cd web
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-### Build for production
-```bash
-cd web
-npm run build
-npm start
-```
-
----
-
-## 4. Deploying to Vercel
-
-### First-time setup via Vercel CLI
-```bash
-npm i -g vercel
-cd web
-vercel
-```
-
-Follow the prompts. When asked for the root directory, enter `web/`.
-
-### Or deploy via GitHub integration
-1. Push your repo to GitHub
-2. Go to [vercel.com](https://vercel.com) → New Project → Import your repo
-3. Set the **Root Directory** to `web`
-4. Vercel auto-detects Next.js — no build command changes needed
-
-### Set environment variables on Vercel
-In the Vercel dashboard → your project → **Settings → Environment Variables**, add:
-
-| Variable | Value |
-|----------|-------|
-| `SUPABASE_URL` | `https://your-project.supabase.co` |
-| `SUPABASE_SERVICE_KEY` | `eyJ...` (service role key) |
-
-Set these for **Production**, **Preview**, and **Development** environments.
-
-### Redeploy after adding env vars
-Trigger a redeployment from the Vercel dashboard or push a new commit.
-
-### Verify deployment
-- Homepage should show live runner/event counts from Supabase
-- Check `/rankings` — if it loads distances, the DB connection is working
-
----
-
-## 5. Ongoing Operations
-
-### Scraping new events
-Run `python run.py` locally whenever new events are published on almaty-marathon.kz. The site typically publishes results 1-3 days after each race.
-
-### Automating scrapes (optional)
-Set up a GitHub Actions workflow or a cron job on any server:
-
-```yaml
-# .github/workflows/scrape.yml (example)
-on:
-  schedule:
-    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC
-  workflow_dispatch:
-
-jobs:
-  scrape:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-      - run: pip install -r requirements.txt
-      - run: python run.py
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-```
-
-### Hiding bad data
-If junk entries appear in the UI:
-```bash
-python clean_runners.py
-```
-
-Or manually in the Supabase SQL editor:
-```sql
--- Hide a specific runner
-UPDATE runners SET is_hidden = true WHERE full_name ILIKE '%some junk%';
-
--- Delete a result
-DELETE FROM results WHERE id = 12345;
-```
-
----
-
-## Architecture Diagram
-
-```
-almaty-marathon.kz
-       │
-       │ HTTP (requests + BeautifulSoup)
-       ▼
-  scraper/ (Python)
-       │
-       │ Supabase Python SDK (upsert)
-       ▼
-  Supabase (PostgreSQL)
-       │
-       │ Supabase JS SDK (server-side queries)
-       ▼
-  web/ (Next.js on Vercel)
-       │
-       │ HTTP
-       ▼
-     Browser
-```
-
----
+### Hide bad data
+`python scripts/clean_runners.py` (production write). Or in SQL:
+`UPDATE runners SET is_hidden = true WHERE id = …;`
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| Rankings page loads no distances | The RPC function is missing; create it (step 1) or wait for the fallback scan to complete |
-| Scraper fails with 403 | The source site may have changed; check `scraper/parser.py` |
-| Runner names show as numbers | Run `clean_runners.py` to hide junk entries |
-| Event names look like raw slugs | Run `fix_event_names.py` |
-| Vercel build fails | Check that `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` are set in Vercel env vars |
-| `next: command not found` | Run `npm install` inside the `web/` directory |
+| Symptom | Likely cause |
+|---|---|
+| Analyzer "Video URL not allowed" | `SUPABASE_URL` missing or wrong on `steperun-analyzer` |
+| Analyzer 401 | `RUN_ANALYZER_API_KEY` ≠ `ANALYZER_API_KEY` |
+| Analyzer `libGLESv2.so.2: cannot open shared object file` | `vendor/gl` excluded from the bundle or `gl_preload` not imported first |
+| Upload fails "must be under 50 MB" | By design (Supabase free per-file limit). Trim the clip |
+| Events list empty after a schema change | A query selects a column that the DB doesn't have yet. Run the migration before deploying |
+| Scraper job writes nothing for days | Expected when no new races; summary shows `new result rows: 0` |
+| Supabase "Disk IO budget" warning | Look for full-table rewrites. Scraper/ELO should only touch changed rows |

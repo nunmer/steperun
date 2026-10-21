@@ -1,4 +1,6 @@
-# Steperun — Product Roadmap
+# Steppe RUN — Product Roadmap
+
+> Operational to-dos live in `TODO.md`; shipped changes in `CHANGELOG.md`.
 
 Goal: build a running results portal for Almaty comparable to worldathletics.org — with runner profiles, all-time rankings, age/gender splits, and progress tracking.
 
@@ -21,10 +23,10 @@ Goal: build a running results portal for Almaty comparable to worldathletics.org
 - [ ] Create the SQL function in Supabase (one-liner — see `docs/DEPLOYMENT.md`)
 - [ ] Current fallback scans the whole results table on every rankings page load — slow and wasteful
 
-### 1.4 Auto-scraping via GitHub Actions
-- [ ] Weekly cron job (e.g. every Monday 06:00 UTC) running `python run.py`
-- [ ] Secrets: `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` in repo settings
-- [ ] New events picked up automatically without manual intervention
+### 1.4 Auto-scraping via GitHub Actions ✅ (2026-10-21)
+- [x] Daily cron (03:00 UTC), `.github/workflows/scrape-results.yml`
+- [x] Secrets: `SUPABASE_URL` and `SUPABASE_SERVICE_KEY` in repo settings
+- [x] New events picked up automatically; second source athletex.kz added
 
 ---
 
