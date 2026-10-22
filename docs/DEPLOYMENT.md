@@ -30,6 +30,10 @@ build step `git diff --quiet HEAD^ HEAD -- .`).
 | A | @ | 216.198.79.1 |
 | A | @ | 64.29.17.1 |
 | CNAME | www | be17cc8e4d6254bd.vercel-dns-017.com |
+| TXT | resend._domainkey | DKIM key for Resend (value in the Resend dashboard, domain `steppe.run`) |
+| MX | send | `feedback-smtp.eu-west-1.amazonses.com`, priority 10 (Resend bounce handling) |
+| TXT | send | `v=spf1 include:amazonses.com ~all` (Resend SPF) |
+| TXT | _dmarc | `v=DMARC1; p=none;` (recommended) |
 
 Vercel issues and auto-renews the certificate (`cert_yS2LLcjKpqAaL0V4nDHwfAeY`
 covers `steppe.run` and `www.steppe.run`).
@@ -48,6 +52,10 @@ covers `steppe.run` and `www.steppe.run`).
 | `RUN_ANALYZER_API_KEY` | Shared secret, same value as the analyzer's `ANALYZER_API_KEY` |
 | `REVALIDATE_SECRET` | Bearer token for `POST /api/revalidate` (same value as the GitHub secret) |
 | `PADDLE_CLIENT_TOKEN`, `PADDLE_ENVIRONMENT`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRICE_ID_PACK_10/_50/_200` | *Unset* = earn-only coins. Set all of them to sell coin packs |
+| `RESEND_API_KEY`, `RESEND_EMAIL_DOMAIN` | Set by the Resend Marketplace integration (`resend-email-aqua-bucket`, region eu-west-1). Claim emails come from `claims@<domain>` |
+| `EMAIL_DELIVERY` | `off` (default when unset: never sends, logs to `claim_audit_log`), `allowlist`, or `on` |
+| `EMAIL_ALLOWLIST` | Comma-separated addresses that may receive mail while `EMAIL_DELIVERY=allowlist` |
+| `EMAIL_REPLY_TO` | Optional Reply-To for claim emails; defaults to the legal contact address |
 | `SCRAPER_DELAY`, `SCRAPER_BATCH_SIZE` | Unused by the web app (leftovers) |
 
 ### Vercel `steperun-analyzer`
@@ -151,4 +159,19 @@ login, claims and the run analyzer fail.
    cached while the database was down.
 5. **Prevent:** spread bulk data fixes over several days (or chunk them with
    pauses), and run ELO only once after a batch of fixes.
+
+## Runbook: claim emails
+
+Approving or rejecting a claim in `/admin/claims` emails the claimant
+(`lib/services/email.ts`, templates in `lib/email/templates.ts`). Every attempt
+is written to `claim_audit_log` as `email_claim_<approved|rejected>_<sent|skipped|failed>`.
+
+1. Preview both emails and send yourself a test at `/admin/emails` (always goes
+   only to the signed-in admin).
+2. Team test: set `EMAIL_DELIVERY=allowlist` and `EMAIL_ALLOWLIST=you@…,teammate@…`
+   in Vercel, redeploy, then approve/reject a test claim made by one of those accounts.
+3. Go live: `EMAIL_DELIVERY=on`, redeploy.
+
+Sending needs `steppe.run` verified in Resend (DNS records above). Resend
+deduplicates on the idempotency key `claim-<decision>/<claimId>` for 24 h.
 
