@@ -1,13 +1,13 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRunnerFull } from "@/lib/queries";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { EloCard, StatCard } from "@/components/elo-badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { ClaimButton } from "@/components/claim-button";
+import { BackLink, PageHeader, Place } from "@/components/sheet";
+import { RunnerStatLine } from "@/components/runner-stats";
 import { isFinishTime, timeToSeconds } from "@/lib/params";
 
 export const revalidate = 86400;
@@ -54,8 +54,9 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
 
   const { runner, results, cityRank, countryRank } = data;
   const pbs = getPersonalBests(results);
+  const pbKeys = new Set(pbs.map(([, r]) => r));
 
-  // Sort race history by year desc, then event name
+  // Race history: newest season first, then event name.
   const history = [...results].sort((a, b) => {
     const yearA = a.events?.year ?? 0;
     const yearB = b.events?.year ?? 0;
@@ -63,150 +64,106 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
   });
 
   const finishes = results.filter((r) => bestTime(r));
-  const totalRaces = finishes.length;
-  const uniqueYears = new Set(finishes.map((r) => r.events?.year)).size;
-  const eloRanks = { cityRank, countryRank };
+  const seasons = new Set(finishes.map((r) => r.events?.year)).size;
 
   return (
-    <div className="space-y-8">
-      {/* Back */}
-      <Link href="/runners" className="text-sm text-muted-foreground hover:text-foreground">
-        ← All runners
-      </Link>
-
-      {/* Profile header */}
-      <div className="flex items-start gap-4 sm:gap-6">
-        {/* Avatar placeholder */}
-        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted flex items-center justify-center text-xl sm:text-2xl font-bold text-muted-foreground shrink-0">
-          {runner.full_name[0]?.toUpperCase()}
-        </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold truncate">{runner.full_name}</h1>
-          <div className="flex gap-2 mt-1 flex-wrap">
-            {runner.country && (
-              <Badge variant="secondary">{runner.country}</Badge>
-            )}
-            {runner.city && (
-              <Badge variant="outline">{runner.city}</Badge>
-            )}
-          </div>
-          <div className="mt-3">
+    <div>
+      <PageHeader
+        kicker={<BackLink href="/runners">Runners</BackLink>}
+        title={runner.full_name}
+        aside={
+          <div className="flex flex-col sm:items-end gap-2">
+            <span className="text-foreground"><Place city={runner.city} country={runner.country} /></span>
             <ClaimButton runnerId={runner.id} claimedBy={runner.claimed_by ?? null} />
           </div>
-        </div>
-      </div>
+        }
+      />
 
-      {/* Quick stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {runner.elo_score && runner.elo_level && (
-          <EloCard
-            score={runner.elo_score}
-            level={runner.elo_level}
-            cityRank={eloRanks.cityRank}
-            countryRank={eloRanks.countryRank}
-            city={runner.city}
-            country={runner.country}
-          />
-        )}
-        <StatCard value={totalRaces} label="Races completed" />
-        <StatCard value={uniqueYears} label="Active seasons" />
-        <StatCard value={pbs.length} label="Distances run" />
-      </div>
+      <RunnerStatLine
+        elo={runner.elo_score && runner.elo_level
+          ? { score: runner.elo_score, level: runner.elo_level, cityRank, countryRank }
+          : null}
+        city={runner.city}
+        country={runner.country}
+        races={finishes.length}
+        seasons={seasons}
+        distances={pbs.length}
+      />
 
-      {/* Personal Bests */}
+      {/* Personal bests are the headline of a runner's page: big times, one per distance. */}
       {pbs.length > 0 && (
-        <section>
-          <h2 className="text-xl font-semibold mb-3">Personal Bests</h2>
-          <div className="rounded-lg border overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Distance</TableHead>
-                  <TableHead>Best time</TableHead>
-                  <TableHead className="hidden sm:table-cell">Event</TableHead>
-                  <TableHead className="hidden sm:table-cell">Year</TableHead>
-                  <TableHead>Place</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pbs.map(([cat, r]) => {
-                  const event = r.events;
-                  return (
-                    <TableRow key={cat}>
-                      <TableCell className="font-medium">{cat}</TableCell>
-                      <TableCell className="font-mono font-semibold tabular-nums text-[#22c55e]">
-                        {bestTime(r)}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Link
-                          href={`/events/${event?.slug}`}
-                          className="hover:text-primary hover:underline text-sm"
-                        >
-                          {event?.name}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground hidden sm:table-cell">{event?.year}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {r.place ? `#${r.place}` : "—"}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+        <section className="mt-12">
+          <h2 className="headline text-4xl border-b-2 border-rule pb-2">Personal bests</h2>
+          <ul className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4">
+            {pbs.map(([cat, r]) => (
+              <li key={cat} className="border-b py-4 min-[420px]:odd:pr-4 lg:pr-4">
+                <p className="eyebrow">{cat}</p>
+                <p className="time text-3xl sm:text-4xl font-medium mt-1 tracking-tight">{bestTime(r)}</p>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  <Link href={`/events/${r.events?.slug}`} className="hover:text-foreground underline-offset-2 hover:underline">
+                    {r.events?.name}
+                  </Link>
+                  {r.place ? <> · place {r.place.toLocaleString()}</> : null}
+                </p>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
-      <Separator />
-
-      {/* Full race history */}
-      <section>
-        <h2 className="text-xl font-semibold mb-3">Race history</h2>
-        <div className="rounded-lg border overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Event</TableHead>
-                <TableHead className="hidden sm:table-cell">Year</TableHead>
-                <TableHead>Distance</TableHead>
-                <TableHead>Place</TableHead>
-                <TableHead>Finish</TableHead>
-                <TableHead className="hidden sm:table-cell">Chip</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {history.map((r, i) => {
-                const event = r.events;
-                return (
-                  <TableRow key={i} className="hover:bg-muted/50">
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/events/${event?.slug}`}
-                        className="hover:text-primary hover:underline"
-                      >
+      <section className="mt-12">
+        <div className="flex items-end justify-between border-b-2 border-rule pb-2">
+          <h2 className="headline text-4xl">Race history</h2>
+          <span className="time text-xs text-muted-foreground">{results.length} starts</span>
+        </div>
+        <Table>
+          <TableHeader className="sr-only sm:table-header-group">
+            <TableRow>
+              <TableHead>Race</TableHead>
+              <TableHead className="hidden sm:table-cell">Distance</TableHead>
+              <TableHead className="text-right">Pl.</TableHead>
+              <TableHead className="text-right">Chip</TableHead>
+              <TableHead className="hidden sm:table-cell text-right">Gun</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {history.map((r, i) => {
+              const event = r.events;
+              const newYear = i === 0 || history[i - 1].events?.year !== event?.year;
+              const isPb = pbKeys.has(r);
+              return (
+                <Fragment key={i}>
+                  {newYear && (
+                    <TableRow className="hover:bg-transparent border-b-rule">
+                      <TableCell colSpan={5} className="pt-6 pb-1">
+                        <span className="headline text-2xl text-muted-foreground">{event?.year ?? "—"}</span>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  <TableRow>
+                    <TableCell className="whitespace-normal">
+                      <Link href={`/events/${event?.slug}`} className="font-medium hover:text-primary">
                         {event?.name}
                       </Link>
+                      <span className="block sm:hidden text-xs text-muted-foreground">{r.distance_category}</span>
                     </TableCell>
-                    <TableCell className="text-muted-foreground hidden sm:table-cell">{event?.year}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="text-xs">
-                        {r.distance_category}
-                      </Badge>
+                    <TableCell className="text-muted-foreground hidden sm:table-cell">{r.distance_category}</TableCell>
+                    <TableCell className="time text-right text-muted-foreground text-sm">
+                      {r.place ? r.place.toLocaleString() : "—"}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {r.place ? `#${r.place}` : "—"}
+                    <TableCell className="time text-right">
+                      {isPb && <span className="eyebrow !text-primary mr-2">PB</span>}
+                      <span className={isPb ? "font-semibold" : undefined}>{showTime(r.chip_time)}</span>
                     </TableCell>
-                    <TableCell className="font-mono tabular-nums">{showTime(r.finish_time)}</TableCell>
-                    <TableCell className="font-mono tabular-nums text-muted-foreground hidden sm:table-cell">
-                      {showTime(r.chip_time)}
+                    <TableCell className="time text-right text-muted-foreground hidden sm:table-cell">
+                      {showTime(r.finish_time)}
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                </Fragment>
+              );
+            })}
+          </TableBody>
+        </Table>
       </section>
     </div>
   );

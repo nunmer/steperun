@@ -1,43 +1,20 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
 export default function HomeLoading() {
   return (
-    <div className="space-y-12">
-      {/* Hero */}
-      <section className="py-8 text-center space-y-4">
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-          Runners
+    <div
+      aria-busy="true"
+      className="dark relative w-screen ml-[calc(50%-50vw)] -mt-[5.5rem] sm:-mt-[6.5rem] min-h-[100svh] bg-background text-foreground bg-cover bg-center"
+      style={{ backgroundImage: "url(/media/hero-poster.jpg)" }}
+    >
+      <div className="absolute inset-0 bg-background/70" />
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-32">
+        <h1 className="headline text-[3.6rem] leading-[0.86] sm:text-8xl text-foreground/30">
+          Every finish,
           <br />
-          <span className="text-primary">Database</span>
+          every runner,
+          <br />
+          one results sheet.
         </h1>
-        <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-          Every runner. Every race. Every finish line.
-        </p>
-        <div className="flex gap-3 justify-center">
-          <Skeleton className="h-11 w-36 rounded-md" />
-          <Skeleton className="h-11 w-36 rounded-md" />
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Database at a glance</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 rounded-lg" />
-          ))}
-        </div>
-      </section>
-
-      {/* Events */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Race events</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-lg" />
-          ))}
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

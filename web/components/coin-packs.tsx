@@ -83,29 +83,29 @@ export function CoinPacks({ userId, userEmail, packs, clientToken, environment }
 
   if (!clientToken) {
     return (
-      <div className="rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
+      <div className="border-b py-6 text-sm text-muted-foreground">
         Payments are not configured yet. Please contact support to top up your balance.
       </div>
     );
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
+    <div className="grid sm:grid-cols-3 border-b sm:divide-x divide-y sm:divide-y-0">
       {packs.map((p) => {
         const disabled = !ready || !p.paddlePriceId || opening === p.id;
         const perCoin = (p.priceKzt / p.coins).toFixed(0);
         return (
           <div
             key={p.id}
-            className="relative rounded-lg border border-border bg-card p-5 flex flex-col gap-3"
+            className="relative py-5 sm:px-5 sm:first:pl-0 flex flex-col gap-3"
           >
             {p.badge && (
-              <span className="absolute -top-2 right-3 px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full bg-amber-500 text-amber-950">
+              <span className="eyebrow !text-primary">
                 {p.badge}
               </span>
             )}
             <div>
-              <div className="text-2xl font-bold tabular-nums">{p.coins} coins</div>
+              <div className="headline text-5xl tabular-nums">{p.coins}<span className="text-2xl text-muted-foreground"> coins</span></div>
               <div className="text-sm text-muted-foreground mt-1">
                 {p.priceKzt.toLocaleString()} ₸
                 <span className="text-xs opacity-60"> · {perCoin} ₸/coin</span>
@@ -114,7 +114,7 @@ export function CoinPacks({ userId, userEmail, packs, clientToken, environment }
             <button
               onClick={() => buy(p)}
               disabled={disabled}
-              className="mt-auto px-4 py-2 rounded-md text-sm font-semibold bg-foreground text-background hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-auto h-10 px-4 rounded-sm text-sm font-semibold bg-foreground text-background hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {!p.paddlePriceId ? "Coming soon" : opening === p.id ? "Opening…" : "Buy"}
             </button>

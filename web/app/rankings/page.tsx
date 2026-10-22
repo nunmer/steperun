@@ -6,6 +6,7 @@ import {
 import { parseIntInRange, parsePage } from "@/lib/params";
 import { Pagination, buildHref } from "@/components/pagination";
 import { DistanceSelect } from "@/components/distance-select";
+import { EmptyState, FilterLink, FilterRow, PageHeader, Place, Rank } from "@/components/sheet";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -15,56 +16,80 @@ export const revalidate = 86400;
 
 const OVERVIEW_SIZE = 10;
 const CHIP_COUNT = 8;
-const medal: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
-function chipClass(active: boolean) {
-  return `px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
-    active ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted"
-  }`;
+/** Compact leaderboard for the overview: rank, name, time. Event on hover/title. */
+function Board({ distance, rows, year }: { distance: string; rows: RankingRow[]; year?: number }) {
+  return (
+    <section>
+      <div className="flex items-end justify-between gap-2 border-b-2 border-rule pb-1.5">
+        <h2 className="headline text-3xl">{distance}</h2>
+        <Link
+          href={buildHref("/rankings", { distance, year })}
+          className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap"
+        >
+          Full list →
+        </Link>
+      </div>
+      <ol>
+        {rows.map((row, i) => (
+          <li
+            key={`${row.runners.id}-${row.distance_category}`}
+            className="grid grid-cols-[1.5rem_1fr_auto] items-baseline gap-3 border-b py-2"
+          >
+            <Rank n={i + 1} />
+            <span className="min-w-0">
+              <Link href={`/runners/${row.runners.id}`} className="block truncate text-sm font-medium hover:text-primary">
+                {row.runners.full_name}
+              </Link>
+              <Link
+                href={`/events/${row.events.slug}`}
+                className="block truncate text-xs text-muted-foreground hover:text-foreground"
+              >
+                {row.events.name}
+              </Link>
+            </span>
+            <span className="time text-sm font-medium">{row.chip_time ?? "—"}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
 }
 
-function RankingTable({ rows, offset = 0 }: { rows: RankingRow[]; offset?: number }) {
+function RankingTable({ rows, offset }: { rows: RankingRow[]; offset: number }) {
   return (
-    <div className="rounded-lg border overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">#</TableHead>
-            <TableHead>Runner</TableHead>
-            <TableHead className="hidden sm:table-cell">Country</TableHead>
-            <TableHead className="hidden md:table-cell">City</TableHead>
-            <TableHead>Best time</TableHead>
-            <TableHead className="hidden sm:table-cell">Event</TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-12">#</TableHead>
+          <TableHead>Runner</TableHead>
+          <TableHead className="hidden md:table-cell">From</TableHead>
+          <TableHead className="hidden sm:table-cell">Race</TableHead>
+          <TableHead className="text-right">Chip</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row, i) => (
+          <TableRow key={`${row.runners.id}-${row.distance_category}`}>
+            <TableCell><Rank n={offset + i + 1} /></TableCell>
+            <TableCell className="whitespace-normal">
+              <Link href={`/runners/${row.runners.id}`} className="font-medium hover:text-primary">
+                {row.runners.full_name}
+              </Link>
+            </TableCell>
+            <TableCell className="text-muted-foreground hidden md:table-cell">
+              <Place city={row.runners.city} country={row.runners.country} />
+            </TableCell>
+            <TableCell className="hidden sm:table-cell">
+              <Link href={`/events/${row.events.slug}`} className="text-muted-foreground hover:text-foreground">
+                {row.events.name}
+              </Link>
+            </TableCell>
+            <TableCell className="time text-right font-medium">{row.chip_time ?? "—"}</TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row, i) => {
-            const rank = offset + i + 1;
-            return (
-              <TableRow key={`${row.runners.id}-${row.distance_category}`} className="hover:bg-muted/50">
-                <TableCell className="font-mono text-muted-foreground text-sm">{medal[rank] ?? rank}</TableCell>
-                <TableCell className="font-medium">
-                  <Link href={`/runners/${row.runners.id}`} className="hover:text-primary hover:underline">
-                    {row.runners.full_name}
-                  </Link>
-                </TableCell>
-                <TableCell className="text-muted-foreground hidden sm:table-cell">{row.runners.country}</TableCell>
-                <TableCell className="text-muted-foreground hidden md:table-cell">{row.runners.city}</TableCell>
-                <TableCell className="font-mono font-semibold tabular-nums text-[#22c55e]">{row.chip_time ?? "—"}</TableCell>
-                <TableCell className="hidden sm:table-cell">
-                  <Link
-                    href={`/events/${row.events.slug}`}
-                    className="text-muted-foreground hover:text-primary hover:underline text-sm"
-                  >
-                    {row.events.name}
-                  </Link>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
@@ -84,27 +109,14 @@ export default async function RankingsPage({
     .slice(0, CHIP_COUNT);
 
   let body: React.ReactNode;
+  let aside: React.ReactNode = "Best chip time per runner";
   if (!distance) {
-    const groups = await getRankingsOverview(OVERVIEW_SIZE, year);
-    body = (
-      <div className="space-y-8">
-        {groups.filter((g) => g.rows.length > 0).map((g) => (
-          <section key={g.distance} className="space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-lg font-semibold">{g.distance}</h2>
-              <Link
-                href={buildHref("/rankings", { distance: g.distance, year })}
-                className="text-sm text-primary hover:underline"
-              >
-                Full ranking →
-              </Link>
-            </div>
-            <RankingTable rows={g.rows} />
-          </section>
-        ))}
-        {groups.every((g) => g.rows.length === 0) && (
-          <p className="text-muted-foreground py-12 text-center">No results found.</p>
-        )}
+    const groups = (await getRankingsOverview(OVERVIEW_SIZE, year)).filter((g) => g.rows.length > 0);
+    body = groups.length === 0 ? (
+      <EmptyState>No results for this season.</EmptyState>
+    ) : (
+      <div className="grid gap-10 lg:grid-cols-3 lg:gap-8">
+        {groups.map((g) => <Board key={g.distance} distance={g.distance} rows={g.rows} year={year} />)}
       </div>
     );
   } else {
@@ -113,13 +125,16 @@ export default async function RankingsPage({
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(requested, totalPages);
     if (page !== requested) ({ rows, total } = await getRankingsPage(distance, year, page));
+    aside = (
+      <span>
+        <span className="time text-foreground">{total.toLocaleString()}</span> runners
+        {year ? ` · ${year}` : " · all-time"}
+      </span>
+    );
     body = (
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          {total.toLocaleString()} runners ranked by their best chip time{year ? ` in ${year}` : ""}.
-        </p>
+      <div className="space-y-6">
         {rows.length === 0 ? (
-          <p className="text-muted-foreground py-12 text-center">No results found.</p>
+          <EmptyState>No results for this distance.</EmptyState>
         ) : (
           <RankingTable rows={rows} offset={(page - 1) * PAGE_SIZE} />
         )}
@@ -133,21 +148,16 @@ export default async function RankingsPage({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-        <h1 className="text-2xl sm:text-3xl font-bold">Rankings</h1>
-        <p className="text-muted-foreground text-sm">Best chip time per runner</p>
-      </div>
+    <div>
+      <PageHeader title={distance ?? "Rankings"} kicker={distance ? "Rankings" : undefined} aside={aside} />
 
-      {/* Distance filter */}
-      <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Distance</p>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href={buildHref("/rankings", { year })} className={chipClass(!distance)}>All</Link>
+      <div className="mb-8">
+        <FilterRow label="Distance">
+          <FilterLink href={buildHref("/rankings", { year })} active={!distance}>Overview</FilterLink>
           {chips.map((d) => (
-            <Link key={d} href={buildHref("/rankings", { distance: d, year })} className={chipClass(distance === d)}>
+            <FilterLink key={d} href={buildHref("/rankings", { distance: d, year })} active={distance === d}>
               {d}
-            </Link>
+            </FilterLink>
           ))}
           {options.length > chips.length && (
             <DistanceSelect
@@ -156,20 +166,15 @@ export default async function RankingsPage({
               year={year}
             />
           )}
-        </div>
-      </div>
-
-      {/* Year filter */}
-      <div>
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Season</p>
-        <div className="flex flex-wrap gap-2">
-          <Link href={buildHref("/rankings", { distance })} className={chipClass(!year)}>All-time</Link>
+        </FilterRow>
+        <FilterRow label="Season">
+          <FilterLink href={buildHref("/rankings", { distance })} active={!year}>All-time</FilterLink>
           {years.map((y) => (
-            <Link key={y} href={buildHref("/rankings", { distance, year: y })} className={chipClass(year === y)}>
+            <FilterLink key={y} href={buildHref("/rankings", { distance, year: y })} active={year === y}>
               {y}
-            </Link>
+            </FilterLink>
           ))}
-        </div>
+        </FilterRow>
       </div>
 
       {body}

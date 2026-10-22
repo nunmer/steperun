@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import Link from "next/link";
+import { BackLink, PageHeader } from "@/components/sheet";
 import { HeadToHead } from "@/components/head-to-head";
 import { getRunner } from "@/lib/queries";
 
@@ -88,19 +88,12 @@ export async function generateMetadata({
 
 export default function HeadToHeadPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <Link
-          href="/runners"
-          className="text-sm text-muted-foreground hover:text-foreground mb-2 inline-block"
-        >
-          ← All runners
-        </Link>
-        <h1 className="text-3xl font-bold">Head to Head</h1>
-        <p className="text-muted-foreground mt-1">
-          Compare two runners side by side
-        </p>
-      </div>
+    <div>
+      <PageHeader
+        kicker={<BackLink href="/runners">Runners</BackLink>}
+        title="Head to head"
+        aside="Two runners, every race they both ran."
+      />
 
       <Suspense fallback={null}>
         <HeadToHead />

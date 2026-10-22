@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { RunnerSearch } from "@/components/runner-search";
 
 type Runner = {
@@ -59,9 +58,9 @@ function computeData(runner: Runner, results: Result[]): ComparisonData {
   return { runner, results, totalRaces: results.length, bestTimes, uniqueSeasons, avgPlace };
 }
 
-// Colors for runner A (orange/warm) and runner B (cyan/cool)
-const COLOR_A = "#E8520F";
-const COLOR_B = "#06B6D4";
+// Runner A wears the signal colour, runner B the steel chart colour.
+const COLOR_A = "var(--primary)";
+const COLOR_B = "var(--chart-4)";
 
 // ─── Radar Chart ─────────────────────────────────────────────────────────────
 
@@ -135,27 +134,25 @@ function RadarChart({
       {/* Runner A polygon */}
       <polygon
         points={polygon(valsA)}
-        fill={COLOR_A}
+        style={{ fill: COLOR_A, stroke: COLOR_A }}
         fillOpacity="0.15"
-        stroke={COLOR_A}
         strokeWidth="1.5"
       />
       {/* Runner B polygon */}
       <polygon
         points={polygon(valsB)}
-        fill={COLOR_B}
+        style={{ fill: COLOR_B, stroke: COLOR_B }}
         fillOpacity="0.15"
-        stroke={COLOR_B}
         strokeWidth="1.5"
       />
       {/* Dots */}
       {valsA.map((v, i) => {
         const [px, py] = pointOnAxis(i, Math.max(v, 0.05));
-        return <circle key={`a${i}`} cx={px} cy={py} r="3" fill={COLOR_A} />;
+        return <circle key={`a${i}`} cx={px} cy={py} r="3" style={{ fill: COLOR_A }} />;
       })}
       {valsB.map((v, i) => {
         const [px, py] = pointOnAxis(i, Math.max(v, 0.05));
-        return <circle key={`b${i}`} cx={px} cy={py} r="3" fill={COLOR_B} />;
+        return <circle key={`b${i}`} cx={px} cy={py} r="3" style={{ fill: COLOR_B }} />;
       })}
       {/* Labels */}
       {labels.map((label, i) => {
@@ -204,28 +201,28 @@ function ComparisonBar({
 
   return (
     <div className="space-y-1.5">
-      <div className="text-center text-xs text-muted-foreground uppercase tracking-wider">{label}</div>
+      <div className="text-center eyebrow">{label}</div>
       <div className="flex items-center gap-3">
-        <span className={`text-sm font-mono tabular-nums w-16 text-right ${aWins ? "text-[#E8520F] font-semibold" : "text-muted-foreground"}`}>
+        <span className={`time text-sm w-16 text-right ${aWins ? "font-semibold" : "text-muted-foreground"}`} style={aWins ? { color: COLOR_A } : undefined}>
           {formatA ?? String(valueA)}
         </span>
         <div className="flex-1 flex h-2 gap-0.5">
           {/* A bar — grows from right */}
           <div className="flex-1 flex justify-end">
             <div
-              className="h-full rounded-l-full transition-all duration-500"
-              style={{ width: `${pctA}%`, background: `linear-gradient(to right, transparent, ${COLOR_A})` }}
+              className="h-full"
+              style={{ width: `${pctA}%`, background: COLOR_A, opacity: aWins ? 1 : 0.45 }}
             />
           </div>
           {/* B bar — grows from left */}
           <div className="flex-1">
             <div
-              className="h-full rounded-r-full transition-all duration-500"
-              style={{ width: `${pctB}%`, background: `linear-gradient(to left, transparent, ${COLOR_B})` }}
+              className="h-full"
+              style={{ width: `${pctB}%`, background: COLOR_B, opacity: bWins ? 1 : 0.45 }}
             />
           </div>
         </div>
-        <span className={`text-sm font-mono tabular-nums w-16 ${bWins ? "text-[#06B6D4] font-semibold" : "text-muted-foreground"}`}>
+        <span className={`time text-sm w-16 ${bWins ? "font-semibold" : "text-muted-foreground"}`} style={bWins ? { color: COLOR_B } : undefined}>
           {formatB ?? String(valueB)}
         </span>
       </div>
@@ -245,35 +242,14 @@ function RunnerAvatar({
   side: "left" | "right";
 }) {
   return (
-    <div className="flex flex-col items-center gap-2 sm:gap-3">
-      <div
-        className="w-16 h-16 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold shrink-0"
-        style={{
-          background: `radial-gradient(circle at 30% 30%, ${color}30, ${color}10)`,
-          border: `2px solid ${color}40`,
-          color: color,
-        }}
-      >
-        {runner.full_name[0]?.toUpperCase()}
-      </div>
-      <div className="text-center">
-        <Link
-          href={`/runners/${runner.id}`}
-          className="font-semibold hover:text-primary hover:underline text-sm"
-        >
-          {runner.full_name}
-        </Link>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {[runner.country, runner.city].filter(Boolean).join(" · ") || "—"}
-        </p>
-      </div>
-      <Link
-        href={`/runners/${runner.id}`}
-        className="text-xs px-3 py-1 rounded-full border transition-colors hover:bg-muted"
-        style={{ borderColor: `${color}60`, color }}
-      >
-        View profile
+    <div className={`flex flex-col gap-1 min-w-0 ${side === "right" ? "sm:items-end sm:text-right" : ""}`}>
+      <span aria-hidden className="h-1.5 w-12" style={{ background: color }} />
+      <Link href={`/runners/${runner.id}`} className="headline text-3xl sm:text-4xl hover:underline underline-offset-4 break-words">
+        {runner.full_name}
       </Link>
+      <p className="text-xs text-muted-foreground">
+        {[runner.city, runner.country].filter(Boolean).join(", ") || "—"}
+      </p>
     </div>
   );
 }
@@ -289,15 +265,15 @@ function buildTeaseText(
   const a = dataA.runner.full_name.split(" ")[0];
   const b = dataB.runner.full_name.split(" ")[0];
   if (winsA + winsB === 0) {
-    return `${a} vs ${b} — who's the real runner? 🏃💨`;
+    return `${a} vs ${b} — who's the real runner?`;
   }
   if (winsA > winsB) {
-    return `${a} just smoked ${b} ${winsA}–${winsB} head-to-head 🔥 think you can do better?`;
+    return `${a} just smoked ${b} ${winsA}–${winsB} head-to-head. Think you can do better?`;
   }
   if (winsB > winsA) {
-    return `${b} crushed ${a} ${winsB}–${winsA} 🏁 don't believe it? see for yourself`;
+    return `${b} crushed ${a} ${winsB}–${winsA}. Don't believe it? See for yourself.`;
   }
-  return `${a} and ${b} are dead even at ${winsA}–${winsB} 👀 who breaks the tie?`;
+  return `${a} and ${b} are dead even at ${winsA}–${winsB}. Who breaks the tie?`;
 }
 
 function ShareButton({
@@ -343,10 +319,7 @@ function ShareButton({
   return (
     <button
       onClick={handleShare}
-      className="inline-flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-full text-white shadow-md hover:shadow-lg hover:opacity-90 transition-all"
-      style={{
-        background: `linear-gradient(135deg, ${COLOR_A} 0%, ${COLOR_B} 100%)`,
-      }}
+      className="inline-flex items-center gap-2 h-10 px-4 rounded-sm bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-opacity"
       aria-label="Share comparison"
     >
       <svg
@@ -503,42 +476,33 @@ export function HeadToHead() {
       {/* Comparison card */}
       {dataA && dataB && (
         <>
-          <div className="rounded-xl border border-border/50 p-4 sm:p-8 space-y-6 sm:space-y-8"
-            style={{ background: "linear-gradient(180deg, var(--card) 0%, var(--background) 100%)" }}
-          >
+          <div className="border-y-2 border-rule py-6 sm:py-8 space-y-8">
             {/* Tease headline */}
-            <p
-              className="text-center text-base sm:text-lg font-semibold leading-snug"
-              style={{
-                background: `linear-gradient(135deg, ${COLOR_A} 0%, ${COLOR_B} 100%)`,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
+            <p className="text-center text-base sm:text-lg font-medium leading-snug">
               {buildTeaseText(dataA, dataB, winsA, winsB)}
             </p>
 
             {/* Top section: Avatar — Radar — Avatar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-6">
               <RunnerAvatar runner={dataA.runner} color={COLOR_A} side="left" />
-              <RadarChart dataA={dataA} dataB={dataB} />
+              <div className="order-last sm:order-none flex justify-center"><RadarChart dataA={dataA} dataB={dataB} /></div>
               <RunnerAvatar runner={dataB.runner} color={COLOR_B} side="right" />
             </div>
 
             {/* Win record */}
-            <div className="flex items-center justify-center gap-8 text-center">
+            {/* Scoreboard: wins in shared races. */}
+            <div className="flex items-end justify-center gap-6 sm:gap-10 text-center">
               <div>
-                <p className="text-3xl font-bold" style={{ color: COLOR_A }}>{winsA}</p>
-                <p className="text-xs text-muted-foreground uppercase">Wins</p>
+                <p className="headline text-7xl sm:text-8xl tabular-nums" style={{ color: COLOR_A }}>{winsA}</p>
+                <p className="eyebrow mt-1">Wins</p>
+              </div>
+              <div className="pb-6">
+                <p className="headline text-3xl text-muted-foreground tabular-nums">{ties}</p>
+                <p className="eyebrow mt-1">Ties</p>
               </div>
               <div>
-                <p className="text-3xl font-bold text-muted-foreground">{ties}</p>
-                <p className="text-xs text-muted-foreground uppercase">Ties</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold" style={{ color: COLOR_B }}>{winsB}</p>
-                <p className="text-xs text-muted-foreground uppercase">Wins</p>
+                <p className="headline text-7xl sm:text-8xl tabular-nums" style={{ color: COLOR_B }}>{winsB}</p>
+                <p className="eyebrow mt-1">Wins</p>
               </div>
             </div>
 
@@ -591,16 +555,16 @@ export function HeadToHead() {
           {/* Personal bests comparison */}
           {allDistances.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold mb-3">Personal Bests</h2>
-              <div className="rounded-lg border overflow-x-auto">
+              <h2 className="headline text-3xl border-b-2 border-rule pb-2">Personal Bests</h2>
+              <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="text-left p-3 font-medium text-muted-foreground">Distance</th>
-                      <th className="text-center p-3 font-medium" style={{ color: COLOR_A }}>
+                    <tr className="border-b">
+                      <th className="text-left py-2 pr-3 eyebrow font-normal">Distance</th>
+                      <th className="text-right py-2 px-3 font-semibold text-sm" style={{ color: COLOR_A }}>
                         {dataA.runner.full_name.split(" ")[0]}
                       </th>
-                      <th className="text-center p-3 font-medium" style={{ color: COLOR_B }}>
+                      <th className="text-right py-2 px-3 font-semibold text-sm" style={{ color: COLOR_B }}>
                         {dataB.runner.full_name.split(" ")[0]}
                       </th>
                     </tr>
@@ -614,16 +578,16 @@ export function HeadToHead() {
                       const betterA = secA < secB;
                       const betterB = secB < secA;
                       return (
-                        <tr key={dist} className="border-b last:border-0 hover:bg-muted/30">
-                          <td className="p-3">
-                            <Badge variant="outline" className="text-xs">{dist}</Badge>
+                        <tr key={dist} className="border-b last:border-0 hover:bg-muted/60">
+                          <td className="py-2.5 pr-3">
+                            {dist}
                           </td>
-                          <td className={`p-3 text-center font-mono tabular-nums ${betterA ? "font-semibold" : "text-muted-foreground"}`}
+                          <td className={`py-2.5 px-3 text-right time ${betterA ? "font-semibold" : "text-muted-foreground"}`}
                             style={betterA ? { color: COLOR_A } : undefined}
                           >
                             {pbA?.time ?? "—"}
                           </td>
-                          <td className={`p-3 text-center font-mono tabular-nums ${betterB ? "font-semibold" : "text-muted-foreground"}`}
+                          <td className={`py-2.5 px-3 text-right time ${betterB ? "font-semibold" : "text-muted-foreground"}`}
                             style={betterB ? { color: COLOR_B } : undefined}
                           >
                             {pbB?.time ?? "—"}
@@ -640,47 +604,47 @@ export function HeadToHead() {
           {/* Shared race history */}
           {sharedEvents.length > 0 && (
             <section>
-              <h2 className="text-lg font-semibold mb-3">
+              <h2 className="headline text-3xl border-b-2 border-rule pb-2">
                 Race History ({sharedEvents.length} shared)
               </h2>
-              <div className="rounded-lg border overflow-x-auto">
+              <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="text-left p-3 font-medium text-muted-foreground">Event</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Distance</th>
-                      <th className="text-center p-3 font-medium" style={{ color: COLOR_A }}>
+                    <tr className="border-b">
+                      <th className="text-left py-2 pr-3 eyebrow font-normal">Event</th>
+                      <th className="text-left py-2 pr-3 eyebrow font-normal">Distance</th>
+                      <th className="text-right py-2 px-3 font-semibold text-sm" style={{ color: COLOR_A }}>
                         {dataA.runner.full_name.split(" ")[0]}
                       </th>
-                      <th className="text-center p-3 font-medium" style={{ color: COLOR_B }}>
+                      <th className="text-right py-2 px-3 font-semibold text-sm" style={{ color: COLOR_B }}>
                         {dataB.runner.full_name.split(" ")[0]}
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {sharedEvents.map((ev, i) => (
-                      <tr key={i} className="border-b last:border-0 hover:bg-muted/30">
-                        <td className="p-3">
+                      <tr key={i} className="border-b last:border-0 hover:bg-muted/60">
+                        <td className="py-2.5 pr-3">
                           <Link
                             href={`/events/${ev.eventSlug}`}
-                            className="hover:text-primary hover:underline"
+                            className="font-medium hover:text-primary"
                           >
                             {ev.eventName}
                           </Link>
                           {ev.year && (
-                            <Badge variant="outline" className="ml-1 text-xs">{ev.year}</Badge>
+                            <span className="ml-2 time text-xs text-muted-foreground">{ev.year}</span>
                           )}
                         </td>
-                        <td className="p-3">
-                          <Badge variant="secondary" className="text-xs">{ev.distance}</Badge>
+                        <td className="py-2.5 pr-3">
+                          <span className="text-muted-foreground">{ev.distance}</span>
                         </td>
-                        <td className={`p-3 text-center font-mono tabular-nums ${ev.winner === "a" ? "font-semibold" : "text-muted-foreground"}`}
+                        <td className={`py-2.5 px-3 text-right time ${ev.winner === "a" ? "font-semibold" : "text-muted-foreground"}`}
                           style={ev.winner === "a" ? { color: COLOR_A } : undefined}
                         >
                           <div>{ev.a.chip_time ?? "—"}</div>
                           {ev.a.place && <div className="text-xs text-muted-foreground">#{ev.a.place}</div>}
                         </td>
-                        <td className={`p-3 text-center font-mono tabular-nums ${ev.winner === "b" ? "font-semibold" : "text-muted-foreground"}`}
+                        <td className={`py-2.5 px-3 text-right time ${ev.winner === "b" ? "font-semibold" : "text-muted-foreground"}`}
                           style={ev.winner === "b" ? { color: COLOR_B } : undefined}
                         >
                           <div>{ev.b.chip_time ?? "—"}</div>
@@ -698,10 +662,9 @@ export function HeadToHead() {
 
       {/* Empty state */}
       {(!runnerA || !runnerB) && (
-        <div className="text-center py-16 text-muted-foreground">
-          <p className="text-lg">Select two runners to compare</p>
-          <p className="text-sm mt-1">Search by name to get started</p>
-        </div>
+        <p className="py-12 text-muted-foreground border-b">
+          Pick two runners to see who won the races they both ran, and their personal bests side by side.
+        </p>
       )}
     </div>
   );

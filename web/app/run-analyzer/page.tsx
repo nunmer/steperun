@@ -86,7 +86,7 @@ const ANALYZE_WORDS = [
   "evaluating", "diagnosing", "crafting", "polishing",
 ];
 
-const RATING_COLOR = { good: "#22c55e", warning: "#eab308", bad: "#ef4444" };
+const RATING_COLOR = { good: "#4f9a6a", warning: "#cf9a2e", bad: "#cf4f35" };
 const RATING_ICON = { good: "\u2713", warning: "\u26A0", bad: "\u2717" };
 
 const MOTION_INTERVAL = 300; // ms between motion frames
@@ -149,7 +149,7 @@ function buildFrameToSectionMap(frames: Frame[], analysis: Analysis): Map<number
 }
 
 function scoreColor(score: number) {
-  return score >= 75 ? "#22c55e" : score >= 50 ? "#eab308" : "#ef4444";
+  return score >= 75 ? RATING_COLOR.good : score >= 50 ? RATING_COLOR.warning : RATING_COLOR.bad;
 }
 
 /* ------------------------------------------------------------------ */
@@ -379,17 +379,32 @@ export default function RunAnalyzerPage() {
 
   if (!user) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-8 text-center px-4">
-        <h1 className="text-5xl md:text-[64px] font-black text-foreground" style={{ letterSpacing: "-2px", lineHeight: 1.1 }}>
-          RunForm AI
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-md" style={{ lineHeight: 1.4 }}>
-          AI-powered running technique analysis. Upload your video, get instant biomechanics feedback.
-        </p>
-        <button onClick={signIn} className="px-8 py-3 bg-foreground text-background font-semibold text-base hover:opacity-90 transition-opacity" style={{ borderRadius: "9999px" }}>
-          Sign in with Google to start
-        </button>
-        <p className="text-sm text-muted-foreground opacity-60">{COIN_ECONOMY.FREE_ANALYSES} free analyses, then {COIN_ECONOMY.ANALYSIS_COST} coins each</p>
+      <div className="max-w-3xl">
+        <header className="border-b-2 border-rule pb-4 mb-8">
+          <p className="eyebrow mb-2">AI Coach</p>
+          <h1 className="headline text-5xl sm:text-7xl">Check your running form from one video</h1>
+        </header>
+        <ol className="divide-y border-b">
+          {[
+            ["Film", "A few seconds of you running past the camera, filmed side-on."],
+            ["Frames", "We pull out the key moments of your stride and map your joints."],
+            ["Feedback", "Foot strike, cadence, posture, arms, hips and knee drive, each rated, plus what to fix first."],
+          ].map(([title, text], i) => (
+            <li key={title} className="grid grid-cols-[2.5rem_7rem_1fr] max-sm:grid-cols-[2rem_1fr] gap-x-4 py-4 items-baseline">
+              <span className="time text-sm text-primary">0{i + 1}</span>
+              <span className="headline text-2xl">{title}</span>
+              <span className="text-sm text-muted-foreground max-sm:col-start-2">{text}</span>
+            </li>
+          ))}
+        </ol>
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <button onClick={signIn} className="h-11 px-5 rounded-sm bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors">
+            Sign in with Google to start
+          </button>
+          <p className="text-sm text-muted-foreground">
+            First {COIN_ECONOMY.FREE_ANALYSES} analyses free, then {COIN_ECONOMY.ANALYSIS_COST} coins each.
+          </p>
+        </div>
       </div>
     );
   }
@@ -404,7 +419,7 @@ export default function RunAnalyzerPage() {
       <aside className={`${sidebarOpen ? "w-72" : "w-0"} flex-shrink-0 transition-all duration-300 overflow-hidden bg-card border-r border-border`}>
         <div className="w-72 p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
-            <button onClick={startNew} className="flex-1 mr-2 py-2.5 font-semibold text-sm bg-foreground text-background hover:opacity-90 transition-opacity flex items-center justify-center gap-2" style={{ borderRadius: "9999px" }}>
+            <button onClick={startNew} className="flex-1 mr-2 h-10 rounded-sm font-semibold text-sm bg-foreground text-background hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
               <Plus size={14} /> New Analysis
             </button>
             <button onClick={() => setSidebarOpen(false)} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Close sidebar">
@@ -412,23 +427,21 @@ export default function RunAnalyzerPage() {
             </button>
           </div>
           <QuotaPanel quota={quota} />
-          <div className="text-xs uppercase tracking-wider text-muted-foreground mb-3 font-medium">
-            Sessions
-          </div>
+          <div className="eyebrow mb-2 border-b border-rule pb-1">Sessions</div>
           <div className="flex-1 overflow-y-auto space-y-1">
             {sessions.map((s) => (
               <button
                 key={s.id}
                 onClick={() => loadSession(s.id)}
-                className={`w-full text-left p-3 rounded-lg text-sm transition-all border ${activeSessionId === s.id ? "bg-accent border-border" : "border-transparent hover:bg-muted"}`}
+                className={`w-full text-left py-2.5 px-2 text-sm transition-colors border-l-[3px] ${activeSessionId === s.id ? "bg-accent border-primary" : "border-transparent hover:bg-muted"}`}
               >
                 <div className="font-semibold text-foreground truncate">{s.title}</div>
                 <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                   <StatusDot status={s.status} />
                   <span>{s.status}</span>
-                  {s.overall_score != null && <span className="ml-auto font-semibold" style={{ color: scoreColor(s.overall_score) }}>{s.overall_score}</span>}
+                  {s.overall_score != null && <span className="ml-auto time font-semibold" style={{ color: scoreColor(s.overall_score) }}>{s.overall_score}</span>}
                 </div>
-                <div className="text-xs text-muted-foreground opacity-60 mt-1">{new Date(s.created_at).toLocaleDateString()}</div>
+                <div className="time text-[11px] text-muted-foreground mt-1">{new Date(s.created_at).toLocaleDateString()}</div>
               </button>
             ))}
           </div>
@@ -445,18 +458,10 @@ export default function RunAnalyzerPage() {
           )}
 
           {/* Header */}
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 text-xs font-medium text-muted-foreground mb-4 bg-card border border-border" style={{ borderRadius: "9999px", boxShadow: "rgba(0,0,0,0.08) 0px 3px 6px" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
-              ai-powered biomechanics
-            </div>
-            <h1 className="text-4xl md:text-5xl font-black text-foreground mb-3" style={{ letterSpacing: "-2px", lineHeight: 1.1 }}>
-              RunForm AI
-            </h1>
-            <p className="text-base text-muted-foreground" style={{ lineHeight: 1.4 }}>
-              Upload your running video. AI maps your skeleton and analyzes technique.
-            </p>
-          </div>
+          <header className="border-b-2 border-rule pb-3 mb-8">
+            <p className="eyebrow mb-1">AI Coach</p>
+            <h1 className="headline text-4xl sm:text-5xl">Running form analysis</h1>
+          </header>
 
           {(error || sessionError) && (
             <div className="mb-6 p-4 rounded-lg text-sm border border-destructive/30 bg-destructive/10 text-destructive">
@@ -513,13 +518,13 @@ export default function RunAnalyzerPage() {
                     <ScoreRing score={analysis.overall_score} />
 
                     {/* Section cards */}
-                    <div className="space-y-3">
+                    <div className="border-t border-rule">
                       {analysis.sections.map((s, i) => {
                         const isOpen = expanded.has(i);
                         return (
                           <div
                             key={i}
-                            className="bg-card border border-border rounded-lg overflow-hidden transition-shadow cursor-pointer"
+                            className="border-b cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => {
                               const next = new Set(expanded);
                               next.has(i) ? next.delete(i) : next.add(i);
@@ -528,32 +533,14 @@ export default function RunAnalyzerPage() {
                               setActiveSectionIdx(i);
                               setAutoPlaying(false);
                             }}
-                            style={{
-                              borderLeft: `3px solid ${RATING_COLOR[s.rating]}`,
-                              boxShadow: isOpen
-                                ? "rgba(0,0,0,0.15) 0px 10px 20px, rgba(0,0,0,0.08) 0px 3px 6px"
-                                : "rgba(0,0,0,0.08) 0px 3px 6px, rgba(0,0,0,0.07) 0px 2px 4px",
-                            }}
+                            style={{ borderLeft: `3px solid ${RATING_COLOR[s.rating]}` }}
                           >
-                            <div className="p-4 flex items-center gap-3">
-                              <span
-                                className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold flex-shrink-0"
-                                style={{ background: `${RATING_COLOR[s.rating]}20`, color: RATING_COLOR[s.rating] }}
-                              >
-                                {RATING_ICON[s.rating]}
-                              </span>
+                            <div className="py-3 pl-4 pr-2 flex items-center gap-3">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <span className="font-semibold text-sm text-foreground">{s.title}</span>
-                                  <span
-                                    className="px-2 py-0.5 text-[10px] font-semibold uppercase"
-                                    style={{
-                                      background: `${RATING_COLOR[s.rating]}20`,
-                                      color: RATING_COLOR[s.rating],
-                                      borderRadius: "9999px",
-                                    }}
-                                  >
-                                    {s.rating}
+                                  <span className="eyebrow" style={{ color: RATING_COLOR[s.rating] }}>
+                                    {RATING_ICON[s.rating]} {s.rating}
                                   </span>
                                 </div>
                                 <div className="text-xs text-muted-foreground mt-0.5">{s.summary}</div>
@@ -563,7 +550,7 @@ export default function RunAnalyzerPage() {
                               </span>
                             </div>
                             {isOpen && (
-                              <div className="px-4 pb-4 pt-0 text-sm text-muted-foreground leading-relaxed border-t border-border mt-0 pt-3 mx-4 mb-4">
+                              <div className="pl-4 pr-2 pb-4 text-sm text-muted-foreground leading-relaxed max-w-prose">
                                 {s.details}
                               </div>
                             )}
@@ -574,21 +561,13 @@ export default function RunAnalyzerPage() {
 
                     {/* Recommendations */}
                     <div>
-                      <div className="text-xs uppercase tracking-wider mb-4 flex items-center gap-2 font-semibold text-foreground">
-                        <span className="w-2 h-2 rounded-sm bg-foreground" /> Top Recommendations
-                      </div>
+                      <h3 className="headline text-3xl border-b-2 border-rule pb-2">Work on first</h3>
                       {analysis.recommendations.map((r, i) => (
                         <div
                           key={i}
-                          className="flex gap-3 p-4 mb-2 bg-card border border-border rounded-lg"
-                          style={{ boxShadow: "rgba(0,0,0,0.08) 0px 3px 6px, rgba(0,0,0,0.07) 0px 2px 4px" }}
+                          className="flex gap-4 py-3 border-b"
                         >
-                          <span
-                            className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-xs font-bold bg-foreground text-background"
-                            style={{ borderRadius: "9999px" }}
-                          >
-                            {r.priority}
-                          </span>
+                          <span className="time text-sm text-primary flex-shrink-0 w-6">{String(r.priority).padStart(2, "0")}</span>
                           <span className="text-sm text-foreground">{r.text}</span>
                         </div>
                       ))}
@@ -616,54 +595,25 @@ export default function RunAnalyzerPage() {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes ra-popIn {
-          0% { opacity: 0; transform: scale(0.6); }
-          60% { transform: scale(1.1); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes ra-scoreCount {
-          from { opacity: 0; transform: scale(0.5); }
-          to { opacity: 1; transform: scale(1); }
-        }
         @keyframes ra-progress {
           from { width: 0%; }
           to { width: 100%; }
         }
-        @keyframes ra-fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes ra-scanLine {
-          0% { top: 0%; opacity: 0; }
-          5% { opacity: 1; }
-          95% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
         .ra-btn-icon {
-          width: 32px; height: 32px; border-radius: 6px;
+          width: 32px; height: 32px; border-radius: 2px;
           border: 1px solid var(--border); background: var(--card);
           display: flex; align-items: center; justify-content: center;
           cursor: pointer; transition: all 0.2s; color: var(--foreground);
         }
         .ra-btn-icon:hover { border-color: var(--foreground); }
         .ra-btn-secondary {
-          padding: 0.75rem; border-radius: 9999px; border: 1px solid var(--border);
+          padding: 0.75rem; border-radius: 2px; border: 1px solid var(--border);
           background: var(--card); font-size: 0.875rem; cursor: pointer;
           transition: all 0.2s; color: var(--foreground); font-weight: 500;
         }
         .ra-btn-secondary:hover { border-color: var(--foreground); }
         .ra-glass {
-          background: rgba(0, 0, 0, 0.65);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-        }
-        .ra-pulse-dot {
-          width: 6px; height: 6px; border-radius: 50%;
-          animation: ra-pulse 1.2s ease-in-out infinite;
-        }
-        @keyframes ra-pulse {
-          0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 currentColor; }
-          50% { opacity: 0.7; transform: scale(1.4); box-shadow: 0 0 8px currentColor; }
+          background: rgba(20, 18, 16, 0.78);
         }
       `}</style>
     </div>
@@ -822,11 +772,9 @@ function AnalysisPlayer({
         className="relative overflow-hidden bg-black select-none"
         style={{
           aspectRatio: "16/9",
-          borderRadius: "24px",
-          boxShadow: inAnalysisZone && currentSection
-            ? `0 0 0 2px ${RATING_COLOR[currentSection.rating]}80, 0 0 30px ${RATING_COLOR[currentSection.rating]}30, rgba(0,0,0,0.2) 0px 10px 30px`
-            : "rgba(0,0,0,0.2) 0px 10px 30px, rgba(0,0,0,0.1) 0px 3px 8px",
-          transition: "box-shadow 0.4s ease-in-out",
+          borderRadius: "3px",
+          outline: inAnalysisZone && currentSection ? `3px solid ${RATING_COLOR[currentSection.rating]}` : "none",
+          outlineOffset: "-3px",
         }}
       >
         {/* Loading overlay while preloading images */}
@@ -847,34 +795,12 @@ function AnalysisPlayer({
           />
         )}
 
-        {/* Vignette + slow-motion indicator when in analysis zone */}
-        {inAnalysisZone && currentSection && (
-          <>
-            {/* Edge vignette to signal slowdown */}
-            <div
-              className="absolute inset-0 pointer-events-none animate-[ra-fadeIn_0.3s_ease-out]"
-              style={{
-                background: `radial-gradient(ellipse at center, transparent 50%, ${RATING_COLOR[currentSection.rating]}15 100%)`,
-              }}
-            />
-            {/* Scanning line animation */}
-            <div
-              key={`scan-${nearestAnalysis?.keyFrameIdx}`}
-              className="absolute left-0 right-0 h-[2px] pointer-events-none animate-[ra-scanLine_3.5s_ease-in-out]"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${RATING_COLOR[currentSection.rating]}60, transparent)`,
-                boxShadow: `0 0 12px ${RATING_COLOR[currentSection.rating]}40`,
-              }}
-            />
-          </>
-        )}
-
         {/* Phase pill — top left */}
         {currentFrame && (
           <div
             className="absolute top-3 left-3 ra-glass px-3 py-1 text-xs font-medium text-white"
             style={{
-              borderRadius: "9999px",
+              borderRadius: "2px",
               border: currentSection
                 ? `1px solid ${RATING_COLOR[currentSection.rating]}80`
                 : "1px solid transparent",
@@ -888,17 +814,17 @@ function AnalysisPlayer({
         {inAnalysisZone && currentSection ? (
           <div
             key={`coaching-${currentSectionIdx}`}
-            className="absolute top-3 right-3 flex items-center gap-2 ra-glass px-3 py-1.5 animate-[ra-popIn_0.3s_ease-out]"
+            className="absolute top-3 right-3 flex items-center gap-2 ra-glass px-3 py-1.5"
             style={{
-              borderRadius: "9999px",
+              borderRadius: "2px",
               border: `1px solid ${RATING_COLOR[currentSection.rating]}60`,
             }}
           >
-            <span className="ra-pulse-dot" style={{ background: RATING_COLOR[currentSection.rating] }} />
+            <span className="size-1.5" style={{ background: RATING_COLOR[currentSection.rating] }} />
             <span className="text-[11px] font-semibold text-white uppercase tracking-wider">Coaching</span>
           </div>
         ) : (
-          <div className="absolute top-3 right-3 ra-glass px-3 py-1 text-xs text-white/70" style={{ borderRadius: "9999px" }}>
+          <div className="absolute top-3 right-3 ra-glass px-3 py-1 text-xs text-white/70" style={{ borderRadius: "2px" }}>
             {frameIdx + 1} / {frames.length}
           </div>
         )}
@@ -907,9 +833,9 @@ function AnalysisPlayer({
         {currentSection && (
           <div
             key={`badge-${currentSectionIdx}`}
-            className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-2 ra-glass px-4 py-1.5 animate-[ra-popIn_0.4s_ease-out]"
+            className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-2 ra-glass px-4 py-1.5"
             style={{
-              borderRadius: "9999px",
+              borderRadius: "2px",
               border: `1px solid ${RATING_COLOR[currentSection.rating]}40`,
             }}
           >
@@ -966,14 +892,14 @@ function AnalysisPlayer({
         {/* ---- NAV ARROWS ---- */}
         <button
           onClick={() => { setFrameIdx(Math.max(0, frameIdx - 1)); setAutoPlaying(false); }}
-          className="absolute left-2 top-1/2 -translate-y-1/2 ra-glass w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+          className="absolute left-2 top-1/2 -translate-y-1/2 ra-glass w-8 h-8 rounded-sm flex items-center justify-center text-white/70 hover:text-white transition-colors"
           style={{ display: frameIdx > 0 ? undefined : "none" }}
         >
           <ChevronLeft size={16} />
         </button>
         <button
           onClick={() => { setFrameIdx(Math.min(frames.length - 1, frameIdx + 1)); setAutoPlaying(false); }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 ra-glass w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 ra-glass w-8 h-8 rounded-sm flex items-center justify-center text-white/70 hover:text-white transition-colors"
           style={{ display: frameIdx < frames.length - 1 ? undefined : "none" }}
         >
           <ChevronRight size={16} />
@@ -992,8 +918,8 @@ function AnalysisPlayer({
           }}
         >
           {/* Track */}
-          <div className="h-1.5 bg-border rounded-full overflow-hidden">
-            <div className="h-full bg-foreground rounded-full transition-all duration-100" style={{ width: `${progress}%` }} />
+          <div className="h-1.5 bg-border overflow-hidden">
+            <div className="h-full bg-foreground transition-all duration-100" style={{ width: `${progress}%` }} />
           </div>
           {/* Key frame markers — positioned above the track */}
           {Array.from(frameToSection.entries()).map(([fi, si]) => {
@@ -1010,10 +936,7 @@ function AnalysisPlayer({
                   borderRadius: "50%",
                   background: RATING_COLOR[analysis.sections[si].rating],
                   border: "2px solid var(--background)",
-                  boxShadow: isActive
-                    ? `0 0 8px ${RATING_COLOR[analysis.sections[si].rating]}`
-                    : `0 0 4px ${RATING_COLOR[analysis.sections[si].rating]}60`,
-                  transition: "transform 0.2s, box-shadow 0.2s",
+                  transition: "transform 0.2s",
                   zIndex: 2,
                 }}
                 title={analysis.sections[si].title}
@@ -1046,14 +969,13 @@ function AnalysisPlayer({
                   title={s.title}
                 >
                   <div
-                    className="h-1.5 rounded-full transition-all duration-300"
+                    className="h-1.5 transition-colors duration-300"
                     style={{
                       background: isActive
                         ? RATING_COLOR[s.rating]
                         : sectionToFrame.has(i) && frameIdx > (sectionToFrame.get(i) ?? 0)
                           ? `${RATING_COLOR[s.rating]}60`
                           : "var(--border)",
-                      boxShadow: isActive ? `0 0 8px ${RATING_COLOR[s.rating]}80` : undefined,
                     }}
                   />
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block ra-glass px-2 py-0.5 text-[10px] text-white whitespace-nowrap" style={{ borderRadius: "4px" }}>
@@ -1081,9 +1003,9 @@ function QuotaPanel({ quota }: { quota: Quota | null }) {
   if (!quota) return null;
   const onFreeTier = quota.freeRemaining > 0;
   return (
-    <div className="mb-4 p-3 rounded-lg bg-muted/40 border border-border">
+    <div className="mb-5 pb-3 border-b">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <span className="eyebrow">
           {onFreeTier ? "Free analyses" : "Balance"}
         </span>
         {!onFreeTier && <CoinBalance amount={quota.balance} size="sm" />}
@@ -1096,7 +1018,7 @@ function QuotaPanel({ quota }: { quota: Quota | null }) {
       {!onFreeTier && (
         <Link
           href="/coins"
-          className="mt-2 block text-center py-1.5 rounded-md text-xs font-semibold bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors"
+          className="mt-2 block text-center py-1.5 rounded-sm text-xs font-semibold border border-foreground hover:bg-foreground hover:text-background transition-colors"
         >
           Get coins
         </Link>
@@ -1119,8 +1041,7 @@ function AnalyzeCTA({ quota, onAnalyze }: { quota: Quota | null; onAnalyze: () =
         </div>
         <Link
           href="/coins"
-          className="block text-center w-full py-3.5 font-semibold bg-amber-500 text-amber-950 hover:bg-amber-400 transition-colors"
-          style={{ borderRadius: "9999px" }}
+          className="block text-center w-full h-12 leading-[3rem] rounded-sm font-semibold bg-foreground text-background hover:opacity-90 transition-opacity"
         >
           Get coins
         </Link>
@@ -1131,54 +1052,46 @@ function AnalyzeCTA({ quota, onAnalyze }: { quota: Quota | null; onAnalyze: () =
   return (
     <button
       onClick={onAnalyze}
-      className="w-full py-3.5 font-semibold bg-foreground text-background hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
-      style={{ borderRadius: "9999px" }}
+      className="w-full h-12 rounded-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-3"
     >
-      <span>Analyze Technique with AI</span>
+      <span>Analyze my form</span>
       {onFreeTier ? (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-500 text-emerald-950 text-[11px] font-bold uppercase tracking-wider">
-          Free
-        </span>
+        <span className="time text-xs opacity-80">free</span>
       ) : (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500 text-amber-950">
-          <svg viewBox="0 0 20 20" className="w-3.5 h-3.5 shrink-0" fill="none">
-            <circle cx="10" cy="10" r="9" fill="#fef3c7" stroke="#92400e" strokeWidth="1" />
-            <text x="10" y="10.5" textAnchor="middle" dominantBaseline="central" fill="#92400e" fontSize="8" fontWeight="bold" fontFamily="system-ui, sans-serif">S</text>
-          </svg>
-          <span className="font-mono tabular-nums text-sm font-bold">−{quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST}</span>
-        </span>
+        <span className="time text-xs opacity-80">−{quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST} coins</span>
       )}
     </button>
   );
 }
 
 function StatusDot({ status }: { status: string }) {
-  const color = status === "done" ? "#22c55e" : status === "error" ? "#ef4444" : status === "extracted" ? "#3b82f6" : "#eab308";
-  return <span className="w-2 h-2 rounded-full inline-block" style={{ background: color }} />;
+  const color = status === "done" ? RATING_COLOR.good : status === "error" ? RATING_COLOR.bad : status === "extracted" ? "var(--chart-4)" : RATING_COLOR.warning;
+  return <span className="size-2 inline-block" style={{ background: color }} />;
 }
 
 function SectionHeader({ num, label }: { num: string; label: string }) {
   return (
-    <div className="text-xs uppercase tracking-wider flex items-center gap-2 mb-3 font-semibold text-muted-foreground">
-      <span className="w-2 h-2 rounded-sm bg-foreground" />
-      {num} &mdash; {label}
+    <div className="flex items-baseline gap-3 border-b-2 border-rule pb-1.5 mb-3">
+      <span className="time text-sm text-primary">{num}</span>
+      <span className="headline text-2xl">{label}</span>
     </div>
   );
 }
 
+/** Overall score as a big figure over a 0–100 rule, marked at 50 and 75. */
 function ScoreRing({ score }: { score: number }) {
   const color = scoreColor(score);
-  const circumference = 326.73;
-  const offset = circumference - (score / 100) * circumference;
   return (
-    <div className="relative w-36 h-36 mx-auto animate-[ra-scoreCount_0.8s_ease-out]">
-      <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" strokeWidth="8" />
-        <circle cx="60" cy="60" r="52" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 1.5s ease-out" }} />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-black text-foreground">{score}</span>
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">overall</span>
+    <div className="py-2">
+      <p className="eyebrow">Overall</p>
+      <p className="headline text-8xl tabular-nums" style={{ color }}>
+        {score}<span className="text-3xl text-muted-foreground">/100</span>
+      </p>
+      <div className="relative mt-3 h-2 bg-muted">
+        <div className="h-full" style={{ width: `${score}%`, background: color }} />
+        {[50, 75].map((m) => (
+          <span key={m} className="absolute -top-1 h-4 w-px bg-foreground/40" style={{ left: `${m}%` }} />
+        ))}
       </div>
     </div>
   );
@@ -1216,7 +1129,7 @@ function FrameCarousel({ frames, currentFrame, setCurrentFrame, playing, setPlay
 
   return (
     <>
-      <div className="relative overflow-hidden bg-black" style={{ aspectRatio: "16/9", borderRadius: "24px", boxShadow: "rgba(0,0,0,0.15) 0px 10px 20px" }}>
+      <div className="relative overflow-hidden bg-black rounded-sm" style={{ aspectRatio: "16/9" }}>
         {!preloaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/80">
             <Spinner />
@@ -1224,27 +1137,27 @@ function FrameCarousel({ frames, currentFrame, setCurrentFrame, playing, setPlay
           </div>
         )}
         <img src={frames[currentFrame]?.image_url} alt="Key frame" className="w-full h-full object-contain" />
-        <div className="absolute top-3 left-3 ra-glass px-3 py-1 text-xs font-medium text-white" style={{ borderRadius: "9999px" }}>
+        <div className="absolute top-3 left-3 ra-glass px-3 py-1 text-xs font-medium text-white" style={{ borderRadius: "2px" }}>
           {frames[currentFrame]?.phase.replace(/_/g, " ")}
         </div>
-        <div className="absolute top-3 right-3 ra-glass px-3 py-1 text-xs text-white/60" style={{ borderRadius: "9999px" }}>
+        <div className="absolute top-3 right-3 ra-glass px-3 py-1 text-xs text-white/60" style={{ borderRadius: "2px" }}>
           {currentFrame + 1} / {frames.length}
         </div>
       </div>
       {/* Scrubber bar */}
-      <div className="relative h-1.5 bg-border rounded-full overflow-hidden cursor-pointer"
+      <div className="relative h-1.5 bg-border overflow-hidden cursor-pointer"
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
           const pct = (e.clientX - rect.left) / rect.width;
           setCurrentFrame(Math.round(pct * (frames.length - 1)));
         }}
       >
-        <div className="h-full bg-foreground rounded-full transition-all duration-100" style={{ width: `${progress}%` }} />
+        <div className="h-full bg-foreground transition-all duration-100" style={{ width: `${progress}%` }} />
       </div>
       {/* Key frame thumbnails */}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {keyFrameIndices.map(({ frame: f, idx: i }) => (
-          <button key={f.id || i} onClick={() => setCurrentFrame(i)} className="flex-shrink-0 w-16 h-10 overflow-hidden transition-all" style={{ borderRadius: "8px", border: i === currentFrame ? "2px solid var(--foreground)" : "2px solid transparent", opacity: i === currentFrame ? 1 : 0.4 }}>
+          <button key={f.id || i} onClick={() => setCurrentFrame(i)} className="flex-shrink-0 w-16 h-10 overflow-hidden transition-all" style={{ borderRadius: "2px", border: i === currentFrame ? "2px solid var(--foreground)" : "2px solid transparent", opacity: i === currentFrame ? 1 : 0.4 }}>
             <img src={f.image_url} alt="" className="w-full h-full object-cover" />
           </button>
         ))}
@@ -1271,20 +1184,18 @@ function UploadCard({ onUpload }: { onUpload: (f: File) => void; }) {
   }
 
   return (
-    <div className="p-8 bg-card border border-border" style={{ borderRadius: "16px", boxShadow: "rgba(0,0,0,0.08) 0px 3px 6px" }}>
+    <div>
       <SectionHeader num="01" label="Upload Video" />
       <div
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
         onDragLeave={() => setDragActive(false)}
         onDrop={handleDrop}
-        className={`mt-4 p-12 text-center cursor-pointer transition-all border-2 border-dashed rounded-xl ${dragActive ? "border-foreground bg-accent" : "border-border hover:border-muted-foreground"}`}
+        className={`mt-4 px-6 py-14 text-center cursor-pointer transition-colors border-2 border-dashed rounded-sm ${dragActive ? "border-primary bg-accent" : "border-input hover:border-foreground"}`}
       >
-        <div className="w-14 h-14 mx-auto mb-4 rounded-full flex items-center justify-center bg-muted border border-border">
-          <Upload size={22} className="text-muted-foreground" />
-        </div>
-        <div className="text-sm text-foreground">Drop your video here or <span className="text-primary font-medium">browse</span></div>
-        <div className="text-xs text-muted-foreground mt-1">Supports MOV, MP4</div>
+        <Upload size={22} className="mx-auto mb-3 text-muted-foreground" />
+        <div className="headline text-3xl">Drop a video, or <span className="text-primary underline underline-offset-4">choose a file</span></div>
+        <div className="text-sm text-muted-foreground mt-2">MOV or MP4 · a few seconds · filmed side-on</div>
         <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={(e) => { if (e.target.files?.length) onUpload(e.target.files[0]); }} />
       </div>
     </div>

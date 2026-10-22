@@ -1,93 +1,164 @@
 import Link from "next/link";
-import { getStats, getEvents } from "@/lib/queries";
-import { groupByYear } from "@/lib/events";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { EventCard } from "@/components/event-card";
-import { PhotoCarousel } from "@/components/photo-carousel";
-import { carouselPhotos } from "@/lib/carousel-photos";
+import { getStats, getEvents, getRankingsOverview } from "@/lib/queries";
+import { EventLine } from "@/components/event-list";
+import { Odometer } from "@/components/home/odometer";
+import { HomeSearch } from "@/components/home/home-search";
+import { HeroVideo } from "@/components/home/hero-video";
+import { PhotoSpread } from "@/components/home/photo-spread";
+import { ResultsTicker, type TickerItem } from "@/components/home/results-ticker";
+import { RaceReplay, type ReplayDistance } from "@/components/home/race-replay";
+import { timeToSeconds } from "@/lib/params";
+import { buildHref } from "@/components/pagination";
 
 export const revalidate = 86400;
 
-function StatCard({ value, label }: { value: number; label: string }) {
+const LATEST_COUNT = 8;
+const REPLAY_SIZE = 8;
+const TICKER_PER_DISTANCE = 3;
+
+/** "42 км 195 м" → "Marathon" etc.; anything else keeps its own label. */
+const DISTANCE_NAMES: Record<string, string> = {
+  "42 км 195 м": "Marathon",
+  "21 км 97,5 м": "Half marathon",
+  "10 км": "10 km",
+};
+
+function Figure({ value, label, delay }: { value: number; label: string; delay: number }) {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <p className="text-4xl font-bold tabular-nums text-[#22c55e]">{value.toLocaleString()}</p>
-        <p className="text-muted-foreground mt-1 text-sm">{label}</p>
-      </CardContent>
-    </Card>
+    <div className="border-t border-rule/60 pt-2">
+      <dd className="headline text-[2rem] sm:text-5xl"><Odometer value={value} delay={delay} /></dd>
+      <dt className="eyebrow mt-1">{label}</dt>
+    </div>
   );
 }
 
-export default async function HomePage() {
-  const [stats, events] = await Promise.all([getStats(), getEvents()]);
+const HEADLINE = ["Every finish,", "every runner,"];
 
-  const groups = groupByYear(events).filter((g) => g.label !== "Other").slice(0, 4);
+export default async function HomePage() {
+  const [stats, events, overview] = await Promise.all([
+    getStats(),
+    getEvents(),
+    getRankingsOverview(REPLAY_SIZE),
+  ]);
+
+  const latest = events.slice(0, LATEST_COUNT);
   const firstYear = events.reduce((min, e) => (e.year && e.year < min ? e.year : min), Infinity);
 
+  const groups = overview.filter((g) => g.rows.length > 0);
+
+  const replay: ReplayDistance[] = groups.map((g) => ({
+    key: g.distance,
+    label: DISTANCE_NAMES[g.distance] ?? g.distance,
+    href: buildHref("/rankings", { distance: g.distance }),
+    runners: g.rows
+      .map((row) => ({
+        id: row.runners.id,
+        name: row.runners.full_name,
+        time: row.chip_time ?? "",
+        seconds: timeToSeconds(row.chip_time),
+        race: row.events.name,
+      }))
+      .filter((r) => Number.isFinite(r.seconds)),
+  }));
+
+  // Ticker: podium finishes per distance, interleaved with the latest races.
+  const podiumItems: TickerItem[] = groups.flatMap((g) =>
+    g.rows.slice(0, TICKER_PER_DISTANCE).map((row, i) => ({
+      href: `/runners/${row.runners.id}`,
+      label: row.runners.full_name,
+      value: row.chip_time ?? "",
+      note: `${DISTANCE_NAMES[g.distance] ?? g.distance} #${i + 1}`,
+    })),
+  );
+  const raceItems: TickerItem[] = latest.map((e) => ({
+    href: `/events/${e.slug}`,
+    label: e.name,
+    value: e.total_results.toLocaleString("en-US"),
+    note: "Finishers",
+  }));
+  const ticker = podiumItems.flatMap((p, i) => (raceItems[i] ? [p, raceItems[i]] : [p]));
+
+  // Names for the search hint: real leaderboard names, Latin and Cyrillic mixed.
+  const hintNames = [...new Set(groups.flatMap((g) => g.rows.slice(0, 4).map((r) => r.runners.full_name)))].slice(0, 8);
+
   return (
-    <div className="space-y-12">
-      {/* Hero */}
-      <section className="py-8 text-center space-y-4">
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-          Runners
-          <br />
-          <span className="text-primary">Database</span>
-        </h1>
-        <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-          Every runner. Every race. Every finish line
-          {Number.isFinite(firstYear) ? ` — from ${firstYear} to today.` : "."}
-        </p>
-        <div className="flex gap-3 justify-center">
-          <Button asChild size="lg">
-            <Link href="/rankings">View Rankings</Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="/runners">Find a Runner</Link>
-          </Button>
+    <div className="space-y-20 sm:space-y-28">
+      {/*
+        Hero: full-bleed night scene over the running loop. It always uses the
+        dark palette (class "dark") whatever the site theme, slides up under the
+        transparent nav, and ends on the results ticker.
+      */}
+      <section
+        id="hero"
+        className="dark relative w-screen ml-[calc(50%-50vw)] -mt-[5.5rem] sm:-mt-[6.5rem] min-h-[100svh] flex flex-col bg-background text-foreground overflow-hidden"
+      >
+        <HeroVideo src="/media/hero.mp4" poster="/media/hero-poster.jpg" />
+        {/* Scrim: heavier on the left where the type sits. */}
+        <div aria-hidden className="absolute inset-0 bg-background/55" />
+        <div aria-hidden className="absolute inset-y-0 left-0 w-full lg:w-[62%] bg-background/35" />
+
+        <div className="relative flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-32 pb-16 grid gap-10 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-12 items-end">
+          <div>
+            <p className="eyebrow mb-5">
+              Race results · Kazakhstan{Number.isFinite(firstYear) ? ` · since ${firstYear}` : ""}
+            </p>
+            <h1 className="headline text-[3.6rem] leading-[0.86] sm:text-8xl">
+              {HEADLINE.map((line, i) => (
+                <span key={line} className="reveal-line sm:whitespace-nowrap" style={{ ["--i" as string]: i }}>
+                  <span>{line}</span>
+                </span>
+              ))}
+              <span className="reveal-line tape text-primary sm:whitespace-nowrap" style={{ ["--i" as string]: HEADLINE.length }}>
+                <span>one results sheet.</span>
+              </span>
+            </h1>
+            <dl className="mt-10 grid grid-cols-3 gap-4 sm:gap-8 max-w-xl">
+              <Figure value={stats.results} label="Finishes" delay={500} />
+              <Figure value={stats.runners} label="Runners" delay={650} />
+              <Figure value={stats.events} label="Races" delay={800} />
+            </dl>
+          </div>
+
+          <div className="lg:pb-1">
+            <HomeSearch names={hintNames} />
+            <ul className="mt-4 text-sm divide-y divide-foreground/15 border-b border-foreground/15">
+              {[
+                { href: "/rankings", label: "Fastest times by distance" },
+                { href: "/power-rankings", label: "ELO power rankings" },
+                { href: "/runners/head-to-head", label: "Compare two runners" },
+              ].map(({ href, label }) => (
+                <li key={href}>
+                  <Link href={href} className="group flex justify-between py-2.5 hover:text-primary transition-colors">
+                    {label}
+                    <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="relative">
+          <ResultsTicker items={ticker} />
         </div>
       </section>
 
-      {/* Photo carousel */}
-      {carouselPhotos.length > 0 && (
-        <section>
-          <PhotoCarousel photos={carouselPhotos} />
-        </section>
-      )}
+      <RaceReplay distances={replay} />
 
-      {/* Stats */}
-      <section>
-        <h2 className="text-xl font-semibold mb-4">Database at a glance</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard value={stats.runners} label="Unique runners" />
-          <StatCard value={stats.events} label="Race events" />
-          <StatCard value={stats.results} label="Finishes logged" />
-        </div>
-      </section>
+      <PhotoSpread />
 
-      {/* Event timeline */}
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Race events</h2>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/events">All events →</Link>
-          </Button>
+        <div className="flex items-end justify-between border-b-2 border-rule pb-2">
+          <h2 className="headline text-5xl sm:text-6xl">Latest results</h2>
+          <Link href="/events" className="text-sm text-muted-foreground hover:text-foreground">
+            All {stats.events} races →
+          </Link>
         </div>
-        <div className="space-y-8">
-          {groups.map(({ label, events: list }) => (
-            <div key={label}>
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                {label}
-              </h3>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {list.map((event) => (
-                  <EventCard key={event.slug} event={event} />
-                ))}
-              </div>
-            </div>
+        <ul className="grid lg:grid-cols-2 lg:gap-x-12">
+          {latest.map((event) => (
+            <EventLine key={event.slug} event={event} />
           ))}
-        </div>
+        </ul>
       </section>
     </div>
   );

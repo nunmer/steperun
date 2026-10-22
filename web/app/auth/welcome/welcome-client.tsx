@@ -43,9 +43,9 @@ export default function WelcomeClient({ matches }: { matches: RunnerMatch[] }) {
   }
 
   return (
-    <div className="max-w-lg mx-auto space-y-6 py-12 px-4">
+    <div className="max-w-lg space-y-6 py-4">
       <div>
-        <h1 className="text-2xl font-bold">Is this your profile?</h1>
+        <h1 className="headline text-5xl">Is this you?</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           We found {matches.length === 1 ? "a runner" : "runners"} matching your name. Claim your profile to own your race history.
         </p>

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+
+const edge = "time text-sm py-2";
 
 /**
  * Previous / Next pager. Links are omitted (not just styled) at the edges, so
@@ -18,24 +19,20 @@ export function Pagination({
 }) {
   if (totalPages <= 1) return null;
   return (
-    <nav className="flex items-center justify-between gap-2" aria-label="Pagination">
+    <nav className="flex items-center justify-between gap-2 border-t border-rule pt-1" aria-label="Pagination">
       {page > 1 ? (
-        <Button asChild variant="outline">
-          <Link href={href(page - 1)} rel="prev">← Previous</Link>
-        </Button>
+        <Link href={href(page - 1)} rel="prev" className={`${edge} hover:text-primary`}>← Prev</Link>
       ) : (
-        <Button variant="outline" disabled>← Previous</Button>
+        <span className={`${edge} text-muted-foreground/50`} aria-hidden>← Prev</span>
       )}
-      <span className="text-sm text-muted-foreground text-center">
-        Page {page.toLocaleString()} of {totalPages.toLocaleString()}
-        {label ? ` (${label})` : ""}
+      <span className="time text-xs text-muted-foreground text-center">
+        {page.toLocaleString()} / {totalPages.toLocaleString()}
+        {label ? <span className="hidden sm:inline"> · {label}</span> : null}
       </span>
       {page < totalPages ? (
-        <Button asChild variant="outline">
-          <Link href={href(page + 1)} rel="next">Next →</Link>
-        </Button>
+        <Link href={href(page + 1)} rel="next" className={`${edge} hover:text-primary`}>Next →</Link>
       ) : (
-        <Button variant="outline" disabled>Next →</Button>
+        <span className={`${edge} text-muted-foreground/50`} aria-hidden>Next →</span>
       )}
     </nav>
   );
