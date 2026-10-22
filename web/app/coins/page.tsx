@@ -21,6 +21,7 @@ const REASON_LABELS: Record<string, string> = {
   purchase:            "Coins purchased",
   analysis_spent:      "AI Coach analysis",
   analysis_refund:     "Analysis refund",
+  admin_adjustment:    "Adjustment by Steppe RUN",
 };
 
 const EARN_WAYS = [

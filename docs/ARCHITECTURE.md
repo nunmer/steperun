@@ -91,6 +91,28 @@ MediaPipe's GUI OpenCV for the headless build.
 - Buying coins (Paddle) is disabled unless the `PADDLE_*` env vars are set; the
   `/coins` page then shows earn-only options.
 
+### 4. Admin panel (`/admin`)
+
+Server-rendered pages under `web/app/admin/*`, each guarded by
+`requireAdminPage()` (layout and page render in parallel, so both check).
+Writes are server actions wrapped in `runAdminAction()` (`lib/admin/action.ts`):
+it re-checks `is_admin`, and turns errors into a message under the form.
+Domain logic shared with API routes lives in `lib/admin/` (claims, disputes,
+runner merge, GitHub Actions). State changes are conditional updates
+(`… WHERE status = 'pending'`), coin changes go through `apply_coin_tx`, and
+every write is logged to `claim_audit_log` as `admin_*`.
+
+| Section | Does |
+|---|---|
+| Overview | counts, latest import, scrape runs + dispatch, service checks, cache purge |
+| Claims / Disputes | decide claims, revoke, settle disputes |
+| Users | coins ledger and adjustments, trust score, admin role |
+| Runners | edit, hide, unclaim, merge duplicates (preview first) |
+| Events | edit name, date, organizer |
+| AI Coach | sessions by status, expire stuck ones with refund |
+| Audit log | `claim_audit_log`, filterable |
+| Emails | claim email previews and test send |
+
 ## Caching
 
 Supabase is slow under its Disk IO budget (300–1100 ms for a trivial query),

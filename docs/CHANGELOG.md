@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-10-22: admin panel
+
+`/admin` is now a full back office with a section nav (counts for pending
+claims, open disputes and stuck AI Coach sessions). Every page and action
+checks `user_profiles.is_admin`; every write goes to `claim_audit_log`.
+
+- **Overview**: site and queue numbers, latest import, scrape runs from GitHub
+  Actions with a "Run scraper now" form (needs `GITHUB_ACTIONS_TOKEN`), service
+  checks (analyzer ping, Strava, email mode, Paddle) and a site cache purge.
+- **Claims**: filter by status, reject with a reason (sent in the email),
+  revoke an approved claim. Approve/reject are now conditional on the claim
+  still being pending, so a double click can't apply a decision twice. Emails
+  are looked up for every user (the old page only saw the first 50).
+- **Disputes** (new): keep the owner, or transfer the profile to the disputer
+  (old claim superseded, new approved claim, coins awarded).
+- **Users** (new): search by name or email; user page with claims, coin
+  ledger, AI Coach sessions, Strava; adjust coins through `apply_coin_tx`
+  (reason `admin_adjustment`), set trust score, grant/remove admin.
+- **Runners** (new): search by name or id, edit name/city/country,
+  hide/unhide, unclaim, and merge a duplicate with a preview (same guards as
+  `scripts/merge_runners.py`, and it also refuses when the duplicate has any
+  claim, since deleting it would cascade-delete claims and disputes).
+- **Events** (new): find events missing dates, imports or results; edit
+  name, date and organizer.
+- **AI Coach** (new): sessions by status or user, stuck ones expired and
+  refunded on demand.
+- **Audit log** (new): paginated, filtered by event group or user.
+- The account menu shows an Admin link to admins (`GET /api/admin/whoami`).
+- `POST /api/admin/queue/[id]/decision` now uses the same approve/reject code
+  as the page (it used to skip coins and emails).
+
 ## 2026-10-22: power ranking tiers that escalate
 
 - `TierBadge` (`components/tier-badge.tsx`): a bib-tag insignia per tier that

@@ -33,7 +33,7 @@ build step `git diff --quiet HEAD^ HEAD -- .`).
 | TXT | resend._domainkey | DKIM key for Resend (value in the Resend dashboard, domain `steppe.run`) |
 | MX | send | `feedback-smtp.eu-west-1.amazonses.com`, priority 10 (Resend bounce handling) |
 | TXT | send | `v=spf1 include:amazonses.com ~all` (Resend SPF) |
-| TXT | _dmarc | `v=DMARC1; p=none;` (recommended) |
+| TXT | _dmarc | `v=DMARC1; p=quarantine; rua=…dmarc-report.com; ruf=…; fo=1` (MXToolbox reporting). Keep exactly **one** DMARC record |
 
 Vercel issues and auto-renews the certificate (`cert_yS2LLcjKpqAaL0V4nDHwfAeY`
 covers `steppe.run` and `www.steppe.run`).
@@ -55,6 +55,7 @@ covers `steppe.run` and `www.steppe.run`).
 | `RESEND_API_KEY`, `RESEND_EMAIL_DOMAIN` | Set by the Resend Marketplace integration (`resend-email-aqua-bucket`, region eu-west-1). Claim emails come from `claims@<domain>` |
 | `EMAIL_DELIVERY` | `off` (default when unset: never sends, logs to `claim_audit_log`), `allowlist`, or `on` |
 | `EMAIL_ALLOWLIST` | Comma-separated addresses that may receive mail while `EMAIL_DELIVERY=allowlist` |
+| `GITHUB_ACTIONS_TOKEN` | *Optional.* Fine-grained token for this repo with **Actions: read & write**; lets `/admin` list scrape runs and start one. `GITHUB_REPO` overrides `nunmer/steperun` |
 | `EMAIL_REPLY_TO` | Optional Reply-To for claim emails; defaults to the legal contact address |
 | `SCRAPER_DELAY`, `SCRAPER_BATCH_SIZE` | Unused by the web app (leftovers) |
 
@@ -100,6 +101,7 @@ GitHub → Actions → **Scrape race results** → Run workflow:
 - `athletex_backfill_from=2023`: also probe past athletex seasons.
 
 CLI: `gh workflow run scrape-results.yml -f athletex_backfill_from=2023`.
+Or `/admin` → Results import → Run scraper now (when `GITHUB_ACTIONS_TOKEN` is set).
 See `docs/SCRAPER.md`.
 
 ### Check the analyzer
@@ -172,6 +174,6 @@ is written to `claim_audit_log` as `email_claim_<approved|rejected>_<sent|skippe
    in Vercel, redeploy, then approve/reject a test claim made by one of those accounts.
 3. Go live: `EMAIL_DELIVERY=on`, redeploy.
 
-Sending needs `steppe.run` verified in Resend (DNS records above). Resend
+Sending needs `steppe.run` verified in Resend (DNS records above; verified 2026-10-22). Resend only re-checks DNS when you press Verify in its dashboard or call `POST /domains/{id}/verify`. Resend
 deduplicates on the idempotency key `claim-<decision>/<claimId>` for 24 h.
 

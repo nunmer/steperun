@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/coins", label: "Coins", meta: "Balance and history" },
   { href: "/run-analyzer", label: "AI Coach", meta: "Your form analyses" },
 ];
+const ADMIN_LINK = { href: "/admin", label: "Admin", meta: "Claims, users, data" };
 
 function Avatar({ user, className }: { user: User; className?: string }) {
   const src = user.user_metadata?.avatar_url as string | undefined;
@@ -32,11 +33,13 @@ function Avatar({ user, className }: { user: User; className?: string }) {
  */
 export function AccountMenu({
   user,
+  isAdmin = false,
   theme,
   onToggleTheme,
   onSignOut,
 }: {
   user: User;
+  isAdmin?: boolean;
   theme: string | undefined;
   onToggleTheme: () => void;
   onSignOut: () => void;
@@ -71,7 +74,7 @@ export function AccountMenu({
           </div>
 
           <div className="py-1">
-            {LINKS.map((l, i) => (
+            {(isAdmin ? [...LINKS, ADMIN_LINK] : LINKS).map((l, i) => (
               <DropdownMenu.Item key={l.href} asChild>
                 <Link
                   href={l.href}

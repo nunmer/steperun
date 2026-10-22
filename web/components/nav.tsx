@@ -72,6 +72,8 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  // Id of the signed-in user once /api/admin/whoami confirmed they're an admin.
+  const [adminId, setAdminId] = useState<string | null>(null);
   const [signingIn, setSigningIn] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -91,6 +93,18 @@ export function Nav() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // Admins get an Admin link; the endpoint answers 403 for everyone else.
+  const userId = user?.id;
+  useEffect(() => {
+    if (!userId) return;
+    let live = true;
+    fetch("/api/admin/whoami")
+      .then((r) => { if (live && r.ok) setAdminId(userId); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [userId]);
+  const isAdmin = !!userId && adminId === userId;
 
   // "/" or Ctrl/⌘+K opens search from anywhere except while typing.
   useEffect(() => {
@@ -206,7 +220,7 @@ export function Nav() {
 
             <div className="hidden lg:flex items-center gap-1">
               {user ? (
-                <AccountMenu user={user} theme={theme} onToggleTheme={toggleTheme} onSignOut={signOut} />
+                <AccountMenu user={user} isAdmin={isAdmin} theme={theme} onToggleTheme={toggleTheme} onSignOut={signOut} />
               ) : (
                 <>
                   {mounted && (
@@ -269,6 +283,9 @@ export function Nav() {
             {user ? (
               <div className="flex items-center gap-4 text-sm">
                 <Link href="/profile" onClick={() => setOpen(false)} className="font-medium underline underline-offset-4">My profile</Link>
+                {isAdmin && (
+                  <Link href="/admin" onClick={() => setOpen(false)} className="font-medium underline underline-offset-4">Admin</Link>
+                )}
                 <button onClick={signOut} className="text-muted-foreground">Sign out</button>
               </div>
             ) : (

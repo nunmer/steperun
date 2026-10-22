@@ -19,7 +19,8 @@ export type CoinReason =
   | "event_participation"
   | "purchase"
   | "analysis_spent"
-  | "analysis_refund";
+  | "analysis_refund"
+  | "admin_adjustment";
 
 /**
  * Award coins to a user. Idempotent when ref_id is provided —
@@ -160,7 +161,7 @@ interface CoinTxResult {
  * Atomic ledger write + balance change via the apply_coin_tx RPC
  * (migrations/fn_apply_coin_tx.sql). Throws on transport/DB errors.
  */
-async function applyCoinTx(params: {
+export async function applyCoinTx(params: {
   userId: string;
   amount: number;
   reason: CoinReason;

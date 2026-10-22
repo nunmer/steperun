@@ -1,68 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { getAuthUser } from "@/lib/supabase-server";
-import { logAudit } from "@/lib/services/audit";
-import { invalidateRunner } from "@/lib/cache";
+import { assertAdmin } from "@/lib/services/admin";
+import { AdminInputError } from "@/lib/admin/action";
+import { approveClaim, rejectClaim } from "@/lib/admin/claims";
 
+/** POST { action: "approve" | "reject", notes? } — same path as the /admin/claims buttons. */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await getAuthUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const admin = await assertAdmin().catch(() => null);
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { id } = await params;
-  const claimId = Number(id);
+  const claimId = Number((await params).id);
+  if (!Number.isInteger(claimId) || claimId <= 0) {
+    return NextResponse.json({ error: "Bad claim id" }, { status: 400 });
+  }
 
-  let body: { action: "approve" | "reject"; notes?: string };
+  let body: { action?: unknown; notes?: unknown };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-
-  if (!["approve", "reject"].includes(body.action)) {
+  if (body.action !== "approve" && body.action !== "reject") {
     return NextResponse.json({ error: "action must be 'approve' or 'reject'" }, { status: 400 });
   }
+  const notes = typeof body.notes === "string" && body.notes.trim() ? body.notes.trim().slice(0, 500) : null;
 
-  const db = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!
-  );
-
-  const { data: claim } = await db
-    .from("runner_claims")
-    .select("id, runner_id, user_id, status")
-    .eq("id", claimId)
-    .single();
-
-  if (!claim) return NextResponse.json({ error: "Claim not found" }, { status: 404 });
-  if (claim.status !== "pending") {
-    return NextResponse.json({ error: "Claim is not pending" }, { status: 409 });
+  try {
+    const decide = body.action === "approve" ? approveClaim : rejectClaim;
+    const message = await decide(claimId, admin.id, notes);
+    return NextResponse.json({ success: true, status: body.action === "approve" ? "approved" : "rejected", message });
+  } catch (e) {
+    if (e instanceof AdminInputError) return NextResponse.json({ error: e.message }, { status: 409 });
+    console.error("[admin] decision failed", e);
+    return NextResponse.json({ error: "Decision failed" }, { status: 500 });
   }
-
-  const newStatus = body.action === "approve" ? "approved" : "rejected";
-
-  await db.from("runner_claims").update({
-    status:       newStatus,
-    reviewed_by:  user.id,
-    reviewed_at:  new Date().toISOString(),
-    review_notes: body.notes ?? null,
-    updated_at:   new Date().toISOString(),
-  }).eq("id", claimId);
-
-  if (body.action === "approve") {
-    await db.from("runners").update({ claimed_by: claim.user_id }).eq("id", claim.runner_id);
-    invalidateRunner(claim.runner_id);
-  }
-
-  await logAudit({
-    event_type: `admin_claim_${body.action}d`,
-    user_id:    user.id,
-    runner_id:  claim.runner_id,
-    claim_id:   claimId,
-    payload:    { notes: body.notes ?? null },
-  });
-
-  return NextResponse.json({ success: true, status: newStatus });
 }
