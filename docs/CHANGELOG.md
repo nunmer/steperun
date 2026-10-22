@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-22: claim decision emails (Resend)
+
+- Resend added from the Vercel Marketplace (`resend-email-aqua-bucket`,
+  domain `steppe.run`, eu-west-1); `resend` SDK added to `web`.
+- Approving or rejecting a claim in `/admin/claims` emails the claimant: an
+  approval with the coins credited and a profile link, or a rejection with the
+  reviewer's note and how to follow up. Idempotent per claim and decision;
+  failures never block the admin action; every attempt goes to `claim_audit_log`.
+- **Delivery gate** `EMAIL_DELIVERY` = `off` (default) / `allowlist` / `on`,
+  so nothing reaches users until switched on.
+- `/admin/emails`: live previews and "send a test to me".
+- `assertAdmin` moved to `lib/services/admin.ts` (no longer a server action
+  module export).
+- Privacy policy lists Resend as a sub-processor and claim emails as a purpose.
+- `DEPLOYMENT.md`: Resend DNS records, env vars, "claim emails" runbook.
+
 ## 2026-10-22: nav polish, account menu, softer paper theme
 
 - **Nav alignment:** index numbers and labels share a baseline, labels are

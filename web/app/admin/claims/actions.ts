@@ -1,27 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@supabase/supabase-js";
-import { getAuthUser } from "@/lib/supabase-server";
+import { adminClient, assertAdmin } from "@/lib/services/admin";
 import { logAudit } from "@/lib/services/audit";
 import { awardCoins, awardEventParticipationCoins, COIN_REWARDS } from "@/lib/services/coins";
 import { invalidateRunner } from "@/lib/cache";
-
-function adminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_KEY!
-  );
-}
-
-async function assertAdmin() {
-  const user = await getAuthUser();
-  if (!user) throw new Error("Unauthorized");
-  const db = adminClient();
-  const { data } = await db.from("user_profiles").select("is_admin").eq("id", user.id).single();
-  if (!data?.is_admin) throw new Error("Forbidden");
-  return user;
-}
+import { notifyClaimDecision } from "@/lib/services/email";
 
 export async function approveClaimAction(claimId: number, notes?: string) {
   const admin = await assertAdmin();
@@ -48,10 +32,15 @@ export async function approveClaimAction(claimId: number, notes?: string) {
   invalidateRunner(runnerId);
 
   // Award coins: +10 for claim, +20 per event participation
-  await awardCoins(userId, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claimId);
-  await awardEventParticipationCoins(userId, runnerId);
+  const claimBonus = await awardCoins(userId, COIN_REWARDS.CLAIM_APPROVED, "claim_approved", claimId);
+  const racesRewarded = await awardEventParticipationCoins(userId, runnerId);
 
   await logAudit({ event_type: "admin_claim_approved", user_id: admin.id, claim_id: claimId });
+
+  // Tell the claimant (gated by EMAIL_DELIVERY; never throws).
+  const coins = (claimBonus ? COIN_REWARDS.CLAIM_APPROVED : 0) + racesRewarded * COIN_REWARDS.EVENT_PARTICIPATION;
+  await notifyClaimDecision(claimId, { kind: "approved", coins });
+
   revalidatePath("/admin/claims");
 }
 
@@ -68,5 +57,6 @@ export async function rejectClaimAction(claimId: number, notes?: string) {
   }).eq("id", claimId);
 
   await logAudit({ event_type: "admin_claim_rejected", user_id: admin.id, claim_id: claimId });
+  await notifyClaimDecision(claimId, { kind: "rejected", notes: notes ?? null });
   revalidatePath("/admin/claims");
 }

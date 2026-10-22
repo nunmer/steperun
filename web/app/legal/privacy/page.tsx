@@ -68,7 +68,7 @@ export default function PrivacyPage() {
       <h2>4. Purposes of Processing and Legal Basis</h2>
       <ul>
         <li>to create and operate your account &mdash; performance of a contract (Article 9 of the Personal Data Law);</li>
-        <li>to verify runner profile claims &mdash; your consent;</li>
+        <li>to verify runner profile claims and email you the outcome of your claim &mdash; your consent;</li>
         <li>to provide training analytics from Strava &mdash; your consent and contract;</li>
         <li>to deliver AI Coach analysis &mdash; performance of a contract and your consent to processing of uploaded video;</li>
         <li>to process Coin purchases and prevent fraud &mdash; performance of a contract and legitimate interests;</li>
@@ -89,7 +89,8 @@ export default function PrivacyPage() {
         <li>
           <strong>Sub-processors</strong> acting on our instructions, including: Supabase
           (database and storage), Vercel (hosting), Google (authentication), Strava (training data
-          integration), and AI model providers used by AI Coach for inference.
+          integration), Resend (transactional email, such as claim decisions), and AI model
+          providers used by AI Coach for inference.
         </li>
         <li>
           <strong>Payment processors</strong> when you purchase Coins. We do not store full
