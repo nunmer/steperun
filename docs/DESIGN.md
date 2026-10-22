@@ -19,6 +19,12 @@ a sheet you could pin to a board at the finish.
 
 No gradients, glows, blur, large shadows or tinted icon tiles.
 
+**ELO tiers** are the one place the chart palette marks status: Bronze clay
+(`chart-5`), Silver steel (`chart-4`), Gold ochre (`chart-2`), Platinum deep steel,
+Diamond sage (`chart-3`), Master bib orange, Grandmaster ink with an orange
+★★ tab. Treatment escalates with the tier (outline → solid → mark → split
+tag); see `TierBadge`.
+
 ## Type
 
 - **Fira Sans Extra Condensed** (`headline` utility): uppercase page titles,
@@ -39,7 +45,9 @@ No gradients, glows, blur, large shadows or tinted icon tiles.
 - `components/breakdown.tsx`: ranked bars (replaces donut charts).
 - `components/runner-stats.tsx`: the runner stat strip, the 10-tick `LevelMeter`
   and `Monogram`.
-- `lib/elo-levels.ts`: tier names and ELO ranges (single source).
+- `components/tier-badge.tsx`: `TierBadge`, the escalating tier insignia.
+- `lib/elo-levels.ts`: tier names, ELO ranges, thresholds, tones and
+  `nextLevel()` (single source; `min` mirrors `scripts/calculate_elo.py`).
 
 ## Rules
 

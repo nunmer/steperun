@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-10-22: power ranking tiers that escalate
+
+- `TierBadge` (`components/tier-badge.tsx`): a bib-tag insignia per tier that
+  gets heavier as it climbs: outlined Bronze/Silver, solid Gold/Platinum,
+  Diamond ◆, Master ★, and Grandmaster as a split tag (orange ★★ tab, ink
+  name block).
+- Power rankings: the level histogram is coloured per tier (a ladder that warms
+  toward bib orange; Grandmaster is an ink bar capped in orange); table rows carry the
+  badge, Master+ names and scores are set heavier and in the signal colour; a
+  filtered tier shows its badge plus links to the tier below and "next up".
+- Runner profile: the 10-tick meter uses tier colours and steps up in height;
+  a progress bar shows the points to the next tier.
+- `lib/elo-levels.ts` gains `min`, `tone`, `TIER_COLOR` and `nextLevel()`.
+
 ## 2026-10-22: claim decision emails (Resend)
 
 - Resend added from the Vercel Marketplace (`resend-email-aqua-bucket`,
