@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getPowerRankings, getEloStats, PAGE_SIZE } from "@/lib/queries";
 import { parseIntInRange, parsePage } from "@/lib/params";
-import { eloLevel, MAX_LEVEL } from "@/lib/elo-levels";
+import { eloLevel, nextLevel, MAX_LEVEL, TIER_COLOR } from "@/lib/elo-levels";
+import { TierBadge } from "@/components/tier-badge";
 import { Pagination, buildHref } from "@/components/pagination";
 import { EmptyState, PageHeader, Place, Rank } from "@/components/sheet";
 import { cn } from "@/lib/utils";
@@ -23,8 +24,12 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
   const largest = Math.max(...stats.map((s) => s.count), 1);
   const ordered = [...stats].sort((a, b) => a.level - b.level);
   const href = (lvl: number) => (active === lvl ? "/power-rankings" : `/power-rankings?level=${lvl}`);
-  const tone = (lvl: number) =>
-    active === lvl ? "bg-primary" : active ? "bg-foreground/20" : lvl >= MAX_LEVEL - 1 ? "bg-primary" : "bg-foreground/70";
+  // Each tier's bar wears its own colour, so the chart reads as a ladder that
+  // warms up toward Grandmaster. Filtering dims the other tiers.
+  const bar = (lvl: number) => ({
+    background: TIER_COLOR[eloLevel(lvl).tone],
+    opacity: active && active !== lvl ? 0.2 : 1,
+  });
 
   return (
     <nav aria-label="Filter by level" className="mb-10">
@@ -44,10 +49,18 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
             <li key={level}>
               <Link href={href(level)} aria-current={active === level ? "true" : undefined} className="group block">
                 <span className="time block text-xs text-center mb-1">{count.toLocaleString()}</span>
-                <span className="flex h-28 items-end">
+                <span className="flex h-28 flex-col justify-end">
+                  {/* the top tier is an ink bar capped in bib orange, like its badge */}
+                  {level === MAX_LEVEL && (
+                    <span
+                      aria-hidden
+                      className="block h-1 w-full shrink-0 bg-primary transition-opacity group-hover:!opacity-100"
+                      style={{ opacity: bar(level).opacity }}
+                    />
+                  )}
                   <span
-                    className={cn("w-full transition-colors group-hover:bg-primary", tone(level))}
-                    style={{ height: `${Math.max(3, (count / largest) * 100)}%` }}
+                    className="block w-full shrink-0 transition-opacity group-hover:!opacity-100"
+                    style={{ ...bar(level), height: `${Math.max(3, (count / largest) * 100)}%` }}
                   />
                 </span>
               </Link>
@@ -87,7 +100,7 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
               >
                 <span className={cn("text-sm", active === level && "text-primary font-semibold")}>{info.name}</span>
                 <span className="h-2 bg-muted">
-                  <span className={cn("block h-full", tone(level))} style={{ width: `${(count / largest) * 100}%` }} />
+                  <span className="block h-full" style={{ ...bar(level), width: `${Math.max(1, (count / largest) * 100)}%` }} />
                 </span>
                 <span className="time text-xs text-right">{count.toLocaleString()}</span>
               </Link>
@@ -96,6 +109,33 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
         })}
       </ol>
     </nav>
+  );
+}
+
+/**
+ * Under a tier's title: its badge, and the step below and above it, so the
+ * page shows the way up rather than only who is there.
+ */
+function TierLadder({ level }: { level: number }) {
+  const prev = level > 1 ? eloLevel(level - 1) : null;
+  const next = nextLevel(eloLevel(level).min, level);
+  return (
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+      <TierBadge level={level} size="md" />
+      {prev && (
+        <Link href={`/power-rankings?level=${level - 1}`} className="text-muted-foreground hover:text-foreground">
+          ← {prev.name}
+        </Link>
+      )}
+      {next ? (
+        <Link href={`/power-rankings?level=${next.level}`} className="hover:text-primary">
+          Next up: <span className="font-semibold">{next.name}</span>
+          <span className="time text-xs text-muted-foreground"> from {next.min.toLocaleString()} ELO</span> →
+        </Link>
+      ) : (
+        <span className="eyebrow !text-primary">Top of the ladder</span>
+      )}
+    </div>
   );
 }
 
@@ -128,7 +168,9 @@ export default async function PowerRankingsPage({
             {!level && ` The top ${CHALLENGER_CUTOFF.toLocaleString()} are Challengers.`}
           </span>
         }
-      />
+      >
+        {level && <TierLadder level={level} />}
+      </PageHeader>
 
       <LevelDistribution stats={eloStats} active={level} />
 
@@ -153,21 +195,29 @@ export default async function PowerRankingsPage({
                 <TableRow key={runner.id}>
                   <TableCell><Rank n={rank} /></TableCell>
                   <TableCell className="whitespace-normal">
-                    <Link href={`/runners/${runner.id}`} className="font-medium hover:text-primary">
+                    <Link
+                      href={`/runners/${runner.id}`}
+                      className={cn("hover:text-primary", (runner.elo_level ?? 1) >= MAX_LEVEL - 1 ? "font-semibold" : "font-medium")}
+                    >
                       {runner.full_name}
                     </Link>
                     {isChallenger && (
                       <span className="eyebrow !text-primary ml-2 hidden sm:inline">Challenger</span>
                     )}
+                    <TierBadge level={runner.elo_level} className="flex w-fit mt-1 sm:hidden" />
                   </TableCell>
                   <TableCell className="text-muted-foreground hidden md:table-cell">
                     <Place city={runner.city} country={runner.country} />
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell text-muted-foreground">
-                    <span className="time text-xs mr-1.5">L{runner.elo_level}</span>
-                    {eloLevel(runner.elo_level).name}
+                  <TableCell className="hidden sm:table-cell">
+                    <span className="time text-xs text-muted-foreground mr-2">L{runner.elo_level}</span>
+                    <TierBadge level={runner.elo_level} />
                   </TableCell>
-                  <TableCell className="time text-right font-semibold">{runner.elo_score ?? "—"}</TableCell>
+                  <TableCell
+                    className={cn("time text-right font-semibold", (runner.elo_level ?? 1) >= MAX_LEVEL - 1 && "text-primary")}
+                  >
+                    {runner.elo_score ?? "—"}
+                  </TableCell>
                 </TableRow>
               );
             })}
