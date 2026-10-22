@@ -59,7 +59,7 @@ export default async function AdminClaimsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Pending Claims</h1>
+        <h1 className="headline text-5xl">Pending claims</h1>
         <p className="text-muted-foreground text-sm mt-1">
           {(claims ?? []).length} claim{(claims ?? []).length !== 1 ? "s" : ""} awaiting review
         </p>
@@ -81,7 +81,7 @@ export default async function AdminClaimsPage() {
                   {/* Runner */}
                   <div className="flex items-start justify-between gap-4 flex-wrap">
                     <div>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Runner</p>
+                      <p className="eyebrow mb-1">Runner</p>
                       <Link
                         href={`/runners/${runner?.id}`}
                         className="font-semibold hover:underline text-lg"
@@ -112,7 +112,7 @@ export default async function AdminClaimsPage() {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-0.5">Trust score</p>
-                      <p className="font-bold text-[#22c55e]">{claim.trust_score_at_claim}</p>
+                      <p className="font-bold time text-positive">{claim.trust_score_at_claim}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-0.5">Strava</p>
@@ -144,7 +144,7 @@ export default async function AdminClaimsPage() {
                     <form action={async () => { "use server"; await approveClaimAction(claim.id); }}>
                       <button
                         type="submit"
-                        className="px-4 py-1.5 rounded-md text-sm font-medium bg-[#22c55e] text-white hover:opacity-90 transition-opacity"
+                        className="px-4 py-1.5 rounded-sm text-sm font-medium bg-positive text-white hover:opacity-90 transition-opacity"
                       >
                         Approve
                       </button>
@@ -152,7 +152,7 @@ export default async function AdminClaimsPage() {
                     <form action={async () => { "use server"; await rejectClaimAction(claim.id); }}>
                       <button
                         type="submit"
-                        className="px-4 py-1.5 rounded-md text-sm font-medium border hover:bg-muted transition-colors text-destructive border-destructive/30"
+                        className="px-4 py-1.5 rounded-sm text-sm font-medium border hover:bg-muted transition-colors text-destructive border-destructive/30"
                       >
                         Reject
                       </button>

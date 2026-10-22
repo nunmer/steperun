@@ -10,12 +10,12 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
   return (
     <div className="grid gap-8 md:grid-cols-[220px_1fr]">
       <aside className="md:sticky md:top-20 md:self-start">
-        <nav className="flex md:flex-col gap-1 text-sm">
+        <nav className="flex md:flex-col gap-x-5 text-sm border-b-2 border-rule md:border-b-0 md:border-t-2">
           {SECTIONS.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
-              className="px-3 py-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              className="py-2 md:border-b text-muted-foreground hover:text-foreground transition-colors"
             >
               {label}
             </Link>
@@ -25,8 +25,8 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
       <article
         className={[
           "max-w-3xl text-foreground leading-relaxed",
-          "[&_h1]:text-3xl [&_h1]:font-bold [&_h1]:tracking-tight [&_h1]:mt-0 [&_h1]:mb-2",
-          "[&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-10 [&_h2]:mb-3",
+          "[&_h1]:headline [&_h1]:text-5xl [&_h1]:mt-0 [&_h1]:mb-2",
+          "[&_h2]:headline [&_h2]:text-2xl [&_h2]:mt-10 [&_h2]:mb-3",
           "[&_p]:my-4 [&_p]:text-sm",
           "[&_ul]:my-4 [&_ul]:pl-6 [&_ul]:list-disc [&_ul]:text-sm [&_ul]:space-y-1.5",
           "[&_li]:marker:text-muted-foreground",

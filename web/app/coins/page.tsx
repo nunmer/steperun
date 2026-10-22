@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { getAuthUser } from "@/lib/supabase-server";
 import { COIN_REWARDS, getBalance, getCoinHistory } from "@/lib/services/coins";
-import { CoinBalance } from "@/components/coin-balance";
+import { PageHeader } from "@/components/sheet";
 import { CoinPacks } from "@/components/coin-packs";
 import { COIN_PACKS, COIN_ECONOMY, getPaddleClientConfig } from "@/lib/coins-config";
 
@@ -52,31 +52,33 @@ export default async function CoinsPage({
 
   return (
     <div className="space-y-10 max-w-4xl">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Coins</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Spend coins on AI Coach — {COIN_ECONOMY.ANALYSIS_COST} coins per analysis.
-            First {COIN_ECONOMY.FREE_ANALYSES} analyses are free.
-          </p>
-        </div>
-        <CoinBalance amount={balance} />
+      <div>
+        <PageHeader
+          title="Coins"
+          aside={
+            <span className="max-w-xs inline-block">
+              AI Coach costs {COIN_ECONOMY.ANALYSIS_COST} coins per analysis. Your first {COIN_ECONOMY.FREE_ANALYSES} are free.
+            </span>
+          }
+        />
+        <p className="eyebrow">Balance</p>
+        <p className="headline text-7xl tabular-nums mt-1">{balance.toLocaleString()}</p>
       </div>
 
       {purchase === "success" && (
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 p-4 text-sm">
+        <div className="border-l-4 border-positive bg-card p-4 text-sm">
           Payment received. Your coins will appear within a few seconds — refresh the page if you don&apos;t see them yet.
         </div>
       )}
 
       {!paymentsEnabled && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold">Earn coins</h2>
-          <ul className="rounded-lg border border-border divide-y divide-border text-sm">
+          <h2 className="headline text-3xl border-b-2 border-rule pb-2">Earn coins</h2>
+          <ul className="divide-y border-b text-sm">
             {EARN_WAYS.map((w) => (
-              <li key={w.label} className="flex items-center justify-between gap-4 px-4 py-3">
+              <li key={w.label} className="flex items-center justify-between gap-4 py-3">
                 <span>{w.label}</span>
-                <span className="font-mono tabular-nums font-semibold text-emerald-500 shrink-0">
+                <span className="time font-semibold text-positive shrink-0">
                   +{w.coins}{w.perEvent ? " / race" : ""}
                 </span>
               </li>
@@ -91,7 +93,7 @@ export default async function CoinsPage({
 
       {paymentsEnabled && (
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Buy coins</h2>
+        <h2 className="headline text-3xl border-b-2 border-rule pb-2">Buy coins</h2>
         <CoinPacks
           userId={user.id}
           userEmail={user.email ?? ""}
@@ -107,28 +109,28 @@ export default async function CoinsPage({
       )}
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Transaction history</h2>
+        <h2 className="headline text-3xl border-b-2 border-rule pb-2">History</h2>
         {history.length === 0 ? (
           <p className="text-sm text-muted-foreground">No transactions yet.</p>
         ) : (
-          <div className="rounded-lg border border-border overflow-hidden">
+          <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 text-muted-foreground text-xs uppercase">
-                <tr>
-                  <th className="text-left px-4 py-2">Date</th>
-                  <th className="text-left px-4 py-2">Reason</th>
-                  <th className="text-right px-4 py-2">Amount</th>
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 pr-4 eyebrow font-normal">Date</th>
+                  <th className="text-left py-2 pr-4 eyebrow font-normal">Reason</th>
+                  <th className="text-right py-2 eyebrow font-normal">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((h, i) => (
-                  <tr key={i} className="border-t border-border">
-                    <td className="px-4 py-2 text-muted-foreground">
+                  <tr key={i} className="border-b">
+                    <td className="py-2.5 pr-4 time text-xs text-muted-foreground">
                       {new Date(h.created_at).toLocaleString()}
                     </td>
-                    <td className="px-4 py-2">{REASON_LABELS[h.reason] ?? h.reason}</td>
-                    <td className={`px-4 py-2 text-right font-mono tabular-nums font-semibold ${
-                      h.amount > 0 ? "text-emerald-500" : "text-rose-500"
+                    <td className="py-2.5 pr-4">{REASON_LABELS[h.reason] ?? h.reason}</td>
+                    <td className={`py-2.5 text-right time font-semibold ${
+                      h.amount > 0 ? "text-positive" : "text-destructive"
                     }`}>
                       {h.amount > 0 ? "+" : ""}{h.amount}
                     </td>

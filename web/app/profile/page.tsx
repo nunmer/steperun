@@ -6,14 +6,13 @@ import { getAuthUser } from "@/lib/supabase-server";
 import { supabase } from "@/lib/supabase";
 import { getRunnerFull } from "@/lib/queries";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getBalance } from "@/lib/services/coins";
-import { EloCard, StatCard } from "@/components/elo-badge";
+import { RunnerStatLine, Monogram } from "@/components/runner-stats";
+import { PageHeader, Place } from "@/components/sheet";
 import { CoinBalance } from "@/components/coin-balance";
 import {
   getValidAccessToken,
@@ -72,75 +71,54 @@ export default async function ProfilePage({
       const { runner, results, cityRank, countryRank } = data;
 
       const history = [...results].sort((a, b) => {
-        const yearA = (a.events as any)?.year ?? 0;
-        const yearB = (b.events as any)?.year ?? 0;
-        return (yearB - yearA) || ((a.events as any)?.name?.localeCompare((b.events as any)?.name) ?? 0);
+        const yearA = a.events?.year ?? 0;
+        const yearB = b.events?.year ?? 0;
+        return (yearB - yearA) || (a.events?.name?.localeCompare(b.events?.name) ?? 0);
       });
 
       const eloRanks = { cityRank, countryRank };
 
       return (
         <div className="space-y-8">
-          {/* Header: avatar, name, badges, coins */}
-          <div className="flex items-start gap-4 sm:gap-6">
-            {user.user_metadata?.avatar_url ? (
-              <img
-                src={user.user_metadata.avatar_url}
-                alt={runner.full_name}
-                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover shrink-0"
-              />
-            ) : (
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted flex items-center justify-center text-xl sm:text-2xl font-bold text-muted-foreground shrink-0">
-                {runner.full_name[0]?.toUpperCase()}
+          <PageHeader
+            kicker="My profile"
+            title={
+              <span className="flex items-center gap-4">
+                <Monogram name={runner.full_name} src={user.user_metadata?.avatar_url} className="hidden sm:flex size-16" />
+                <span className="min-w-0">{runner.full_name}</span>
+              </span>
+            }
+            aside={
+              <div className="flex flex-col sm:items-end gap-2">
+                <span className="text-foreground"><Place city={runner.city} country={runner.country} /></span>
+                <div className="flex items-center gap-3">
+                  {claimStatus === "approved"
+                    ? <Link href={`/runners/${runner.id}`} className="text-xs underline underline-offset-4">Public page</Link>
+                    : <Badge variant="outline" className="text-xs text-muted-foreground">Claim pending review</Badge>
+                  }
+                  <CoinBalance amount={coins} />
+                </div>
               </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-2xl sm:text-3xl font-bold truncate">{runner.full_name}</h1>
-                <CoinBalance amount={coins} />
-              </div>
-              <div className="flex gap-2 mt-1 flex-wrap">
-                {runner.country && <Badge variant="secondary">{runner.country}</Badge>}
-                {runner.city && <Badge variant="outline">{runner.city}</Badge>}
-                {claimStatus === "approved"
-                  ? <Badge variant="secondary" className="text-xs">Claimed</Badge>
-                  : <Badge variant="outline" className="text-xs text-muted-foreground">Pending review</Badge>
-                }
-              </div>
-            </div>
-          </div>
+            }
+          />
 
-          {/* Quick stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {runner.elo_score && runner.elo_level && (
-              <EloCard
-                score={runner.elo_score}
-                level={runner.elo_level}
-                cityRank={eloRanks.cityRank}
-                countryRank={eloRanks.countryRank}
-                city={runner.city}
-                country={runner.country}
-              />
-            )}
-            <StatCard value={results.length} label="Races completed" />
-            <StatCard
-              value={new Set(results.map((r) => (r.events as any)?.year)).size}
-              label="Active seasons"
-            />
-            <StatCard
-              value={new Set(results.map((r) => r.distance_category)).size}
-              label="Distances run"
-            />
-          </div>
+          <RunnerStatLine
+            elo={runner.elo_score && runner.elo_level
+              ? { score: runner.elo_score, level: runner.elo_level, cityRank: eloRanks.cityRank, countryRank: eloRanks.countryRank }
+              : null}
+            city={runner.city}
+            country={runner.country}
+            races={results.length}
+            seasons={new Set(results.map((r) => r.events?.year)).size}
+            distances={new Set(results.map((r) => r.distance_category)).size}
+          />
 
-          <Separator />
 
-          <Tabs defaultValue={stravaStatus === "connected" ? "trainings" : "races"}>
-            <TabsList className="w-full sm:w-fit">
-              <TabsTrigger value="races" className="gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
-                Official Races
-                <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">{results.length}</Badge>
+          <Tabs className="mt-10" defaultValue={stravaStatus === "connected" ? "trainings" : "races"}>
+            <TabsList>
+              <TabsTrigger value="races">
+                Official races
+                <span className="time text-xs text-muted-foreground">{results.length}</span>
               </TabsTrigger>
               <TabsTrigger value="trainings" className="gap-2">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0" fill="#FC4C02">
@@ -148,16 +126,14 @@ export default async function ProfilePage({
                 </svg>
                 Trainings
                 {stravaToken && (
-                  <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">
-                    {stravaActivities.filter(isRun).length}
-                  </Badge>
+                  <span className="time text-xs text-muted-foreground">{stravaActivities.filter(isRun).length}</span>
                 )}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="races" className="mt-4">
-              <div className="rounded-lg border overflow-hidden">
-                <div className="max-h-[640px] overflow-y-auto">
+              <div>
+                <div>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -169,20 +145,18 @@ export default async function ProfilePage({
                     </TableHeader>
                     <TableBody>
                       {history.map((r, i) => {
-                        const event = r.events as any;
+                        const event = r.events;
                         return (
                           <TableRow key={i}>
-                            <TableCell className="font-medium">
-                              <Link href={`/events/${event?.slug}`} className="hover:underline">
+                            <TableCell className="font-medium whitespace-normal">
+                              <Link href={`/events/${event?.slug}`} className="hover:text-primary">
                                 {event?.name}
                               </Link>
                               <div className="text-xs text-muted-foreground">{event?.year}</div>
                             </TableCell>
-                            <TableCell>
-                              <Badge variant="secondary" className="text-xs">{r.distance_category}</Badge>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground">{r.place ? `#${r.place}` : "—"}</TableCell>
-                            <TableCell className="font-mono tabular-nums text-sm">{r.chip_time ?? r.finish_time ?? "—"}</TableCell>
+                            <TableCell className="text-muted-foreground">{r.distance_category}</TableCell>
+                            <TableCell className="time text-sm text-muted-foreground">{r.place ? r.place.toLocaleString() : "—"}</TableCell>
+                            <TableCell className="time text-sm">{r.chip_time ?? r.finish_time ?? "—"}</TableCell>
                           </TableRow>
                         );
                       })}
@@ -207,39 +181,36 @@ export default async function ProfilePage({
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start gap-4 sm:gap-6">
-        {avatar ? (
-          <img
-            src={avatar}
-            alt={name ?? "Profile"}
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover shrink-0"
-          />
-        ) : (
-          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-muted flex items-center justify-center text-xl sm:text-2xl font-bold text-muted-foreground shrink-0">
-            {name?.[0]?.toUpperCase() ?? "?"}
-          </div>
-        )}
-        <div className="min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-bold">{name ?? "Runner"}</h1>
+      <PageHeader
+        kicker="My profile"
+        title={
+          <span className="flex items-center gap-4">
+            <Monogram name={name ?? "Runner"} src={avatar} className="hidden sm:flex size-16" />
+            <span className="min-w-0">{name ?? "Runner"}</span>
+          </span>
+        }
+        aside={
+          <div className="flex flex-col sm:items-end gap-2">
+            <span>{user.email}</span>
             {coins > 0 && <CoinBalance amount={coins} />}
           </div>
-          <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
+        }
+      />
+
+      <div className="border-2 border-rule p-4 sm:p-5 bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <p className="headline text-2xl">Claim your race history</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Find your name among the results and claim it. Your finishes, PBs and power score then live here.
+          </p>
         </div>
+        <Link href="/runners" className="h-10 px-4 shrink-0 inline-flex items-center rounded-sm bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90">
+          Find my name →
+        </Link>
       </div>
 
       <TrainingTab stravaToken={stravaToken} stravaStatus={stravaStatus} activities={stravaActivities} />
 
-      <Card>
-        <CardContent className="pt-6 pb-6 flex flex-col gap-3">
-          <p className="text-sm text-muted-foreground">
-            You haven&apos;t claimed a runner profile yet. Find your name in our database and claim your race history.
-          </p>
-          <Link href="/runners" className="text-sm font-medium underline hover:text-foreground w-fit">
-            Find your profile →
-          </Link>
-        </CardContent>
-      </Card>
     </div>
   );
 }

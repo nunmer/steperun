@@ -201,8 +201,8 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
 
 function SectionHeading({ label }: { label: string; pro?: boolean }) {
   return (
-    <div className="flex items-center gap-2">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{label}</h3>
+    <div className="border-b-2 border-rule pb-1.5">
+      <h3 className="headline text-2xl">{label}</h3>
     </div>
   );
 }
@@ -216,7 +216,7 @@ function StravaHeader({
   return (
     <>
       {stravaStatus === "connected" && (
-        <div className="rounded-md bg-green-500/10 border border-green-500/30 px-3 py-2 text-sm text-green-600">
+        <div className="border-l-4 border-positive bg-card px-3 py-2 text-sm">
           Strava connected! +20 coins earned.
         </div>
       )}
@@ -239,7 +239,7 @@ function ConnectPrompt({ stravaStatus }: { stravaStatus?: string }) {
     <Card>
       <CardContent className="pt-8 pb-8 text-center space-y-4">
         {stravaStatus === "denied" && (
-          <div className="rounded-md bg-red-500/10 border border-red-500/30 px-3 py-2 text-sm text-red-500">
+          <div className="border-l-4 border-destructive bg-card px-3 py-2 text-sm text-destructive">
             Strava connection was denied.
           </div>
         )}
@@ -254,7 +254,7 @@ function ConnectPrompt({ stravaStatus }: { stravaStatus?: string }) {
         </div>
         <Link
           href="/api/auth/strava/connect"
-          className="inline-block px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-[#FC4C02] hover:bg-[#e04400] transition-colors"
+          className="inline-block h-10 leading-10 px-4 rounded-sm text-sm font-semibold text-white bg-[#FC4C02] hover:bg-[#e04400] transition-colors"
         >
           Connect Strava
         </Link>
@@ -270,10 +270,10 @@ function ConnectPrompt({ stravaStatus }: { stravaStatus?: string }) {
 function FormCards({ load }: { load: TrainingLoadSummary }) {
   const form = formInterpretation(load.tsb);
   const formColor =
-    form.tone === "fresh"        ? "text-green-500" :
-    form.tone === "detrained"    ? "text-blue-400" :
-    form.tone === "tired"        ? "text-amber-500" :
-    form.tone === "overreaching" ? "text-red-500" :
+    form.tone === "fresh"        ? "text-positive" :
+    form.tone === "detrained"    ? "text-chart-4" :
+    form.tone === "tired"        ? "text-caution" :
+    form.tone === "overreaching" ? "text-destructive" :
                                     "text-foreground";
 
   return (
@@ -283,7 +283,7 @@ function FormCards({ load }: { load: TrainingLoadSummary }) {
           big={load.ctl.toFixed(1)}
           label="Fitness (CTL)"
           sub={`${load.ramp7 >= 0 ? "+" : ""}${load.ramp7.toFixed(1)} 7d`}
-          subColor={load.ramp7 > 3 ? "text-red-500" : load.ramp7 >= 0 ? "text-green-500" : "text-amber-500"}
+          subColor={load.ramp7 > 3 ? "text-destructive" : load.ramp7 >= 0 ? "text-positive" : "text-caution"}
         />
         <Stat
           big={load.atl.toFixed(1)}
@@ -298,12 +298,12 @@ function FormCards({ load }: { load: TrainingLoadSummary }) {
           subColor={formColor}
         />
       </div>
-      <div className="rounded-md border px-3 py-2 text-xs text-muted-foreground flex items-start gap-2">
-        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-          form.tone === "fresh" ? "bg-green-500" :
-          form.tone === "tired" ? "bg-amber-500" :
-          form.tone === "overreaching" ? "bg-red-500" :
-          form.tone === "detrained" ? "bg-blue-400" : "bg-muted-foreground"
+      <div className="border-l-2 border-rule pl-3 py-1 text-xs text-muted-foreground flex items-start gap-2">
+        <span className={`size-1.5 mt-1.5 shrink-0 ${
+          form.tone === "fresh" ? "bg-positive" :
+          form.tone === "tired" ? "bg-caution" :
+          form.tone === "overreaching" ? "bg-destructive" :
+          form.tone === "detrained" ? "bg-chart-4" : "bg-muted-foreground"
         }`} />
         <span>{form.hint}</span>
       </div>
@@ -321,7 +321,7 @@ function Stat({
   subColor?: string;
 }) {
   return (
-    <div className="rounded-lg border p-3">
+    <div className="border-t border-rule pt-2">
       <div className={`text-2xl font-bold tabular-nums ${bigColor ?? ""}`}>{big}</div>
       <div className="text-[11px] text-muted-foreground uppercase tracking-wider mt-0.5">{label}</div>
       {sub && <div className={`text-[11px] tabular-nums mt-1 ${subColor ?? "text-muted-foreground"}`}>{sub}</div>}
@@ -396,13 +396,13 @@ function PerformanceChart({ daily }: { daily: TrainingLoadSummary["daily"] }) {
         ))}
 
         {/* Fitness vs Fatigue area (form proxy) */}
-        <path d={areaAbove} className="fill-green-500/10" />
+        <path d={areaAbove} className="fill-chart-3/20" />
 
         {/* ATL line (fatigue — red) */}
-        <path d={pathAtl} fill="none" stroke="#ef4444" strokeWidth="1.5" opacity="0.9" />
+        <path d={pathAtl} fill="none" className="stroke-primary" strokeWidth="1.5" />
 
         {/* CTL line (fitness — blue) */}
-        <path d={pathCtl} fill="none" stroke="#3b82f6" strokeWidth="2" />
+        <path d={pathCtl} fill="none" className="stroke-chart-4" strokeWidth="2" />
 
         {/* X-axis date labels */}
         <text x={padL} y={H - 6} fontSize="9" className="fill-muted-foreground font-mono">
@@ -422,9 +422,9 @@ function PerformanceChart({ daily }: { daily: TrainingLoadSummary["daily"] }) {
 function PerformanceLegend() {
   return (
     <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
-      <LegendDot color="#3b82f6" label="Fitness (CTL)" />
-      <LegendDot color="#ef4444" label="Fatigue (ATL)" />
-      <LegendDot color="#22c55e33" label="Form (area = fitness − fatigue)" />
+      <LegendDot color="var(--chart-4)" label="Fitness (CTL)" />
+      <LegendDot color="var(--primary)" label="Fatigue (ATL)" />
+      <LegendDot color="color-mix(in oklch, var(--chart-3) 30%, transparent)" label="Form (area = fitness − fatigue)" />
       <LegendDot color="currentColor" className="opacity-25" label="Daily load" />
     </div>
   );
@@ -463,7 +463,7 @@ function WeeklyChart({ buckets }: { buckets: WeeklyBucket[] }) {
             <div key={b.weekStart} className="flex-1 flex flex-col items-center justify-end gap-1 group relative">
               <div
                 className={`w-full rounded-t-sm transition-all ${
-                  isCurrent ? "bg-[#FC4C02]" : "bg-[#22c55e]/70 group-hover:bg-[#22c55e]"
+                  isCurrent ? "bg-primary" : "bg-foreground/60 group-hover:bg-foreground"
                 }`}
                 style={{ height: `${Math.max(2, h)}%` }}
               />
@@ -510,7 +510,7 @@ function MiniStat({
   value, unit, label, delta,
 }: { value: string; unit?: string; label: string; delta?: string }) {
   return (
-    <div className="rounded-md bg-muted/30 px-3 py-2">
+    <div className="border-t pt-2">
       <div className="flex items-baseline gap-1">
         <span className="text-lg font-semibold tabular-nums">{value}</span>
         {unit && <span className="text-[11px] text-muted-foreground">{unit}</span>}
@@ -518,7 +518,7 @@ function MiniStat({
       <div className="text-[11px] text-muted-foreground">{label}</div>
       {delta && (
         <div className={`text-[10px] tabular-nums mt-0.5 ${
-          delta.startsWith("+") ? "text-green-500" : "text-red-500"
+          delta.startsWith("+") ? "text-positive" : "text-destructive"
         }`}>
           {delta} vs last
         </div>
@@ -540,9 +540,9 @@ function MonthlyTable({ buckets }: { buckets: MonthlyBucket[] }) {
         return (
           <div key={b.key} className="flex items-center gap-3 py-1">
             <div className="w-10 text-xs font-medium tabular-nums">{b.label}</div>
-            <div className="flex-1 relative h-5 rounded bg-muted/40 overflow-hidden">
+            <div className="flex-1 relative h-5 bg-muted overflow-hidden">
               <div
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#22c55e]/70 to-[#22c55e] rounded"
+                className="absolute inset-y-0 left-0 bg-foreground/70"
                 style={{ width: `${Math.max(1, pct)}%` }}
               />
               <span className="absolute inset-0 flex items-center px-2 text-[11px] font-mono tabular-nums text-foreground/90">
@@ -575,9 +575,9 @@ function DayOfWeekChart({ dow }: { dow: DowBucket[] }) {
         return (
           <div key={d.dow} className="flex items-center gap-3">
             <div className="w-9 text-xs font-medium">{d.label}</div>
-            <div className="flex-1 h-3 rounded bg-muted/40 overflow-hidden">
+            <div className="flex-1 h-3 bg-muted overflow-hidden">
               <div
-                className="h-full rounded bg-sky-500/80"
+                className="h-full bg-chart-4"
                 style={{ width: `${Math.max(1, pct)}%` }}
               />
             </div>
@@ -645,7 +645,7 @@ function PaceTrendChart({ points }: { points: PaceTrendPoint[] }) {
           <text x={padL - 4} y={y(pMax) + 3} fontSize="9" textAnchor="end" className="fill-muted-foreground font-mono">
             {formatPace(pMax).replace(" /km", "")}
           </text>
-          <path d={path} fill="none" stroke="#8b5cf6" strokeWidth="2" />
+          <path d={path} fill="none" className="stroke-foreground" strokeWidth="2" />
           {points.map((p, i) =>
             p.avgPace !== null ? (
               <circle key={i} cx={x(i)} cy={y(p.avgPace)} r="2.5" className="fill-violet-500" />
@@ -655,7 +655,7 @@ function PaceTrendChart({ points }: { points: PaceTrendPoint[] }) {
       </div>
       <div className="flex justify-between text-[11px] mt-1">
         <span className="text-muted-foreground font-mono">12 wk ago</span>
-        <span className={`font-mono tabular-nums ${delta < 0 ? "text-green-500" : delta > 0 ? "text-amber-500" : "text-muted-foreground"}`}>
+        <span className={`font-mono tabular-nums ${delta < 0 ? "text-positive" : delta > 0 ? "text-caution" : "text-muted-foreground"}`}>
           {delta < 0 ? "−" : "+"}{Math.abs(delta).toFixed(0)}s/km overall
         </span>
         <span className="text-muted-foreground font-mono">best {formatPace(best).replace(" /km", "")}</span>
@@ -673,14 +673,14 @@ function RunTypeMixBar({ mix }: { mix: RunTypeMix }) {
     return <p className="text-xs text-muted-foreground">No runs in the last 4 weeks.</p>;
   }
   const cats = [
-    { key: "easy",    label: "Easy",    value: mix.easy,    color: "bg-sky-400" },
-    { key: "steady",  label: "Steady",  value: mix.steady,  color: "bg-green-500" },
-    { key: "tempo",   label: "Tempo",   value: mix.tempo,   color: "bg-amber-500" },
-    { key: "workout", label: "Workout", value: mix.workout, color: "bg-red-500" },
+    { key: "easy",    label: "Easy",    value: mix.easy,    color: "bg-chart-4" },
+    { key: "steady",  label: "Steady",  value: mix.steady,  color: "bg-chart-3" },
+    { key: "tempo",   label: "Tempo",   value: mix.tempo,   color: "bg-chart-2" },
+    { key: "workout", label: "Workout", value: mix.workout, color: "bg-primary" },
   ];
   return (
     <div className="space-y-3">
-      <div className="flex h-6 rounded-md overflow-hidden border">
+      <div className="flex h-6 overflow-hidden">
         {cats.map((c) =>
           c.value > 0 ? (
             <div
@@ -728,7 +728,7 @@ function DistanceHistogram({ bands }: { bands: DistanceBand[] }) {
             <div key={b.label} className="flex-1 flex flex-col items-center gap-1 group relative">
               <div className="w-full h-full flex flex-col justify-end">
                 <div
-                  className="w-full rounded-t-sm bg-indigo-500/70 group-hover:bg-indigo-500 transition-colors"
+                  className="w-full bg-foreground/60 group-hover:bg-primary transition-colors"
                   style={{ height: `${Math.max(2, h)}%` }}
                 />
               </div>
@@ -786,11 +786,11 @@ function ElevationCard({ elev }: { elev: ElevationSummary }) {
 // ---------------------------------------------------------------------------
 
 function HrZonesBar({ zones }: { zones: HrZone[] }) {
-  const colors = ["bg-sky-400", "bg-green-400", "bg-amber-400", "bg-orange-500", "bg-red-500"];
+  const colors = ["bg-chart-4", "bg-chart-3", "bg-chart-2", "bg-chart-5", "bg-primary"];
   const labels = ["Recovery", "Endurance", "Tempo", "Threshold", "VO\u2082max"];
   return (
     <div className="space-y-3">
-      <div className="flex h-6 rounded-md overflow-hidden border">
+      <div className="flex h-6 overflow-hidden">
         {zones.map((z, i) => (
           <div
             key={z.zone}
@@ -860,7 +860,7 @@ function PredictedRaces({ races }: { races: PredictedRace[] }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {races.map((r) => (
-        <div key={r.label} className="rounded-lg border p-3">
+        <div key={r.label} className="border-t border-rule pt-2">
           <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{r.label}</div>
           <div className="text-xl font-bold tabular-nums mt-1 font-mono">
             {formatRaceTime(r.seconds)}
@@ -900,7 +900,7 @@ function RunsList({ runs }: { runs: StravaActivity[] }) {
         const pace = a.moving_time > 0 ? a.moving_time / (a.distance / 1000) : null;
         const isTrail = a.type === "TrailRun";
         return (
-          <div key={a.id} className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors">
+          <div key={a.id} className="flex items-center gap-3 py-2 border-b hover:bg-muted/50 transition-colors">
             <span className="text-lg shrink-0">{isTrail ? "\u26F0\uFE0F" : "\uD83C\uDFC3"}</span>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium truncate">{a.name ?? (isTrail ? "Trail Run" : "Run")}</div>

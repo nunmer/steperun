@@ -6,7 +6,8 @@ claiming, a coin economy and an AI run-technique analyzer.
 
 Deeper docs: `docs/ARCHITECTURE.md` (how it fits together), `docs/DEPLOYMENT.md`
 (hosting + runbooks), `docs/SCRAPER.md`, `docs/DB_MANAGEMENT.md`,
-`docs/TODO.md` (open items), `docs/CHANGELOG.md`.
+`docs/TODO.md` (open items), `docs/CHANGELOG.md`, `docs/DESIGN.md` (visual
+language: tokens, type, page building blocks; follow it for any UI change).
 
 ## Layout
 

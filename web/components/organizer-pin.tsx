@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 
-// Dot colour per organizer; unknown organizers fall back to a neutral dot.
-const ORGANIZER_DOT: Record<string, string> = {
-  "Almaty Marathon": "bg-sky-500",
-  Athletex: "bg-rose-500",
+// A small square per timing source; unknown organizers fall back to neutral.
+const ORGANIZER_MARK: Record<string, string> = {
+  "Almaty Marathon": "bg-chart-4",
+  Athletex: "bg-chart-2",
 };
 
 export function OrganizerPin({
@@ -16,17 +16,10 @@ export function OrganizerPin({
   if (!organizer) return null;
   return (
     <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-2 py-0.5",
-        "text-[11px] font-medium text-muted-foreground backdrop-blur-sm",
-        className,
-      )}
-      title={`Organizer: ${organizer}`}
+      className={cn("inline-flex items-center gap-1.5 text-xs text-muted-foreground", className)}
+      title={`Timing: ${organizer}`}
     >
-      <span
-        aria-hidden
-        className={cn("size-1.5 rounded-full", ORGANIZER_DOT[organizer] ?? "bg-muted-foreground")}
-      />
+      <span aria-hidden className={cn("size-2 shrink-0", ORGANIZER_MARK[organizer] ?? "bg-muted-foreground")} />
       {organizer}
     </span>
   );

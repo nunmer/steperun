@@ -63,11 +63,11 @@ export function RunnerSearch({
   if (selectedRunner) {
     return (
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <p className="eyebrow">
           {label}
         </p>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold text-muted-foreground shrink-0">
+          <div className="size-12 bg-foreground text-background headline text-2xl flex items-center justify-center shrink-0">
             {selectedRunner.full_name[0]?.toUpperCase()}
           </div>
           <div className="min-w-0">
@@ -92,7 +92,7 @@ export function RunnerSearch({
 
   return (
     <div className="space-y-2" ref={containerRef}>
-      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      <p className="eyebrow">
         {label}
       </p>
       <div className="relative">
@@ -106,7 +106,7 @@ export function RunnerSearch({
           <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
         )}
         {open && results.length > 0 && (
-          <ul className="absolute z-50 top-full mt-1 w-full bg-popover border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          <ul className="absolute z-50 top-full mt-1 w-full bg-popover border border-rule rounded-sm max-h-60 overflow-y-auto">
             {results.map((r) => (
               <li key={r.id}>
                 <button
@@ -117,7 +117,7 @@ export function RunnerSearch({
                     setQuery("");
                   }}
                 >
-                  <span className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">
+                  <span className="size-7 bg-muted flex items-center justify-center text-xs font-semibold shrink-0">
                     {r.full_name[0]?.toUpperCase()}
                   </span>
                   <span className="truncate font-medium">{r.full_name}</span>
@@ -130,7 +130,7 @@ export function RunnerSearch({
           </ul>
         )}
         {open && results.length === 0 && !loading && query.length >= 2 && (
-          <div className="absolute z-50 top-full mt-1 w-full bg-popover border rounded-lg shadow-lg p-3 text-sm text-muted-foreground text-center">
+          <div className="absolute z-50 top-full mt-1 w-full bg-popover border border-rule rounded-sm p-3 text-sm text-muted-foreground text-center">
             No runners found
           </div>
         )}
