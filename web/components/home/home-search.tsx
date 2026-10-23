@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 const TYPE_MS = 70;
 const ERASE_MS = 35;
@@ -12,6 +13,7 @@ const HOLD_MS = 1400;
  * field is focused or has text, and never runs under reduced motion.
  */
 export function HomeSearch({ names }: { names: string[] }) {
+  const t = useTranslations("home.search");
   const [hint, setHint] = useState("");
   const [paused, setPaused] = useState(false);
 
@@ -51,8 +53,8 @@ export function HomeSearch({ names }: { names: string[] }) {
 
   return (
     <form action="/runners" className="border-2 border-rule p-4 sm:p-5 bg-card">
-      <label htmlFor="home-q" className="headline text-3xl block">Find your results</label>
-      <p className="text-sm text-muted-foreground mt-1">Latin or Cyrillic, any word order.</p>
+      <label htmlFor="home-q" className="headline text-3xl block">{t("label")}</label>
+      <p className="text-sm text-muted-foreground mt-1">{t("hint")}</p>
       <div className="mt-4 flex gap-2">
         <div className="relative min-w-0 flex-1">
           <input
@@ -60,7 +62,7 @@ export function HomeSearch({ names }: { names: string[] }) {
             name="q"
             required
             minLength={2}
-            placeholder={paused ? "Name and surname" : ""}
+            placeholder={paused ? t("placeholder") : ""}
             onFocus={() => setPaused(true)}
             className="h-11 w-full rounded-sm border border-input bg-background px-3 text-base outline-none focus:border-foreground"
           />
@@ -69,13 +71,13 @@ export function HomeSearch({ names }: { names: string[] }) {
               aria-hidden
               className="pointer-events-none absolute inset-y-0 left-3 right-3 flex items-center text-base text-muted-foreground truncate"
             >
-              {hint || "Name and surname"}
+              {hint || t("placeholder")}
               {hint && <span className="caret ml-px inline-block h-5 w-[2px] bg-primary" />}
             </span>
           )}
         </div>
         <button className="h-11 px-4 rounded-sm bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">
-          Search
+          {t("submit")}
         </button>
       </div>
     </form>

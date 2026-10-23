@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getAuthUser } from "@/lib/supabase-server";
 import { verifyStravaState, exchangeCode } from "@/lib/services/strava";
 import { logAudit } from "@/lib/services/audit";
+import { clientIp } from "@/lib/client-ip";
 import { awardCoins, COIN_REWARDS } from "@/lib/services/coins";
 
 export async function GET(request: NextRequest) {
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
   await logAudit({
     event_type: "strava_connected",
     user_id:    user.id,
-    ip_address: request.headers.get("x-forwarded-for") ?? undefined,
+    ip_address: clientIp(request.headers),
     payload:    { athlete_id: tokens.athlete.id },
   });
 

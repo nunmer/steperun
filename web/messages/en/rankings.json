@@ -1,0 +1,35 @@
+{
+  "list": {
+    "title": "Rankings",
+    "fullList": "Full list →",
+    "colRunner": "Runner",
+    "colFrom": "From",
+    "colRace": "Race",
+    "colChip": "Chip",
+    "asideDefault": "Best chip time per runner",
+    "emptySeason": "No results for this season.",
+    "emptyDistance": "No results for this distance.",
+    "runnersSeason": "<n>{count, number}</n> {count, plural, one {runner} other {runners}} · {season}",
+    "runnersAllTime": "<n>{count, number}</n> {count, plural, one {runner} other {runners}} · all-time",
+    "filterDistance": "Distance",
+    "overview": "Overview",
+    "filterSeason": "Season",
+    "allTime": "All-time"
+  },
+  "power": {
+    "title": "Power rankings",
+    "filterAria": "Filter by level",
+    "perLevel": "Runners per level. Select a bar to filter.",
+    "clear": "Clear ×",
+    "nextUp": "Next up: <b>{name}</b><m> from {min, number} ELO</m> →",
+    "topLadder": "Top of the ladder",
+    "kicker": "Power rankings · Level {level} · ELO {range}",
+    "aside": "Power score from best times, podiums, consistency, range and seasons.",
+    "asideTop": " The top {n, number} are Challengers.",
+    "empty": "No runners at this level.",
+    "colRunner": "Runner",
+    "colFrom": "From",
+    "colLevel": "Level",
+    "runners": "{count, number} {count, plural, one {runner} other {runners}}"
+  }
+}

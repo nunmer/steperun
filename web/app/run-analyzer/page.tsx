@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { CoinBalance } from "@/components/coin-balance";
 import { COIN_ECONOMY } from "@/lib/coins-config";
+import { formatDate } from "@/lib/format";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -77,17 +79,10 @@ const PHASE_FALLBACK: Record<string, string> = {
   "Overall Efficiency": "mid_stance",
 };
 
-const EXTRACT_WORDS = [
-  "initializing", "scanning", "detecting", "mapping",
-  "analyzing", "processing", "extracting", "finishing",
-];
-const ANALYZE_WORDS = [
-  "thinking", "observing", "measuring", "comparing",
-  "evaluating", "diagnosing", "crafting", "polishing",
-];
-
 const RATING_COLOR = { good: "#4f9a6a", warning: "#cf9a2e", bad: "#cf4f35" };
 const RATING_ICON = { good: "\u2713", warning: "\u26A0", bad: "\u2717" };
+const STATUSES = ["extracting", "extracted", "analyzing", "done", "error"] as const;
+const PHASES = ["foot_strike", "mid_stance", "toe_off", "flight", "unknown"] as const;
 
 const MOTION_INTERVAL = 300; // ms between motion frames
 const ANALYSIS_INTERVAL = 700; // ms between frames in analysis zone (slow)
@@ -148,6 +143,13 @@ function buildFrameToSectionMap(frames: Frame[], analysis: Analysis): Map<number
   return map;
 }
 
+/** Localized phase label; an unknown phase from the analyzer shows as-is. */
+function usePhaseLabel() {
+  const t = useTranslations("analyzer.phase");
+  return (phase: string) =>
+    (PHASES as readonly string[]).includes(phase) ? t(phase as (typeof PHASES)[number]) : phase.replace(/_/g, " ");
+}
+
 function scoreColor(score: number) {
   return score >= 75 ? RATING_COLOR.good : score >= 50 ? RATING_COLOR.warning : RATING_COLOR.bad;
 }
@@ -157,6 +159,8 @@ function scoreColor(score: number) {
 /* ------------------------------------------------------------------ */
 
 export default function RunAnalyzerPage() {
+  const t = useTranslations("analyzer");
+  const locale = useLocale();
   const supabase = createSupabaseBrowserClient();
 
   const [user, setUser] = useState<User | null>(null);
@@ -281,7 +285,7 @@ export default function RunAnalyzerPage() {
       body: JSON.stringify({ title: file.name.replace(/\.\w+$/, "") }),
     });
     if (!sessionRes.ok) {
-      setError((await sessionRes.json()).error || "Failed to create session");
+      setError((await sessionRes.json()).error || t("errors.createSession"));
       setLoading(false);
       return;
     }
@@ -295,7 +299,7 @@ export default function RunAnalyzerPage() {
       body: JSON.stringify({ session_id: session.id, filename: file.name, size: file.size, type: file.type }),
     });
     if (!urlRes.ok) {
-      setError((await urlRes.json()).error || "Upload failed");
+      setError((await urlRes.json()).error || t("errors.upload"));
       setLoading(false);
       return;
     }
@@ -304,7 +308,7 @@ export default function RunAnalyzerPage() {
       .from("run-videos")
       .uploadToSignedUrl(path, token, file, { contentType: file.type || "video/mp4" });
     if (uploadErr) {
-      setError(`Upload failed: ${uploadErr.message}`);
+      setError(t("errors.uploadWith", { message: uploadErr.message }));
       setLoading(false);
       return;
     }
@@ -316,7 +320,7 @@ export default function RunAnalyzerPage() {
     });
     setLoading(false);
     if (!extractRes.ok) {
-      setError((await extractRes.json()).error || "Extraction failed");
+      setError((await extractRes.json()).error || t("errors.extract"));
       return;
     }
     const data = await extractRes.json();
@@ -340,9 +344,9 @@ export default function RunAnalyzerPage() {
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       if (body.code === "INSUFFICIENT_COINS") {
-        setError(`Not enough coins (have ${body.balance}, need ${body.cost}). Get more on the Coins page.`);
+        setError(t("errors.insufficient", { balance: body.balance, cost: body.cost }));
       } else {
-        setError(body.error || "Analysis failed");
+        setError(body.error || t("errors.analyze"));
       }
       loadSessions();
       return;
@@ -381,15 +385,11 @@ export default function RunAnalyzerPage() {
     return (
       <div className="max-w-3xl">
         <header className="border-b-2 border-rule pb-4 mb-8">
-          <p className="eyebrow mb-2">AI Coach</p>
-          <h1 className="headline text-5xl sm:text-7xl">Check your running form from one video</h1>
+          <p className="eyebrow mb-2">{t("eyebrow")}</p>
+          <h1 className="headline text-5xl sm:text-7xl">{t("gate.title")}</h1>
         </header>
         <ol className="divide-y border-b">
-          {[
-            ["Film", "A few seconds of you running past the camera, filmed side-on."],
-            ["Frames", "We pull out the key moments of your stride and map your joints."],
-            ["Feedback", "Foot strike, cadence, posture, arms, hips and knee drive, each rated, plus what to fix first."],
-          ].map(([title, text], i) => (
+          {(["film", "frames", "feedback"] as const).map((key) => [t(`gate.steps.${key}.title`), t(`gate.steps.${key}.text`)]).map(([title, text], i) => (
             <li key={title} className="grid grid-cols-[2.5rem_7rem_1fr] max-sm:grid-cols-[2rem_1fr] gap-x-4 py-4 items-baseline">
               <span className="time text-sm text-primary">0{i + 1}</span>
               <span className="headline text-2xl">{title}</span>
@@ -399,10 +399,10 @@ export default function RunAnalyzerPage() {
         </ol>
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <button onClick={signIn} className="h-11 px-5 rounded-sm bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors">
-            Sign in with Google to start
+            {t("gate.signIn")}
           </button>
           <p className="text-sm text-muted-foreground">
-            First {COIN_ECONOMY.FREE_ANALYSES} analyses free, then {COIN_ECONOMY.ANALYSIS_COST} coins each.
+            {t("gate.pricing", { free: COIN_ECONOMY.FREE_ANALYSES, cost: COIN_ECONOMY.ANALYSIS_COST })}
           </p>
         </div>
       </div>
@@ -420,14 +420,14 @@ export default function RunAnalyzerPage() {
         <div className="w-72 p-4 flex flex-col h-full">
           <div className="flex items-center justify-between mb-4">
             <button onClick={startNew} className="flex-1 mr-2 h-10 rounded-sm font-semibold text-sm bg-foreground text-background hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-              <Plus size={14} /> New Analysis
+              <Plus size={14} /> {t("newAnalysis")}
             </button>
-            <button onClick={() => setSidebarOpen(false)} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Close sidebar">
+            <button onClick={() => setSidebarOpen(false)} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title={t("closeSidebar")}>
               <PanelLeftClose size={18} />
             </button>
           </div>
           <QuotaPanel quota={quota} />
-          <div className="eyebrow mb-2 border-b border-rule pb-1">Sessions</div>
+          <div className="eyebrow mb-2 border-b border-rule pb-1">{t("sessions")}</div>
           <div className="flex-1 overflow-y-auto space-y-1">
             {sessions.map((s) => (
               <button
@@ -438,10 +438,10 @@ export default function RunAnalyzerPage() {
                 <div className="font-semibold text-foreground truncate">{s.title}</div>
                 <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                   <StatusDot status={s.status} />
-                  <span>{s.status}</span>
+                  <span>{(STATUSES as readonly string[]).includes(s.status) ? t(`status.${s.status as (typeof STATUSES)[number]}`) : s.status}</span>
                   {s.overall_score != null && <span className="ml-auto time font-semibold" style={{ color: scoreColor(s.overall_score) }}>{s.overall_score}</span>}
                 </div>
-                <div className="time text-[11px] text-muted-foreground mt-1">{new Date(s.created_at).toLocaleDateString()}</div>
+                <div className="time text-[11px] text-muted-foreground mt-1">{formatDate(s.created_at, locale, { day: true, month: "short", year: "numeric", timeZone: "Asia/Almaty" })}</div>
               </button>
             ))}
           </div>
@@ -452,15 +452,15 @@ export default function RunAnalyzerPage() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-3xl mx-auto px-4 py-8">
           {!sidebarOpen && (
-            <button onClick={() => setSidebarOpen(true)} className="mb-4 p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Open sidebar">
+            <button onClick={() => setSidebarOpen(true)} className="mb-4 p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title={t("openSidebar")}>
               <PanelLeftOpen size={18} />
             </button>
           )}
 
           {/* Header */}
           <header className="border-b-2 border-rule pb-3 mb-8">
-            <p className="eyebrow mb-1">AI Coach</p>
-            <h1 className="headline text-4xl sm:text-5xl">Running form analysis</h1>
+            <p className="eyebrow mb-1">{t("eyebrow")}</p>
+            <h1 className="headline text-4xl sm:text-5xl">{t("title")}</h1>
           </header>
 
           {(error || sessionError) && (
@@ -472,8 +472,8 @@ export default function RunAnalyzerPage() {
           {loading && (
             <div className="flex flex-col items-center justify-center py-20">
               <Spinner />
-              <div className="mt-6 text-lg"><AnimatedWord words={loadingType === "extract" ? EXTRACT_WORDS : ANALYZE_WORDS} /></div>
-              <div className="text-sm text-muted-foreground mt-1">{loadingType === "extract" ? "Extracting key frames..." : "AI is analyzing your form..."}</div>
+              <div className="mt-6 text-lg"><AnimatedWord words={t.raw(loadingType === "extract" ? "loading.extractWords" : "loading.analyzeWords") as string[]} /></div>
+              <div className="text-sm text-muted-foreground mt-1">{loadingType === "extract" ? t("loading.extracting") : t("loading.analyzing")}</div>
             </div>
           )}
 
@@ -488,7 +488,7 @@ export default function RunAnalyzerPage() {
               {/* Pre-analysis carousel */}
               {hasFrames && !hasAnalysis && (
                 <div className="space-y-5">
-                  <SectionHeader num="02" label="Key Frames" />
+                  <SectionHeader num="02" label={t("sections.keyFrames")} />
                   <FrameCarousel frames={frames} currentFrame={currentFrame} setCurrentFrame={setCurrentFrame} playing={playing} setPlaying={setPlaying} speed={speed} setSpeed={setSpeed} />
                   {needsAnalysis && (
                     <AnalyzeCTA quota={quota} onAnalyze={handleAnalyze} />
@@ -512,7 +512,7 @@ export default function RunAnalyzerPage() {
 
                   {/* ===== ANALYSIS CARDS ===== */}
                   <div className="space-y-6">
-                    <SectionHeader num="03" label="Detailed Breakdown" />
+                    <SectionHeader num="03" label={t("sections.breakdown")} />
 
                     {/* Score */}
                     <ScoreRing score={analysis.overall_score} />
@@ -540,7 +540,7 @@ export default function RunAnalyzerPage() {
                                 <div className="flex items-center gap-2">
                                   <span className="font-semibold text-sm text-foreground">{s.title}</span>
                                   <span className="eyebrow" style={{ color: RATING_COLOR[s.rating] }}>
-                                    {RATING_ICON[s.rating]} {s.rating}
+                                    {RATING_ICON[s.rating]} {t(`rating.${s.rating}`)}
                                   </span>
                                 </div>
                                 <div className="text-xs text-muted-foreground mt-0.5">{s.summary}</div>
@@ -561,7 +561,7 @@ export default function RunAnalyzerPage() {
 
                     {/* Recommendations */}
                     <div>
-                      <h3 className="headline text-3xl border-b-2 border-rule pb-2">Work on first</h3>
+                      <h3 className="headline text-3xl border-b-2 border-rule pb-2">{t("workOnFirst")}</h3>
                       {analysis.recommendations.map((r, i) => (
                         <div
                           key={i}
@@ -578,7 +578,7 @@ export default function RunAnalyzerPage() {
 
               <div className="pt-4">
                 <button onClick={startNew} className="ra-btn-secondary w-full flex items-center justify-center gap-2">
-                  <Plus size={14} /> New Analysis
+                  <Plus size={14} /> {t("newAnalysis")}
                 </button>
               </div>
             </div>
@@ -643,6 +643,8 @@ function AnalysisPlayer({
   showDetails: boolean;
   setShowDetails: (v: boolean) => void;
 }) {
+  const t = useTranslations("analyzer");
+  const phaseLabel = usePhaseLabel();
   const [frameIdx, setFrameIdx] = useState(0);
   const [preloaded, setPreloaded] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -765,7 +767,7 @@ function AnalysisPlayer({
 
   return (
     <div className="space-y-5">
-      <SectionHeader num="02" label="Technique Analysis" />
+      <SectionHeader num="02" label={t("sections.technique")} />
 
       {/* ---- THE CANVAS ---- */}
       <div
@@ -781,7 +783,7 @@ function AnalysisPlayer({
         {!preloaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/80">
             <Spinner />
-            <span className="text-white/60 text-xs mt-3">Loading frames...</span>
+            <span className="text-white/60 text-xs mt-3">{t("player.loadingFrames")}</span>
           </div>
         )}
 
@@ -790,7 +792,7 @@ function AnalysisPlayer({
           <img
             key={frameIdx}
             src={currentFrame.image_url}
-            alt="Analysis frame"
+            alt={t("player.frameAlt")}
             className="absolute inset-0 w-full h-full object-contain"
           />
         )}
@@ -806,7 +808,7 @@ function AnalysisPlayer({
                 : "1px solid transparent",
             }}
           >
-            {currentFrame.phase.replace(/_/g, " ")}
+            {phaseLabel(currentFrame.phase)}
           </div>
         )}
 
@@ -821,7 +823,7 @@ function AnalysisPlayer({
             }}
           >
             <span className="size-1.5" style={{ background: RATING_COLOR[currentSection.rating] }} />
-            <span className="text-[11px] font-semibold text-white uppercase tracking-wider">Coaching</span>
+            <span className="text-[11px] font-semibold text-white uppercase tracking-wider">{t("player.coaching")}</span>
           </div>
         ) : (
           <div className="absolute top-3 right-3 ra-glass px-3 py-1 text-xs text-white/70" style={{ borderRadius: "2px" }}>
@@ -843,7 +845,7 @@ function AnalysisPlayer({
               {RATING_ICON[currentSection.rating]}
             </span>
             <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: RATING_COLOR[currentSection.rating] }}>
-              {currentSection.rating}
+              {t(`rating.${currentSection.rating}`)}
             </span>
           </div>
         )}
@@ -876,7 +878,7 @@ function AnalysisPlayer({
                   onClick={() => setShowDetails(!showDetails)}
                   className="flex-shrink-0 text-white/50 hover:text-white transition-colors text-xs underline underline-offset-2"
                 >
-                  {showDetails ? "less" : "more"}
+                  {showDetails ? t("player.less") : t("player.more")}
                 </button>
               </div>
 
@@ -953,7 +955,7 @@ function AnalysisPlayer({
               setAutoPlaying(!autoPlaying);
             }}
             className="ra-btn-icon flex-shrink-0"
-            title={autoPlaying ? "Pause" : "Play"}
+            title={autoPlaying ? t("player.pause") : t("player.play")}
           >
             {autoPlaying ? <Pause size={14} /> : <Play size={14} />}
           </button>
@@ -1000,19 +1002,20 @@ function Spinner() {
 }
 
 function QuotaPanel({ quota }: { quota: Quota | null }) {
+  const t = useTranslations("analyzer.quota");
   if (!quota) return null;
   const onFreeTier = quota.freeRemaining > 0;
   return (
     <div className="mb-5 pb-3 border-b">
       <div className="flex items-center justify-between gap-2">
         <span className="eyebrow">
-          {onFreeTier ? "Free analyses" : "Balance"}
+          {onFreeTier ? t("free") : t("balance")}
         </span>
         {!onFreeTier && <CoinBalance amount={quota.balance} size="sm" />}
       </div>
       {onFreeTier && (
         <div className="mt-1.5 text-sm font-semibold text-foreground">
-          {quota.freeRemaining} of {quota.freeTotal} remaining
+          {t("remaining", { left: quota.freeRemaining, total: quota.freeTotal })}
         </div>
       )}
       {!onFreeTier && (
@@ -1020,7 +1023,7 @@ function QuotaPanel({ quota }: { quota: Quota | null }) {
           href="/coins"
           className="mt-2 block text-center py-1.5 rounded-sm text-xs font-semibold border border-foreground hover:bg-foreground hover:text-background transition-colors"
         >
-          Get coins
+          {t("getCoins")}
         </Link>
       )}
     </div>
@@ -1028,6 +1031,7 @@ function QuotaPanel({ quota }: { quota: Quota | null }) {
 }
 
 function AnalyzeCTA({ quota, onAnalyze }: { quota: Quota | null; onAnalyze: () => void }) {
+  const t = useTranslations("analyzer");
   const onFreeTier = (quota?.freeRemaining ?? 1) > 0;
   const canPay = !!quota && quota.balance >= quota.analysisCost;
   const needsCoins = !onFreeTier && !canPay;
@@ -1036,14 +1040,13 @@ function AnalyzeCTA({ quota, onAnalyze }: { quota: Quota | null; onAnalyze: () =
     return (
       <div className="space-y-2">
         <div className="text-sm text-muted-foreground text-center">
-          You need {quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST} coins to analyze.
-          You have {quota?.balance ?? 0}.
+          {t("cta.needCoins", { cost: quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST, balance: quota?.balance ?? 0 })}
         </div>
         <Link
           href="/coins"
           className="block text-center w-full h-12 leading-[3rem] rounded-sm font-semibold bg-foreground text-background hover:opacity-90 transition-opacity"
         >
-          Get coins
+          {t("quota.getCoins")}
         </Link>
       </div>
     );
@@ -1054,11 +1057,11 @@ function AnalyzeCTA({ quota, onAnalyze }: { quota: Quota | null; onAnalyze: () =
       onClick={onAnalyze}
       className="w-full h-12 rounded-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-3"
     >
-      <span>Analyze my form</span>
+      <span>{t("cta.analyze")}</span>
       {onFreeTier ? (
-        <span className="time text-xs opacity-80">free</span>
+        <span className="time text-xs opacity-80">{t("cta.free")}</span>
       ) : (
-        <span className="time text-xs opacity-80">−{quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST} coins</span>
+        <span className="time text-xs opacity-80">{t("cta.cost", { cost: quota?.analysisCost ?? COIN_ECONOMY.ANALYSIS_COST })}</span>
       )}
     </button>
   );
@@ -1080,10 +1083,11 @@ function SectionHeader({ num, label }: { num: string; label: string }) {
 
 /** Overall score as a big figure over a 0–100 rule, marked at 50 and 75. */
 function ScoreRing({ score }: { score: number }) {
+  const t = useTranslations("analyzer");
   const color = scoreColor(score);
   return (
     <div className="py-2">
-      <p className="eyebrow">Overall</p>
+      <p className="eyebrow">{t("overall")}</p>
       <p className="headline text-8xl tabular-nums" style={{ color }}>
         {score}<span className="text-3xl text-muted-foreground">/100</span>
       </p>
@@ -1101,6 +1105,8 @@ function FrameCarousel({ frames, currentFrame, setCurrentFrame, playing, setPlay
   frames: Frame[]; currentFrame: number; setCurrentFrame: (i: number) => void;
   playing: boolean; setPlaying: (p: boolean) => void; speed: number; setSpeed: (s: number) => void;
 }) {
+  const t = useTranslations("analyzer.player");
+  const phaseLabel = usePhaseLabel();
   const [preloaded, setPreloaded] = useState(false);
 
   // Preload all frame images
@@ -1133,12 +1139,12 @@ function FrameCarousel({ frames, currentFrame, setCurrentFrame, playing, setPlay
         {!preloaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/80">
             <Spinner />
-            <span className="text-white/60 text-xs mt-3">Loading frames...</span>
+            <span className="text-white/60 text-xs mt-3">{t("loadingFrames")}</span>
           </div>
         )}
-        <img src={frames[currentFrame]?.image_url} alt="Key frame" className="w-full h-full object-contain" />
+        <img src={frames[currentFrame]?.image_url} alt={t("keyFrameAlt")} className="w-full h-full object-contain" />
         <div className="absolute top-3 left-3 ra-glass px-3 py-1 text-xs font-medium text-white" style={{ borderRadius: "2px" }}>
-          {frames[currentFrame]?.phase.replace(/_/g, " ")}
+          {frames[currentFrame] && phaseLabel(frames[currentFrame].phase)}
         </div>
         <div className="absolute top-3 right-3 ra-glass px-3 py-1 text-xs text-white/60" style={{ borderRadius: "2px" }}>
           {currentFrame + 1} / {frames.length}
@@ -1163,10 +1169,10 @@ function FrameCarousel({ frames, currentFrame, setCurrentFrame, playing, setPlay
         ))}
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={() => setCurrentFrame((currentFrame - 1 + frames.length) % frames.length)} className="ra-btn-icon" title="Previous"><SkipBack size={14} /></button>
-        <button onClick={() => setPlaying(!playing)} className="ra-btn-icon" title={playing ? "Pause" : "Play"}>{playing ? <Pause size={14} /> : <Play size={14} />}</button>
-        <button onClick={() => setCurrentFrame((currentFrame + 1) % frames.length)} className="ra-btn-icon" title="Next"><SkipForward size={14} /></button>
-        <span className="text-xs text-muted-foreground font-medium ml-1">{speed}ms</span>
+        <button onClick={() => setCurrentFrame((currentFrame - 1 + frames.length) % frames.length)} className="ra-btn-icon" title={t("previous")}><SkipBack size={14} /></button>
+        <button onClick={() => setPlaying(!playing)} className="ra-btn-icon" title={playing ? t("pause") : t("play")}>{playing ? <Pause size={14} /> : <Play size={14} />}</button>
+        <button onClick={() => setCurrentFrame((currentFrame + 1) % frames.length)} className="ra-btn-icon" title={t("next")}><SkipForward size={14} /></button>
+        <span className="text-xs text-muted-foreground font-medium ml-1">{t("ms", { ms: speed })}</span>
         <input type="range" min={100} max={1000} step={50} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} className="flex-1 accent-foreground" />
       </div>
     </>
@@ -1174,6 +1180,7 @@ function FrameCarousel({ frames, currentFrame, setCurrentFrame, playing, setPlay
 }
 
 function UploadCard({ onUpload }: { onUpload: (f: File) => void; }) {
+  const t = useTranslations("analyzer");
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragActive, setDragActive] = useState(false);
 
@@ -1185,7 +1192,7 @@ function UploadCard({ onUpload }: { onUpload: (f: File) => void; }) {
 
   return (
     <div>
-      <SectionHeader num="01" label="Upload Video" />
+      <SectionHeader num="01" label={t("sections.upload")} />
       <div
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
@@ -1194,8 +1201,8 @@ function UploadCard({ onUpload }: { onUpload: (f: File) => void; }) {
         className={`mt-4 px-6 py-14 text-center cursor-pointer transition-colors border-2 border-dashed rounded-sm ${dragActive ? "border-primary bg-accent" : "border-input hover:border-foreground"}`}
       >
         <Upload size={22} className="mx-auto mb-3 text-muted-foreground" />
-        <div className="headline text-3xl">Drop a video, or <span className="text-primary underline underline-offset-4">choose a file</span></div>
-        <div className="text-sm text-muted-foreground mt-2">MOV or MP4 · a few seconds · filmed side-on</div>
+        <div className="headline text-3xl">{t.rich("upload.drop", { choose: (chunks) => <span className="text-primary underline underline-offset-4">{chunks}</span> })}</div>
+        <div className="text-sm text-muted-foreground mt-2">{t("upload.hint")}</div>
         <input ref={fileRef} type="file" accept="video/*" className="hidden" onChange={(e) => { if (e.target.files?.length) onUpload(e.target.files[0]); }} />
       </div>
     </div>

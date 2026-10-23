@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/supabase-server";
+import { clientIp } from "@/lib/client-ip";
 import { createDispute } from "@/lib/services/disputes";
 import { checkRateLimit } from "@/lib/services/claims";
 
@@ -7,7 +8,7 @@ export async function POST(request: NextRequest) {
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const ipAddress = request.headers.get("x-forwarded-for") ?? "unknown";
+  const ipAddress = clientIp(request.headers);
 
   // Rate limit: 3 disputes per day per user
   const allowed = await checkRateLimit(user.id, ipAddress, "dispute", 3, 24 * 60 * 60 * 1000);

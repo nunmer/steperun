@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 
 type Runner = {
@@ -19,6 +20,7 @@ export function RunnerSearch({
   selectedRunner: Runner | null;
   onSelect: (runner: Runner | null) => void;
 }) {
+  const t = useTranslations("runners.search");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Runner[]>([]);
   const [open, setOpen] = useState(false);
@@ -83,7 +85,7 @@ export function RunnerSearch({
             }}
             className="ml-auto text-xs text-muted-foreground hover:text-foreground shrink-0"
           >
-            Change
+            {t("change")}
           </button>
         </div>
       </div>
@@ -97,7 +99,7 @@ export function RunnerSearch({
       </p>
       <div className="relative">
         <Input
-          placeholder="Search by name..."
+          placeholder={t("placeholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length > 0 && setOpen(true)}
@@ -131,7 +133,7 @@ export function RunnerSearch({
         )}
         {open && results.length === 0 && !loading && query.length >= 2 && (
           <div className="absolute z-50 top-full mt-1 w-full bg-popover border border-rule rounded-sm p-3 text-sm text-muted-foreground text-center">
-            No runners found
+            {t("noResults")}
           </div>
         )}
       </div>

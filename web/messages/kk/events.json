@@ -1,0 +1,34 @@
+{
+  "list": {
+    "title": "Жарыстар",
+    "summary": "{races, plural, other {# жарыс}} · {finishers, plural, other {# адам мәреге жетті}}",
+    "season": "Маусым",
+    "all": "Барлығы",
+    "date": "Күні",
+    "race": "Жарыс",
+    "organizer": "Ұйымдастырушы",
+    "finishers": "Мәреге жетті"
+  },
+  "event": {
+    "finishers": "{count, plural, other {мәреге жетті}}",
+    "distances": "{count, plural, other {қашықтық}}",
+    "official": "Ресми хаттама ↗",
+    "field": "Кімдер жүгірді",
+    "distance": "Қашықтық",
+    "city": "Қала",
+    "country": "Ел",
+    "all": "Барлығы",
+    "none": "Мәреге жеткендер әлі жоқ",
+    "range": "{from}–{to} / {total}",
+    "empty": "Бұл қашықтықта нәтиже жоқ.",
+    "cols": {
+      "place": "Орын",
+      "runner": "Жүгіруші",
+      "from": "Қайдан",
+      "bib": "Нөмір",
+      "distance": "Қашық.",
+      "chip": "Таза",
+      "gun": "Жалпы"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * Muted background loop for the home hero. Never autoplays under reduced
@@ -8,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
  * visible pause control because it runs longer than five seconds.
  */
 export function HeroVideo({ src, poster }: { src: string; poster: string }) {
+  const t = useTranslations("home.video");
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
   const [userPaused, setUserPaused] = useState(false);
@@ -57,12 +59,12 @@ export function HeroVideo({ src, poster }: { src: string; poster: string }) {
       <button
         onClick={toggle}
         className="absolute z-10 bottom-[5.5rem] right-4 sm:right-6 eyebrow !text-foreground/70 hover:!text-foreground flex items-center gap-2"
-        aria-label={playing ? "Pause background video" : "Play background video"}
+        aria-label={playing ? t("pauseLabel") : t("playLabel")}
       >
         <span aria-hidden className="inline-flex size-6 items-center justify-center border border-foreground/40">
           {playing ? "❚❚" : "▶"}
         </span>
-        {playing ? "Pause" : "Play"}
+        {playing ? t("pause") : t("play")}
       </button>
     </>
   );

@@ -111,7 +111,19 @@ every write is logged to `claim_audit_log` as `admin_*`.
 | Events | edit name, date, organizer |
 | AI Coach | sessions by status, expire stuck ones with refund |
 | Audit log | `claim_audit_log`, filterable |
-| Emails | claim email previews and test send |
+| Emails | sender name / mailbox / reply-to and the wording of both claim emails (`app_settings`, defaults in `lib/email/copy.ts`), live previews and test send |
+
+## Languages
+
+RU (default), KZ (`kk`) and EN via `next-intl` without locale routing
+(`web/i18n/`): `request.ts` picks the language from the `NEXT_LOCALE` cookie,
+else `Accept-Language`, else Russian. The nav's `LocaleSwitcher` sets the cookie
+with a server action and refreshes. Messages are `web/messages/<locale>/<ns>.json`,
+one namespace per site area (`NAMESPACES` in `i18n/config.ts`); `i18n/global.d.ts`
+types `t()` keys against Russian, and kk/en fall back to Russian per key.
+Format dates and numbers with `formatEventDate(d, locale)` / `formatNumber(n, locale)`
+(`lib/utils.ts`). DB data (runner, event, city names) is not translated; the
+admin panel and emails are English.
 
 ## Caching
 
@@ -121,13 +133,12 @@ so pages never query it per visit:
 | Layer | What | Invalidated by |
 |---|---|---|
 | Data cache | `cachedQuery()` wraps every public read (`unstable_cache`, 24 h, tag `results`; runner reads also `runner:<id>`) | `/api/revalidate` (scraper workflow, merge scripts), `invalidateRunner(id)` (claims) |
-| ISR | `/runners/[id]` (rendered on first visit), `/` | same, via `revalidatePath` |
 | CDN | `/api/runners/search` (`s-maxage=300`) | expires after 5 min |
 | Crawlers | `robots.txt` disallows filter/pagination variants and private areas; `sitemap.xml` lists canonical pages | — |
 
-Pages with `searchParams` (rankings, power rankings, runners, events) are still
-rendered per request, but from cached data, so cached requests take about
-20–75 ms on the server.
+Every page is rendered per request (the root layout reads the language
+cookie), but from cached data, so cached requests take about 20–75 ms on the
+server. There is no page-level ISR.
 
 ## Security model
 

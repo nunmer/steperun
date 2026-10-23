@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/supabase-server";
+import { clientIp } from "@/lib/client-ip";
 import { createClaim, checkRateLimit } from "@/lib/services/claims";
 
 export async function POST(request: NextRequest) {
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const ipAddress = request.headers.get("x-forwarded-for") ?? "unknown";
+  const ipAddress = clientIp(request.headers);
 
   // Rate limit: 5 claims per hour per user
   const allowed = await checkRateLimit(user.id, ipAddress, "claim", 5, 60 * 60 * 1000);

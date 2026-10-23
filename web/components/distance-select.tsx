@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { formatNumber } from "@/lib/utils";
 
 /** Dropdown with every ranked distance; navigates on change. */
 export function DistanceSelect({
@@ -12,10 +14,12 @@ export function DistanceSelect({
   value?: string;
   year?: number;
 }) {
+  const t = useTranslations("common.distances");
+  const locale = useLocale();
   const router = useRouter();
   return (
     <select
-      aria-label="All distances"
+      aria-label={t("label")}
       className="h-7 rounded-sm border border-input bg-background px-2 text-sm text-muted-foreground max-w-[14rem]"
       value={value && options.some((o) => o.label === value) ? value : ""}
       onChange={(e) => {
@@ -26,11 +30,11 @@ export function DistanceSelect({
         router.push(qs ? `/rankings?${qs}` : "/rankings");
       }}
     >
-      <option value="">More distances…</option>
+      <option value="">{t("more")}</option>
       {options.map((o) => (
         <option key={o.label} value={o.label}>
           {o.label}
-          {o.finishers ? ` (${o.finishers.toLocaleString()})` : ""}
+          {o.finishers ? ` (${formatNumber(o.finishers, locale)})` : ""}
         </option>
       ))}
     </select>

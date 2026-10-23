@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-10-23: native RU/KZ copy, editable email text
+
+- **Copy rewritten for native RU and KZ.** Texts were rewritten from literal
+  translation into natural phrasing (Kazakh terms checked against Kazakh race
+  reports: «мәре», «хаттама», «жүгірушілер»), and every em dash was removed from
+  `web/messages`. Hero: «Все финиши. Все бегуны. Один протокол.»
+- **Nav fits in every language.** The RU · KZ · EN switcher is now one compact
+  language menu on desktop, so longer Kazakh labels no longer push "Sign in"
+  off-screen.
+- **Same dates and numbers on server and browser.** `lib/format.ts` formats
+  from explicit month/weekday tables, because Chrome has no Kazakh locale data
+  and `Intl("kk-KZ")` caused hydration mismatches. `INTL_TAGS` is gone.
+- **Editable claim email text.** `/admin/emails` now edits every word of the
+  approved and rejected emails (subject, preview line, headline, message,
+  button, footer) with a live preview. Supports `{name}`, `{runner}`,
+  `{coins}`, `{profile_url}`, `{runner_url}`, `**bold**` and `[text](url)`.
+  Stored in `app_settings` (`email_copy_approved`, `email_copy_rejected`);
+  defaults live in `lib/email/copy.ts`. Audited as `admin_email_copy_changed`.
+
+## 2026-10-22: languages, email sender, audit log fix
+
+- **RU / KZ / EN.** The site is translated into Russian (default), Kazakh and
+  English with `next-intl`. URLs don't change: a RU · KZ · EN switcher in the nav
+  stores the choice in the `NEXT_LOCALE` cookie; first visits follow the
+  browser's `Accept-Language`. Texts live in `web/messages/<locale>/<area>.json`;
+  Russian is the source of truth (keys are type-checked against it, and a key
+  missing in kk/en shows the Russian text). Dates and numbers are formatted
+  per language. The admin panel stays English.
+- **Editable email sender.** `/admin/emails` now edits the From name, mailbox
+  (before `@RESEND_EMAIL_DOMAIN`) and Reply-To of every outgoing email. Stored
+  in the new `app_settings` table (migration `006_app_settings.sql`); until
+  that runs, the old defaults are used. Changes are audited as
+  `admin_email_sender_changed`.
+- **Fix: audit log and claim rate limit silently stopped writing in
+  production** (2026-04-23 → 2026-10-21). `claim_audit_log.ip_address` and
+  `rate_limit_log.ip_address` are `INET`, but routes stored the raw
+  `x-forwarded-for` header (a `client, proxy` list behind a proxy) or the
+  string `"unknown"`, so every insert from a user-facing route failed and the
+  error was swallowed. Lost entries include one Strava connection (2026-08-04)
+  and `claim_created` for claims #19–22; the claim rate limit never counted
+  anything. Routes now store only the first valid address (`lib/client-ip.ts`),
+  and a failed rate-limit insert is logged.
+
 ## 2026-10-22: admin panel
 
 `/admin` is now a full back office with a section nav (counts for pending

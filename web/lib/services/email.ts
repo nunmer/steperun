@@ -1,12 +1,13 @@
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { logAudit } from "@/lib/services/audit";
-import { LEGAL_CONFIG } from "@/lib/legal-config";
+import { formatFrom, getEmailCopy, getEmailSender } from "@/lib/services/settings";
 import { claimApprovedEmail, claimRejectedEmail, type RenderedEmail } from "@/lib/email/templates";
 
 /*
  * Transactional email through Resend (Vercel Marketplace integration; env
- * RESEND_API_KEY + RESEND_EMAIL_DOMAIN).
+ * RESEND_API_KEY + RESEND_EMAIL_DOMAIN). Sender name, mailbox and reply-to
+ * are edited on /admin/emails (app_settings).
  *
  * Delivery is gated by EMAIL_DELIVERY so nothing reaches real users by accident:
  *   off        (default) never send; the would-be send is written to the audit log
@@ -36,11 +37,6 @@ function allowlist(): Set<string> {
   );
 }
 
-function fromAddress(): string | null {
-  const domain = process.env.RESEND_EMAIL_DOMAIN?.trim();
-  return domain ? `Steppe RUN <claims@${domain}>` : null;
-}
-
 /** Why an address would not be emailed under the current mode, or null if it would. */
 export function blockedReason(to: string, mode: DeliveryMode = deliveryMode()): string | null {
   if (mode === "off") return "EMAIL_DELIVERY is off";
@@ -63,7 +59,8 @@ export async function sendEmail({ to, email, idempotencyKey, tag, force = false 
   if (blocked) return { status: "skipped", reason: blocked };
 
   const apiKey = process.env.RESEND_API_KEY;
-  const from = fromAddress();
+  const sender = await getEmailSender();
+  const from = formatFrom(sender);
   if (!apiKey || !from) return { status: "failed", reason: "RESEND_API_KEY or RESEND_EMAIL_DOMAIN not set" };
 
   const resend = new Resend(apiKey);
@@ -71,7 +68,7 @@ export async function sendEmail({ to, email, idempotencyKey, tag, force = false 
     {
       from,
       to: [to],
-      replyTo: process.env.EMAIL_REPLY_TO || LEGAL_CONFIG.contactEmail,
+      replyTo: sender.replyTo,
       subject: email.subject,
       html: email.html,
       text: email.text,
@@ -123,9 +120,10 @@ export async function notifyClaimDecision(claimId: number, decision: ClaimDecisi
     const fullName = authUser.user.user_metadata?.full_name as string | undefined;
     const firstName = fullName?.split(" ")[0] ?? null;
 
+    const copy = await getEmailCopy(decision.kind);
     const email = decision.kind === "approved"
-      ? claimApprovedEmail({ firstName, runnerName, runnerId, coins: decision.coins })
-      : claimRejectedEmail({ firstName, runnerName, runnerId, notes: decision.notes });
+      ? claimApprovedEmail({ firstName, runnerName, runnerId, coins: decision.coins }, copy)
+      : claimRejectedEmail({ firstName, runnerName, runnerId, notes: decision.notes }, copy);
 
     result = await sendEmail({
       to,

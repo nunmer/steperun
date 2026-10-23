@@ -1,18 +1,20 @@
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getPowerRankings, getEloStats, PAGE_SIZE } from "@/lib/queries";
 import { parseIntInRange, parsePage } from "@/lib/params";
 import { eloLevel, nextLevel, MAX_LEVEL, TIER_COLOR } from "@/lib/elo-levels";
 import { TierBadge } from "@/components/tier-badge";
 import { Pagination, buildHref } from "@/components/pagination";
 import { EmptyState, PageHeader, Place, Rank } from "@/components/sheet";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 
-export const metadata = { title: "Power Rankings" };
-export const revalidate = 86400;
-
+export async function generateMetadata() {
+  const t = await getTranslations("rankings.power");
+  return { title: t("title") };
+}
 const CHALLENGER_CUTOFF = 1000;
 
 /**
@@ -20,7 +22,8 @@ const CHALLENGER_CUTOFF = 1000;
  * its tier, so the chart replaces a separate row of level chips.
  * Columns on wide screens, rows on phones.
  */
-function LevelDistribution({ stats, active }: { stats: { level: number; count: number }[]; active?: number }) {
+async function LevelDistribution({ stats, active }: { stats: { level: number; count: number }[]; active?: number }) {
+  const [t, locale] = await Promise.all([getTranslations("rankings.power"), getLocale()]);
   const largest = Math.max(...stats.map((s) => s.count), 1);
   const ordered = [...stats].sort((a, b) => a.level - b.level);
   const href = (lvl: number) => (active === lvl ? "/power-rankings" : `/power-rankings?level=${lvl}`);
@@ -32,12 +35,12 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
   });
 
   return (
-    <nav aria-label="Filter by level" className="mb-10">
+    <nav aria-label={t("filterAria")} className="mb-10">
       <div className="flex items-baseline justify-between mb-3">
-        <span className="eyebrow">Runners per level — select a bar to filter</span>
+        <span className="eyebrow">{t("perLevel")}</span>
         {active && (
           <Link href="/power-rankings" className="text-xs text-muted-foreground hover:text-foreground">
-            Clear ×
+            {t("clear")}
           </Link>
         )}
       </div>
@@ -48,7 +51,7 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
           return (
             <li key={level}>
               <Link href={href(level)} aria-current={active === level ? "true" : undefined} className="group block">
-                <span className="time block text-xs text-center mb-1">{count.toLocaleString()}</span>
+                <span className="time block text-xs text-center mb-1">{formatNumber(count, locale)}</span>
                 <span className="flex h-28 flex-col justify-end">
                   {/* the top tier is an ink bar capped in bib orange, like its badge */}
                   {level === MAX_LEVEL && (
@@ -102,7 +105,7 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
                 <span className="h-2 bg-muted">
                   <span className="block h-full" style={{ ...bar(level), width: `${Math.max(1, (count / largest) * 100)}%` }} />
                 </span>
-                <span className="time text-xs text-right">{count.toLocaleString()}</span>
+                <span className="time text-xs text-right">{formatNumber(count, locale)}</span>
               </Link>
             </li>
           );
@@ -116,7 +119,8 @@ function LevelDistribution({ stats, active }: { stats: { level: number; count: n
  * Under a tier's title: its badge, and the step below and above it, so the
  * page shows the way up rather than only who is there.
  */
-function TierLadder({ level }: { level: number }) {
+async function TierLadder({ level }: { level: number }) {
+  const t = await getTranslations("rankings.power");
   const prev = level > 1 ? eloLevel(level - 1) : null;
   const next = nextLevel(eloLevel(level).min, level);
   return (
@@ -129,11 +133,15 @@ function TierLadder({ level }: { level: number }) {
       )}
       {next ? (
         <Link href={`/power-rankings?level=${next.level}`} className="hover:text-primary">
-          Next up: <span className="font-semibold">{next.name}</span>
-          <span className="time text-xs text-muted-foreground"> from {next.min.toLocaleString()} ELO</span> →
+          {t.rich("nextUp", {
+            name: next.name,
+            min: next.min,
+            b: (chunks) => <span className="font-semibold">{chunks}</span>,
+            m: (chunks) => <span className="time text-xs text-muted-foreground">{chunks}</span>,
+          })}
         </Link>
       ) : (
-        <span className="eyebrow !text-primary">Top of the ladder</span>
+        <span className="eyebrow !text-primary">{t("topLadder")}</span>
       )}
     </div>
   );
@@ -146,6 +154,7 @@ export default async function PowerRankingsPage({
 }) {
   const { level: levelParam, page: pageParam } = await searchParams;
   const level = parseIntInRange(levelParam, 1, MAX_LEVEL);
+  const t = await getTranslations("rankings.power");
 
   // Exact totals from the per-level counts (same numbers as the distribution).
   const eloStats = await getEloStats();
@@ -160,12 +169,12 @@ export default async function PowerRankingsPage({
   return (
     <div>
       <PageHeader
-        title={level ? eloLevel(level).name : "Power rankings"}
-        kicker={level ? `Power rankings · Level ${level} · ELO ${eloLevel(level).range}` : undefined}
+        title={level ? eloLevel(level).name : t("title")}
+        kicker={level ? t("kicker", { level: String(level), range: eloLevel(level).range }) : undefined}
         aside={
           <span className="max-w-xs inline-block">
-            Power score from best times, podiums, consistency, range and seasons.
-            {!level && ` The top ${CHALLENGER_CUTOFF.toLocaleString()} are Challengers.`}
+            {t("aside")}
+            {!level && t("asideTop", { n: CHALLENGER_CUTOFF })}
           </span>
         }
       >
@@ -175,15 +184,15 @@ export default async function PowerRankingsPage({
       <LevelDistribution stats={eloStats} active={level} />
 
       {runners.length === 0 ? (
-        <EmptyState>No runners at this level.</EmptyState>
+        <EmptyState>{t("empty")}</EmptyState>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-14">#</TableHead>
-              <TableHead>Runner</TableHead>
-              <TableHead className="hidden md:table-cell">From</TableHead>
-              <TableHead className="hidden sm:table-cell">Level</TableHead>
+              <TableHead>{t("colRunner")}</TableHead>
+              <TableHead className="hidden md:table-cell">{t("colFrom")}</TableHead>
+              <TableHead className="hidden sm:table-cell">{t("colLevel")}</TableHead>
               <TableHead className="text-right">ELO</TableHead>
             </TableRow>
           </TableHeader>
@@ -229,7 +238,7 @@ export default async function PowerRankingsPage({
         <Pagination
           page={page}
           totalPages={totalPages}
-          label={`${total.toLocaleString()} runners`}
+          label={t("runners", { count: total })}
           href={(p) => buildHref("/power-rankings", { level, page: p })}
         />
       </div>

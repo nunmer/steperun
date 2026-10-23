@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import type { Locale } from "@/i18n/config";
+import { formatDate, type DateStyle } from "@/lib/format";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { StravaActivity } from "@/lib/services/strava";
@@ -38,7 +41,19 @@ interface Props {
   activities: StravaActivity[];
 }
 
+/** "Apr 12" in the visitor's language. */
+function shortDate(date: string, locale: Locale, style: DateStyle = { day: true, month: "short" }): string {
+  return formatDate(date, locale, style) ?? "";
+}
+
+/** "5K", "Half", "Marathon" (codes from training-analytics) in the visitor's language. */
+function useDistanceName(): (label: string) => string {
+  const t = useTranslations("profile.training.distances");
+  return (label) => (label === "Half" ? t("half") : label === "Marathon" ? t("marathon") : label);
+}
+
 export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
+  const t = useTranslations("profile.training");
   const connected = !!stravaToken;
 
   if (!connected) {
@@ -53,7 +68,7 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
         <CardContent className="pt-6 pb-6">
           <StravaHeader token={stravaToken} stravaStatus={stravaStatus} />
           <p className="text-sm text-muted-foreground mt-4">
-            No running activities found in your Strava feed yet.
+            {t("noRuns")}
           </p>
         </CardContent>
       </Card>
@@ -86,7 +101,7 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
 
       <Card>
         <CardContent className="pt-6 pb-6 space-y-4">
-          <SectionHeading label="Performance Management · 84 Days" pro />
+          <SectionHeading label={t("sections.performance")} pro />
           <PerformanceChart daily={load.daily} />
           <PerformanceLegend />
         </CardContent>
@@ -94,7 +109,7 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
 
       <Card>
         <CardContent className="pt-6 pb-6 space-y-4">
-          <SectionHeading label="Weekly Load · Last 12 Weeks" pro />
+          <SectionHeading label={t("sections.weekly")} pro />
           <WeeklyChart buckets={weekly} />
           <WeeklyDelta current={thisWeek} previous={lastWeek} />
         </CardContent>
@@ -103,14 +118,14 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Monthly Totals · 6 Months" pro />
+            <SectionHeading label={t("sections.monthly")} pro />
             <MonthlyTable buckets={monthly} />
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Training Days · When You Run" pro />
+            <SectionHeading label={t("sections.days")} pro />
             <DayOfWeekChart dow={dow} />
           </CardContent>
         </Card>
@@ -119,14 +134,14 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Pace Trend · Weekly Avg" pro />
+            <SectionHeading label={t("sections.paceTrend")} pro />
             <PaceTrendChart points={paceTrend} />
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Run Mix · Last 4 Weeks" pro />
+            <SectionHeading label={t("sections.runMix")} pro />
             <RunTypeMixBar mix={typeMix} />
           </CardContent>
         </Card>
@@ -135,14 +150,14 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Distance Distribution" pro />
+            <SectionHeading label={t("sections.distances")} pro />
             <DistanceHistogram bands={histogram} />
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Elevation · Last 4 Weeks" pro />
+            <SectionHeading label={t("sections.elevation")} pro />
             <ElevationCard elev={elevation} />
           </CardContent>
         </Card>
@@ -151,17 +166,17 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Heart Rate Zones" pro />
+            <SectionHeading label={t("sections.hrZones")} pro />
             {hrZones
               ? <HrZonesBar zones={hrZones} />
-              : <p className="text-xs text-muted-foreground">Connect a device that records HR to unlock zone analysis.</p>
+              : <p className="text-xs text-muted-foreground">{t("noHr")}</p>
             }
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="pt-6 pb-6 space-y-4">
-            <SectionHeading label="Best Efforts" pro />
+            <SectionHeading label={t("sections.bests")} pro />
             <BestsTable bests={bests} />
           </CardContent>
         </Card>
@@ -169,27 +184,27 @@ export function TrainingTab({ stravaToken, stravaStatus, activities }: Props) {
 
       <Card>
         <CardContent className="pt-6 pb-6 space-y-4">
-          <SectionHeading label="Race Predictor" pro />
+          <SectionHeading label={t("sections.predictor")} pro />
           <PredictedRaces races={predicted} />
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="pt-6 pb-6 space-y-4">
-          <SectionHeading label="Training Rhythm" />
+          <SectionHeading label={t("sections.rhythm")} />
           <RhythmRow rhythm={rhythm} totalRuns={runs.length} />
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="pt-6 pb-6 space-y-3">
-          <SectionHeading label="Recent Runs" />
+          <SectionHeading label={t("sections.recent")} />
           <RunsList runs={runs.slice(0, 15)} />
         </CardContent>
       </Card>
 
       <p className="text-[11px] text-muted-foreground text-center pt-2">
-        Advanced analytics powered by Strava. Premium tier coming soon — free during beta.
+        {t("footer")}
       </p>
     </div>
   );
@@ -213,11 +228,12 @@ function StravaHeader({
   token: { athlete_id: number; connected_at: string };
   stravaStatus?: string;
 }) {
+  const t = useTranslations("profile.training.strava");
   return (
     <>
       {stravaStatus === "connected" && (
         <div className="border-l-4 border-positive bg-card px-3 py-2 text-sm">
-          Strava connected! +20 coins earned.
+          {t("justConnected")}
         </div>
       )}
       <div className="flex items-center gap-3">
@@ -225,38 +241,39 @@ function StravaHeader({
           <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
         </svg>
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-sm">Connected to Strava</div>
-          <p className="text-xs text-muted-foreground">Athlete #{token.athlete_id}</p>
+          <div className="font-semibold text-sm">{t("connected")}</div>
+          <p className="text-xs text-muted-foreground">{t("athlete", { id: String(token.athlete_id) })}</p>
         </div>
-        <Badge variant="secondary" className="text-xs shrink-0">Synced</Badge>
+        <Badge variant="secondary" className="text-xs shrink-0">{t("synced")}</Badge>
       </div>
     </>
   );
 }
 
 function ConnectPrompt({ stravaStatus }: { stravaStatus?: string }) {
+  const t = useTranslations("profile.training.strava");
   return (
     <Card>
       <CardContent className="pt-8 pb-8 text-center space-y-4">
         {stravaStatus === "denied" && (
           <div className="border-l-4 border-destructive bg-card px-3 py-2 text-sm text-destructive">
-            Strava connection was denied.
+            {t("denied")}
           </div>
         )}
         <svg viewBox="0 0 24 24" className="w-12 h-12 mx-auto" fill="#FC4C02">
           <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
         </svg>
         <div>
-          <h3 className="font-semibold text-base">Connect Strava to unlock training analytics</h3>
+          <h3 className="font-semibold text-base">{t("promptTitle")}</h3>
           <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-            Track fitness, form, weekly load, heart-rate zones, pace trends, race predictions and more — automatically synced from your runs.
+            {t("promptBody")}
           </p>
         </div>
         <Link
           href="/api/auth/strava/connect"
           className="inline-block h-10 leading-10 px-4 rounded-sm text-sm font-semibold text-white bg-[#FC4C02] hover:bg-[#e04400] transition-colors"
         >
-          Connect Strava
+          {t("connect")}
         </Link>
       </CardContent>
     </Card>
@@ -268,6 +285,7 @@ function ConnectPrompt({ stravaStatus }: { stravaStatus?: string }) {
 // ---------------------------------------------------------------------------
 
 function FormCards({ load }: { load: TrainingLoadSummary }) {
+  const t = useTranslations("profile.training.form");
   const form = formInterpretation(load.tsb);
   const formColor =
     form.tone === "fresh"        ? "text-positive" :
@@ -281,20 +299,20 @@ function FormCards({ load }: { load: TrainingLoadSummary }) {
       <div className="grid grid-cols-3 gap-3">
         <Stat
           big={load.ctl.toFixed(1)}
-          label="Fitness (CTL)"
-          sub={`${load.ramp7 >= 0 ? "+" : ""}${load.ramp7.toFixed(1)} 7d`}
+          label={t("fitness")}
+          sub={t("ramp7", { delta: `${load.ramp7 >= 0 ? "+" : ""}${load.ramp7.toFixed(1)}` })}
           subColor={load.ramp7 > 3 ? "text-destructive" : load.ramp7 >= 0 ? "text-positive" : "text-caution"}
         />
         <Stat
           big={load.atl.toFixed(1)}
-          label="Fatigue (ATL)"
-          sub="7-day load"
+          label={t("fatigue")}
+          sub={t("load7")}
         />
         <Stat
           big={load.tsb >= 0 ? `+${load.tsb.toFixed(1)}` : load.tsb.toFixed(1)}
-          label="Form (TSB)"
+          label={t("form")}
           bigColor={formColor}
-          sub={form.label}
+          sub={t(`tone.${form.tone}.label`)}
           subColor={formColor}
         />
       </div>
@@ -305,7 +323,7 @@ function FormCards({ load }: { load: TrainingLoadSummary }) {
           form.tone === "overreaching" ? "bg-destructive" :
           form.tone === "detrained" ? "bg-chart-4" : "bg-muted-foreground"
         }`} />
-        <span>{form.hint}</span>
+        <span>{t(`tone.${form.tone}.hint`)}</span>
       </div>
     </div>
   );
@@ -334,6 +352,7 @@ function Stat({
 // ---------------------------------------------------------------------------
 
 function PerformanceChart({ daily }: { daily: TrainingLoadSummary["daily"] }) {
+  const locale = useLocale();
   if (daily.length === 0) return null;
 
   const W = 640;
@@ -406,13 +425,13 @@ function PerformanceChart({ daily }: { daily: TrainingLoadSummary["daily"] }) {
 
         {/* X-axis date labels */}
         <text x={padL} y={H - 6} fontSize="9" className="fill-muted-foreground font-mono">
-          {firstDate && new Date(firstDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+          {firstDate && shortDate(firstDate, locale)}
         </text>
         <text x={W / 2} y={H - 6} fontSize="9" textAnchor="middle" className="fill-muted-foreground font-mono">
-          {midDate && new Date(midDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+          {midDate && shortDate(midDate, locale)}
         </text>
         <text x={W - padR} y={H - 6} fontSize="9" textAnchor="end" className="fill-muted-foreground font-mono">
-          {lastDate && new Date(lastDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+          {lastDate && shortDate(lastDate, locale)}
         </text>
       </svg>
     </div>
@@ -420,12 +439,13 @@ function PerformanceChart({ daily }: { daily: TrainingLoadSummary["daily"] }) {
 }
 
 function PerformanceLegend() {
+  const t = useTranslations("profile.training.form");
   return (
     <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
-      <LegendDot color="var(--chart-4)" label="Fitness (CTL)" />
-      <LegendDot color="var(--primary)" label="Fatigue (ATL)" />
-      <LegendDot color="color-mix(in oklch, var(--chart-3) 30%, transparent)" label="Form (area = fitness − fatigue)" />
-      <LegendDot color="currentColor" className="opacity-25" label="Daily load" />
+      <LegendDot color="var(--chart-4)" label={t("fitness")} />
+      <LegendDot color="var(--primary)" label={t("fatigue")} />
+      <LegendDot color="color-mix(in oklch, var(--chart-3) 30%, transparent)" label={t("formArea")} />
+      <LegendDot color="currentColor" className="opacity-25" label={t("dailyLoad")} />
     </div>
   );
 }
@@ -447,6 +467,8 @@ function LegendDot({ color, label, className }: { color: string; label: string; 
 // ---------------------------------------------------------------------------
 
 function WeeklyChart({ buckets }: { buckets: WeeklyBucket[] }) {
+  const t = useTranslations("profile.training.weekly");
+  const locale = useLocale();
   const loadMax = Math.max(0, ...buckets.map((b) => b.load));
   const useLoad = loadMax > 0;
   const distMax = Math.max(1, ...buckets.map((b) => b.distance));
@@ -468,38 +490,39 @@ function WeeklyChart({ buckets }: { buckets: WeeklyBucket[] }) {
                 style={{ height: `${Math.max(2, h)}%` }}
               />
               <div className="absolute -top-14 left-1/2 -translate-x-1/2 hidden group-hover:block bg-popover border rounded px-2 py-1 text-[10px] font-mono whitespace-nowrap z-10 shadow-sm text-left">
-                <div>{new Date(b.weekStart).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
-                <div>{b.distance.toFixed(1)} km · {b.count} runs</div>
-                <div>load {b.load.toFixed(0)}</div>
+                <div>{shortDate(b.weekStart, locale)}</div>
+                <div>{b.distance.toFixed(1)} km · {t("runs", { count: b.count })}</div>
+                <div>{t("load", { load: b.load.toFixed(0) })}</div>
               </div>
             </div>
           );
         })}
       </div>
       <div className="flex justify-between text-[10px] text-muted-foreground mt-2 font-mono">
-        <span>{new Date(buckets[0].weekStart).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
-        <span>{useLoad ? `${max.toFixed(0)} load peak` : `${max.toFixed(0)} km peak`}</span>
-        <span>This week</span>
+        <span>{shortDate(buckets[0].weekStart, locale)}</span>
+        <span>{useLoad ? t("loadPeak", { value: max.toFixed(0) }) : t("kmPeak", { value: max.toFixed(0) })}</span>
+        <span>{t("thisWeek")}</span>
       </div>
     </div>
   );
 }
 
 function WeeklyDelta({ current, previous }: { current: WeeklyBucket; previous?: WeeklyBucket }) {
+  const t = useTranslations("profile.training.weekly");
   const prev = previous ?? { distance: 0, count: 0, time: 0, load: 0 } as WeeklyBucket;
   const deltaKm = current.distance - prev.distance;
   const deltaRuns = current.count - prev.count;
 
   return (
     <div className="grid grid-cols-4 gap-3">
-      <MiniStat value={current.distance.toFixed(1)} unit="km" label="This week"
+      <MiniStat value={current.distance.toFixed(1)} unit="km" label={t("thisWeek")}
         delta={deltaKm !== 0 ? `${deltaKm >= 0 ? "+" : ""}${deltaKm.toFixed(1)}` : undefined} />
-      <MiniStat value={String(current.count)} unit="runs" label="Workouts"
+      <MiniStat value={String(current.count)} unit={t("runsUnit", { count: current.count })} label={t("workouts")}
         delta={deltaRuns !== 0 ? `${deltaRuns >= 0 ? "+" : ""}${deltaRuns}` : undefined} />
-      <MiniStat value={current.time > 0 ? formatDuration(current.time) : "—"} label="Moving time" />
+      <MiniStat value={current.time > 0 ? formatDuration(current.time) : "—"} label={t("movingTime")} />
       <MiniStat
         value={current.avgPace ? formatPace(current.avgPace).replace(" /km", "") : "—"}
-        label="Avg pace"
+        label={t("avgPace")}
         unit={current.avgPace ? "/km" : undefined}
       />
     </div>
@@ -509,6 +532,7 @@ function WeeklyDelta({ current, previous }: { current: WeeklyBucket; previous?: 
 function MiniStat({
   value, unit, label, delta,
 }: { value: string; unit?: string; label: string; delta?: string }) {
+  const t = useTranslations("profile.training");
   return (
     <div className="border-t pt-2">
       <div className="flex items-baseline gap-1">
@@ -520,7 +544,7 @@ function MiniStat({
         <div className={`text-[10px] tabular-nums mt-0.5 ${
           delta.startsWith("+") ? "text-positive" : "text-destructive"
         }`}>
-          {delta} vs last
+          {t("vsLast", { delta })}
         </div>
       )}
     </div>
@@ -532,6 +556,8 @@ function MiniStat({
 // ---------------------------------------------------------------------------
 
 function MonthlyTable({ buckets }: { buckets: MonthlyBucket[] }) {
+  const t = useTranslations("profile.training.weekly");
+  const locale = useLocale();
   const max = Math.max(1, ...buckets.map((b) => b.distance));
   return (
     <div className="space-y-1">
@@ -539,7 +565,7 @@ function MonthlyTable({ buckets }: { buckets: MonthlyBucket[] }) {
         const pct = (b.distance / max) * 100;
         return (
           <div key={b.key} className="flex items-center gap-3 py-1">
-            <div className="w-10 text-xs font-medium tabular-nums">{b.label}</div>
+            <div className="w-10 text-xs font-medium tabular-nums">{shortDate(`${b.key}-01T00:00:00Z`, locale, { month: "short" })}</div>
             <div className="flex-1 relative h-5 bg-muted overflow-hidden">
               <div
                 className="absolute inset-y-0 left-0 bg-foreground/70"
@@ -550,7 +576,7 @@ function MonthlyTable({ buckets }: { buckets: MonthlyBucket[] }) {
               </span>
             </div>
             <div className="text-[11px] text-muted-foreground font-mono tabular-nums w-14 text-right">
-              {b.count} runs
+              {t("runs", { count: b.count })}
             </div>
             <div className="text-[11px] text-muted-foreground font-mono tabular-nums w-16 text-right hidden sm:block">
               {b.avgPace ? formatPace(b.avgPace).replace(" /km", "") : "—"}
@@ -567,6 +593,10 @@ function MonthlyTable({ buckets }: { buckets: MonthlyBucket[] }) {
 // ---------------------------------------------------------------------------
 
 function DayOfWeekChart({ dow }: { dow: DowBucket[] }) {
+  const t = useTranslations("profile.training");
+  const locale = useLocale();
+  // dow 0 = Monday; 2024-01-01 was a Monday.
+  const weekday = (i: number) => shortDate(`2024-01-0${i + 1}T00:00:00Z`, locale, { weekday: true });
   const max = Math.max(1, ...dow.map((d) => d.distance));
   return (
     <div className="space-y-1.5">
@@ -574,7 +604,7 @@ function DayOfWeekChart({ dow }: { dow: DowBucket[] }) {
         const pct = (d.distance / max) * 100;
         return (
           <div key={d.dow} className="flex items-center gap-3">
-            <div className="w-9 text-xs font-medium">{d.label}</div>
+            <div className="w-9 text-xs font-medium">{weekday(d.dow)}</div>
             <div className="flex-1 h-3 bg-muted overflow-hidden">
               <div
                 className="h-full bg-chart-4"
@@ -587,7 +617,7 @@ function DayOfWeekChart({ dow }: { dow: DowBucket[] }) {
           </div>
         );
       })}
-      <p className="text-[10px] text-muted-foreground pt-1">Totals over last 12 weeks.</p>
+      <p className="text-[10px] text-muted-foreground pt-1">{t("dowNote")}</p>
     </div>
   );
 }
@@ -597,11 +627,12 @@ function DayOfWeekChart({ dow }: { dow: DowBucket[] }) {
 // ---------------------------------------------------------------------------
 
 function PaceTrendChart({ points }: { points: PaceTrendPoint[] }) {
+  const t = useTranslations("profile.training.pace");
   const withPace = points.filter((p) => p.avgPace !== null);
   if (withPace.length < 2) {
     return (
       <p className="text-xs text-muted-foreground">
-        Not enough data yet. Log a few weeks of runs to see your pace trend.
+        {t("notEnough")}
       </p>
     );
   }
@@ -654,11 +685,11 @@ function PaceTrendChart({ points }: { points: PaceTrendPoint[] }) {
         </svg>
       </div>
       <div className="flex justify-between text-[11px] mt-1">
-        <span className="text-muted-foreground font-mono">12 wk ago</span>
+        <span className="text-muted-foreground font-mono">{t("weeksAgo")}</span>
         <span className={`font-mono tabular-nums ${delta < 0 ? "text-positive" : delta > 0 ? "text-caution" : "text-muted-foreground"}`}>
-          {delta < 0 ? "−" : "+"}{Math.abs(delta).toFixed(0)}s/km overall
+          {t("overall", { delta: `${delta < 0 ? "−" : "+"}${Math.abs(delta).toFixed(0)}` })}
         </span>
-        <span className="text-muted-foreground font-mono">best {formatPace(best).replace(" /km", "")}</span>
+        <span className="text-muted-foreground font-mono">{t("best", { pace: formatPace(best).replace(" /km", "") })}</span>
       </div>
     </div>
   );
@@ -669,14 +700,16 @@ function PaceTrendChart({ points }: { points: PaceTrendPoint[] }) {
 // ---------------------------------------------------------------------------
 
 function RunTypeMixBar({ mix }: { mix: RunTypeMix }) {
+  const t = useTranslations("profile.training.mix");
+  const tw = useTranslations("profile.training.weekly");
   if (mix.total === 0) {
-    return <p className="text-xs text-muted-foreground">No runs in the last 4 weeks.</p>;
+    return <p className="text-xs text-muted-foreground">{t("none")}</p>;
   }
   const cats = [
-    { key: "easy",    label: "Easy",    value: mix.easy,    color: "bg-chart-4" },
-    { key: "steady",  label: "Steady",  value: mix.steady,  color: "bg-chart-3" },
-    { key: "tempo",   label: "Tempo",   value: mix.tempo,   color: "bg-chart-2" },
-    { key: "workout", label: "Workout", value: mix.workout, color: "bg-primary" },
+    { key: "easy",    label: t("easy"),    value: mix.easy,    color: "bg-chart-4" },
+    { key: "steady",  label: t("steady"),  value: mix.steady,  color: "bg-chart-3" },
+    { key: "tempo",   label: t("tempo"),   value: mix.tempo,   color: "bg-chart-2" },
+    { key: "workout", label: t("workout"), value: mix.workout, color: "bg-primary" },
   ];
   return (
     <div className="space-y-3">
@@ -687,7 +720,7 @@ function RunTypeMixBar({ mix }: { mix: RunTypeMix }) {
               key={c.key}
               className={c.color}
               style={{ width: `${(c.value / mix.total) * 100}%` }}
-              title={`${c.label} · ${c.value} runs`}
+              title={`${c.label} · ${tw("runs", { count: c.value })}`}
             />
           ) : null,
         )}
@@ -699,7 +732,7 @@ function RunTypeMixBar({ mix }: { mix: RunTypeMix }) {
               <span className={`w-2 h-2 rounded-sm ${c.color}`} />
               <span className="font-mono">{c.label}</span>
             </div>
-            <span className="text-muted-foreground">{c.value} runs</span>
+            <span className="text-muted-foreground">{tw("runs", { count: c.value })}</span>
             <span className="font-mono tabular-nums mt-0.5">
               {mix.total > 0 ? Math.round((c.value / mix.total) * 100) : 0}%
             </span>
@@ -707,7 +740,7 @@ function RunTypeMixBar({ mix }: { mix: RunTypeMix }) {
         ))}
       </div>
       <p className="text-[10px] text-muted-foreground">
-        Classified by pace relative to your median. 80/20 rule: most runs should be easy.
+        {t("note")}
       </p>
     </div>
   );
@@ -753,28 +786,30 @@ function DistanceHistogram({ bands }: { bands: DistanceBand[] }) {
 // ---------------------------------------------------------------------------
 
 function ElevationCard({ elev }: { elev: ElevationSummary }) {
+  const t = useTranslations("profile.training.elevation");
+  const locale = useLocale();
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <Stat
           big={`${Math.round(elev.total)}`}
-          label="Total elevation (m)"
-          sub={`over ${elev.days} days`}
+          label={t("total")}
+          sub={t("overDays", { count: elev.days })}
         />
         <Stat
           big={`${Math.round(elev.biggest)}`}
-          label="Biggest climb (m)"
-          sub={elev.biggestDate ? new Date(elev.biggestDate).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—"}
+          label={t("biggest")}
+          sub={elev.biggestDate ? shortDate(elev.biggestDate, locale) : "—"}
         />
       </div>
       <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
         <span className="inline-block">{"\u26F0\uFE0F"}</span>
         <span>
           {elev.total > 500
-            ? "Solid vertical — hill strength pays off on race day."
+            ? t("hintHigh")
             : elev.total > 100
-              ? "Some hills this month. Consider a hilly long run."
-              : "Mostly flat. Add one hilly run per week to boost strength."}
+              ? t("hintMid")
+              : t("hintLow")}
         </span>
       </div>
     </div>
@@ -786,8 +821,9 @@ function ElevationCard({ elev }: { elev: ElevationSummary }) {
 // ---------------------------------------------------------------------------
 
 function HrZonesBar({ zones }: { zones: HrZone[] }) {
+  const t = useTranslations("profile.training.zones");
   const colors = ["bg-chart-4", "bg-chart-3", "bg-chart-2", "bg-chart-5", "bg-primary"];
-  const labels = ["Recovery", "Endurance", "Tempo", "Threshold", "VO\u2082max"];
+  const labels = [t("recovery"), t("endurance"), t("tempo"), t("threshold"), "VO\u2082max"];
   return (
     <div className="space-y-3">
       <div className="flex h-6 overflow-hidden">
@@ -817,11 +853,13 @@ function HrZonesBar({ zones }: { zones: HrZone[] }) {
 }
 
 function BestsTable({ bests }: { bests: ReturnType<typeof computeBestEfforts> }) {
+  const t = useTranslations("profile.training");
+  const distanceName = useDistanceName();
   const available = bests.filter((b) => b.pace !== null);
   if (available.length === 0) {
     return (
       <p className="text-xs text-muted-foreground">
-        No qualifying runs at standard distances yet. Run 5K+ to unlock best efforts.
+        {t("noBests")}
       </p>
     );
   }
@@ -829,7 +867,7 @@ function BestsTable({ bests }: { bests: ReturnType<typeof computeBestEfforts> })
     <div className="space-y-2">
       {bests.map((b) => (
         <div key={b.label} className="flex items-center justify-between py-1.5 border-b last:border-b-0">
-          <span className="text-sm font-semibold">{b.label}</span>
+          <span className="text-sm font-semibold">{distanceName(b.label)}</span>
           <div className="text-right">
             {b.pace !== null ? (
               <>
@@ -849,11 +887,13 @@ function BestsTable({ bests }: { bests: ReturnType<typeof computeBestEfforts> })
 }
 
 function PredictedRaces({ races }: { races: PredictedRace[] }) {
+  const t = useTranslations("profile.training");
+  const distanceName = useDistanceName();
   const anyData = races.some((r) => r.seconds !== null);
   if (!anyData) {
     return (
       <p className="text-xs text-muted-foreground">
-        Complete a 5K+ run to unlock Riegel-formula race predictions.
+        {t("noPredictions")}
       </p>
     );
   }
@@ -861,11 +901,13 @@ function PredictedRaces({ races }: { races: PredictedRace[] }) {
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {races.map((r) => (
         <div key={r.label} className="border-t border-rule pt-2">
-          <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{r.label}</div>
+          <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{distanceName(r.label)}</div>
           <div className="text-xl font-bold tabular-nums mt-1 font-mono">
             {formatRaceTime(r.seconds)}
           </div>
-          <div className="text-[10px] text-muted-foreground mt-1">{r.sourceLabel ?? "—"}</div>
+          <div className="text-[10px] text-muted-foreground mt-1">
+            {r.source === null ? "—" : r.source.kind === "best" ? t("yourBest") : t("projectedFrom", { race: distanceName(r.source.from) })}
+          </div>
         </div>
       ))}
     </div>
@@ -882,18 +924,21 @@ function RhythmRow({
   rhythm: ReturnType<typeof computeConsistency>;
   totalRuns: number;
 }) {
+  const t = useTranslations("profile.training.rhythm");
   const pct = Math.round((rhythm.daysActive / rhythm.possibleDays) * 100);
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <MiniStat value={`${rhythm.daysActive}/${rhythm.possibleDays}`} label="Active days (4 wk)" />
-      <MiniStat value={`${pct}%`} label="Consistency" />
-      <MiniStat value={String(rhythm.streakDays)} unit="days" label="Current streak" />
-      <MiniStat value={String(totalRuns)} unit="runs" label="Loaded in feed" />
+      <MiniStat value={`${rhythm.daysActive}/${rhythm.possibleDays}`} label={t("activeDays")} />
+      <MiniStat value={`${pct}%`} label={t("consistency")} />
+      <MiniStat value={String(rhythm.streakDays)} unit={t("daysUnit", { count: rhythm.streakDays })} label={t("streak")} />
+      <MiniStat value={String(totalRuns)} unit={t("runsUnit", { count: totalRuns })} label={t("loaded")} />
     </div>
   );
 }
 
 function RunsList({ runs }: { runs: StravaActivity[] }) {
+  const t = useTranslations("profile.training");
+  const locale = useLocale();
   return (
     <div className="space-y-1 max-h-[420px] overflow-y-auto">
       {runs.map((a) => {
@@ -903,9 +948,9 @@ function RunsList({ runs }: { runs: StravaActivity[] }) {
           <div key={a.id} className="flex items-center gap-3 py-2 border-b hover:bg-muted/50 transition-colors">
             <span className="text-lg shrink-0">{isTrail ? "\u26F0\uFE0F" : "\uD83C\uDFC3"}</span>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">{a.name ?? (isTrail ? "Trail Run" : "Run")}</div>
+              <div className="text-sm font-medium truncate">{a.name ?? (isTrail ? t("trailRun") : t("run"))}</div>
               <div className="text-xs text-muted-foreground">
-                {new Date(a.start_date_local).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "2-digit" })}
+                {shortDate(a.start_date_local, locale, { day: true, month: "short", year: "2-digit" })}
                 {a.average_heartrate && ` \u00B7 ${Math.round(a.average_heartrate)} bpm`}
                 {a.total_elevation_gain && a.total_elevation_gain > 30 && ` \u00B7 \u2191${Math.round(a.total_elevation_gain)}m`}
               </div>

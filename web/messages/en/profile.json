@@ -1,0 +1,151 @@
+{
+  "page": {
+    "kicker": "My profile",
+    "publicPage": "Public page",
+    "claimPending": "Claim pending review",
+    "officialRaces": "Official races",
+    "trainings": "Trainings",
+    "table": {
+      "event": "Event",
+      "distance": "Distance",
+      "place": "Place",
+      "time": "Time"
+    },
+    "runner": "Runner",
+    "claimTitle": "Claim your race history",
+    "claimBody": "Find your name among the results and claim it. Your finishes, PBs and power score then live here.",
+    "findName": "Find my name →",
+    "loading": "Loading…"
+  },
+  "welcome": {
+    "title": "Is this you?",
+    "intro": "We found {count, plural, one {a runner} other {runners}} matching your name. Claim your profile to own your race history.",
+    "claimed": "Claimed ✓",
+    "viewProfile": "View profile →",
+    "claiming": "Claiming…",
+    "claim": "Claim",
+    "noneMe": "None of these are me →",
+    "failed": "Failed",
+    "networkError": "Network error"
+  },
+  "training": {
+    "noRuns": "No running activities found in your Strava feed yet.",
+    "noHr": "Connect a device that records HR to unlock zone analysis.",
+    "footer": "Advanced analytics powered by Strava. Free during beta, premium tier coming later.",
+    "vsLast": "{delta} vs last",
+    "dowNote": "Totals over last 12 weeks.",
+    "noBests": "No qualifying runs at standard distances yet. Run 5K+ to unlock best efforts.",
+    "noPredictions": "Complete a 5K+ run to unlock Riegel-formula race predictions.",
+    "yourBest": "your best",
+    "projectedFrom": "projected from {race}",
+    "trailRun": "Trail Run",
+    "run": "Run",
+    "sections": {
+      "performance": "Performance Management · 84 Days",
+      "weekly": "Weekly Load · Last 12 Weeks",
+      "monthly": "Monthly Totals · 6 Months",
+      "days": "Training Days · When You Run",
+      "paceTrend": "Pace Trend · Weekly Avg",
+      "runMix": "Run Mix · Last 4 Weeks",
+      "distances": "Distance Distribution",
+      "elevation": "Elevation · Last 4 Weeks",
+      "hrZones": "Heart Rate Zones",
+      "bests": "Best Efforts",
+      "predictor": "Race Predictor",
+      "rhythm": "Training Rhythm",
+      "recent": "Recent Runs"
+    },
+    "strava": {
+      "justConnected": "Strava connected! +20 coins earned.",
+      "connected": "Connected to Strava",
+      "athlete": "Athlete #{id}",
+      "synced": "Synced",
+      "denied": "Strava connection was denied.",
+      "promptTitle": "Connect Strava to unlock training analytics",
+      "promptBody": "Track fitness, form, weekly load, heart-rate zones, pace trends, race predictions and more, synced automatically from your runs.",
+      "connect": "Connect Strava"
+    },
+    "form": {
+      "fitness": "Fitness (CTL)",
+      "fatigue": "Fatigue (ATL)",
+      "form": "Form (TSB)",
+      "ramp7": "{delta} 7d",
+      "load7": "7-day load",
+      "formArea": "Form (area = fitness − fatigue)",
+      "dailyLoad": "Daily load",
+      "tone": {
+        "detrained": {
+          "label": "Detraining risk",
+          "hint": "Too much rest. Load up before fitness drops"
+        },
+        "fresh": {
+          "label": "Fresh",
+          "hint": "Good day for intervals or a race"
+        },
+        "neutral": {
+          "label": "Neutral",
+          "hint": "Balanced. Keep training steadily"
+        },
+        "tired": {
+          "label": "Fatigued",
+          "hint": "Easy runs and recovery"
+        },
+        "overreaching": {
+          "label": "Very fatigued",
+          "hint": "Take 1–2 rest days"
+        }
+      }
+    },
+    "weekly": {
+      "runs": "{count, plural, one {# run} other {# runs}}",
+      "runsUnit": "{count, plural, one {run} other {runs}}",
+      "load": "load {load}",
+      "loadPeak": "{value} load peak",
+      "kmPeak": "{value} km peak",
+      "thisWeek": "This week",
+      "workouts": "Workouts",
+      "movingTime": "Moving time",
+      "avgPace": "Avg pace"
+    },
+    "pace": {
+      "notEnough": "Not enough data yet. Log a few weeks of runs to see your pace trend.",
+      "weeksAgo": "12 wk ago",
+      "overall": "{delta}s/km overall",
+      "best": "best {pace}"
+    },
+    "mix": {
+      "none": "No runs in the last 4 weeks.",
+      "easy": "Easy",
+      "steady": "Steady",
+      "tempo": "Tempo",
+      "workout": "Workout",
+      "note": "Classified by pace relative to your median. 80/20 rule: most runs should be easy."
+    },
+    "elevation": {
+      "total": "Total elevation (m)",
+      "overDays": "over {count, plural, one {# day} other {# days}}",
+      "biggest": "Biggest climb (m)",
+      "hintHigh": "Solid vertical. Hill strength pays off on race day.",
+      "hintMid": "Some hills this month. Consider a hilly long run.",
+      "hintLow": "Mostly flat. Add one hilly run per week to boost strength."
+    },
+    "zones": {
+      "recovery": "Recovery",
+      "endurance": "Endurance",
+      "tempo": "Tempo",
+      "threshold": "Threshold"
+    },
+    "rhythm": {
+      "activeDays": "Active days (4 wk)",
+      "consistency": "Consistency",
+      "daysUnit": "{count, plural, one {day} other {days}}",
+      "streak": "Current streak",
+      "runsUnit": "{count, plural, one {run} other {runs}}",
+      "loaded": "Loaded in feed"
+    },
+    "distances": {
+      "half": "Half",
+      "marathon": "Marathon"
+    }
+  }
+}

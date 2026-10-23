@@ -1,0 +1,206 @@
+{
+  "nav": {
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "refund": "Refund Policy"
+  },
+  "common": {
+    "effective": "Effective date: {date}",
+    "discrepancy": "This is a translation. In case of any discrepancy, the English version prevails."
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "description": "Terms governing the use of {company}.",
+    "s1": {
+      "h": "1. Acceptance of Terms",
+      "p": "These Terms of Service (the “Terms”) govern your access to and use of the {company} website and related services (the “Service”), operated from the {country}. By creating an account, purchasing coins, or otherwise using the Service, you agree to be bound by these Terms. If you do not agree, do not use the Service."
+    },
+    "s2": {
+      "h": "2. Eligibility",
+      "p": "You must be at least 16 years old to use the Service. If you use the Service on behalf of a legal entity, you represent that you have authority to bind that entity to these Terms."
+    },
+    "s3": {
+      "h": "3. Accounts",
+      "p": "Authentication is provided through third-party identity providers (e.g. Google). You are responsible for maintaining the confidentiality of your credentials and for all activity that occurs under your account. Notify us immediately at {email} of any unauthorized access."
+    },
+    "s4": {
+      "h": "4. Service Description",
+      "p": "{company} provides a publicly compiled database of running event results in Almaty and related analytics, ranking, head-to-head comparison, training, and AI-assisted technique review features. The Service is provided on an “as is” and “as available” basis. We may modify, suspend, or discontinue any part of the Service at any time without notice."
+    },
+    "s5": {
+      "h": "5. Coins and Paid Features",
+      "p1": "Certain features (including AI Coach) require expenditure of virtual coins (the “Coins”). Coins may be obtained by:",
+      "li1": "completing eligible actions (e.g. profile claim, Strava connection, race participation);",
+      "li2": "purchasing them through the Service.",
+      "p2": "Coins have no monetary value, cannot be exchanged for cash, and are non-transferable between accounts. All Coin balances are tied to the user account on which they were earned or purchased. Coins do not expire unless the account is deleted or terminated under Section 9.",
+      "p3": "Prices are listed in Kazakhstani Tenge (KZT, ₸) and include applicable taxes where required. Refunds are governed by our <refund>Refund Policy</refund>."
+    },
+    "s6": {
+      "h": "6. User Conduct",
+      "p": "You agree not to:",
+      "li1": "impersonate another runner or claim a profile that does not represent you;",
+      "li2": "upload content that is unlawful, infringing, harassing, or contains malware;",
+      "li3": "scrape, reverse engineer, or interfere with the Service;",
+      "li4": "attempt to gain unauthorized access to accounts, systems, or data;",
+      "li5": "use the AI Coach feature to upload videos of other persons without their consent."
+    },
+    "s7": {
+      "h": "7. User Content",
+      "p": "You retain ownership of content you upload (e.g. videos submitted to AI Coach). You grant {company} a non-exclusive, worldwide, royalty-free license to host, store, process, and display that content solely for the purpose of operating and improving the Service. You represent that you have all necessary rights to grant this license."
+    },
+    "s8": {
+      "h": "8. Intellectual Property",
+      "p": "All trademarks, logos, source code, design, and compiled databases of the Service are the property of {company} or its licensors and are protected by the laws of the {country} and applicable international treaties. Race results data is sourced from publicly available event websites and is presented for informational purposes."
+    },
+    "s9": {
+      "h": "9. Termination",
+      "p": "We may suspend or terminate your account at any time for breach of these Terms, fraudulent activity, or as required by law. Upon termination, your right to use the Service ceases immediately and any unused Coins are forfeited, except where applicable law requires otherwise."
+    },
+    "s10": {
+      "h": "10. Disclaimers",
+      "p": "The Service, including AI-generated technique feedback, is provided for informational and entertainment purposes only and does not constitute medical, coaching, or professional advice. Consult a qualified professional before acting on any output."
+    },
+    "s11": {
+      "h": "11. Limitation of Liability",
+      "p": "To the maximum extent permitted by law, {company} shall not be liable for any indirect, incidental, consequential, or punitive damages, or any loss of profits, revenue, data, or goodwill arising out of or in connection with your use of the Service. Our total cumulative liability for any claim shall not exceed the amount you paid us in the twelve (12) months preceding the event giving rise to the claim."
+    },
+    "s12": {
+      "h": "12. Governing Law and Disputes",
+      "p": "These Terms are governed by the laws of the {country}. Any dispute arising from these Terms shall be submitted to the courts at the location of {company}, in accordance with the procedural legislation of the {country}. Consumers retain all mandatory protections granted by the Law of the Republic of Kazakhstan “On Protection of Consumer Rights” No. 274-IV dated 4 May 2010."
+    },
+    "s13": {
+      "h": "13. Changes to the Terms",
+      "p": "We may update these Terms from time to time. The “Effective date” above reflects the latest revision. Continued use of the Service after changes are posted constitutes acceptance of the revised Terms."
+    },
+    "s14": {
+      "h": "14. Contact",
+      "p": "Questions about these Terms: <mail>{email}</mail>."
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "description": "How {company} collects, uses, and protects your personal data.",
+    "intro": "This Privacy Policy describes how {company} (the “Operator”, “we”, “us”) collects, uses, stores, and shares personal data of users of the Service. We process personal data in accordance with the Law of the {country} “On Personal Data and Its Protection” No. 94-V dated 21 May 2013 (the “Personal Data Law”) and other applicable legislation.",
+    "s1": {
+      "h": "1. Data Controller",
+      "p": "The data controller (Operator) is {company}, contactable at <mail>{email}</mail>."
+    },
+    "s2": {
+      "h": "2. Personal Data We Collect",
+      "li1": "<b>Account data.</b> Provided by your authentication provider (typically Google): email address, display name, profile picture URL, and a stable user identifier.",
+      "li2": "<b>Profile data.</b> Runner profile claim information (full name, city, country) submitted by you, and verification evidence you choose to provide.",
+      "li3": "<b>Strava data.</b> If you connect Strava: athlete ID, OAuth tokens, and activity metadata (distance, pace, dates) used for training analytics.",
+      "li4": "<b>AI Coach uploads.</b> Video files you upload, extracted frames, and AI-generated analysis output.",
+      "li5": "<b>Transaction data.</b> Record of Coin balance, awards, debits, and purchases.",
+      "li6": "<b>Technical data.</b> IP address, browser user agent, device type, access logs, and similar diagnostic information."
+    },
+    "s3": {
+      "h": "3. Public Race Results",
+      "p": "The Service also displays running event results that are publicly published by event organisers on their official websites. These results (name, city, finish time, place, etc.) are aggregated for informational purposes. If you wish to be excluded, contact us at {email} and we will remove your record within a reasonable period."
+    },
+    "s4": {
+      "h": "4. Purposes of Processing and Legal Basis",
+      "li1": "to create and operate your account; basis: performance of a contract (Article 9 of the Personal Data Law);",
+      "li2": "to verify runner profile claims and email you the outcome of your claim; basis: your consent;",
+      "li3": "to provide training analytics from Strava; basis: your consent and contract;",
+      "li4": "to deliver AI Coach analysis; basis: performance of a contract and your consent to processing of uploaded video;",
+      "li5": "to process Coin purchases and prevent fraud; basis: performance of a contract and legitimate interests;",
+      "li6": "to comply with legal obligations; basis: statutory requirements."
+    },
+    "s5": {
+      "h": "5. Consent",
+      "p": "By creating an account and using the Service, you provide consent to the collection and processing of your personal data for the purposes described above. You may withdraw consent at any time by deleting your account or by contacting {email}. Withdrawal does not affect the lawfulness of processing performed prior to withdrawal."
+    },
+    "s6": {
+      "h": "6. Sharing and Disclosure",
+      "p1": "We share personal data only with:",
+      "li1": "<b>Sub-processors</b> acting on our instructions, including: Supabase (database and storage), Vercel (hosting), Google (authentication), Strava (training data integration), Resend (transactional email, such as claim decisions), and AI model providers used by AI Coach for inference.",
+      "li2": "<b>Payment processors</b> when you purchase Coins. We do not store full payment card numbers on our servers.",
+      "li3": "<b>Authorities</b> when required by law, court order, or to protect the rights, property, or safety of the Operator or others.",
+      "p2": "Some sub-processors may process data outside the {country}. Where such cross-border transfer occurs, we ensure adequate protection in accordance with Article 16 of the Personal Data Law."
+    },
+    "s7": {
+      "h": "7. Data Retention",
+      "p": "We retain personal data for as long as your account is active and for a reasonable period thereafter to comply with legal obligations, resolve disputes, and enforce our agreements. AI Coach video files and extracted frames are retained while the session is visible in your account and may be deleted at your request."
+    },
+    "s8": {
+      "h": "8. Your Rights",
+      "p1": "Subject to the Personal Data Law, you have the right to:",
+      "li1": "access the personal data we hold about you;",
+      "li2": "request rectification of inaccurate or incomplete data;",
+      "li3": "request blocking or destruction of your data;",
+      "li4": "withdraw consent and request deletion of your account;",
+      "li5": "lodge a complaint with the authorised body for personal data protection of the {country}.",
+      "p2": "To exercise these rights, contact us at <mail>{email}</mail>. We will respond within the period prescribed by applicable law."
+    },
+    "s9": {
+      "h": "9. Security",
+      "p": "We apply organisational and technical measures appropriate to the risks of processing, including encrypted connections (HTTPS/TLS), access control, server-side handling of secrets, and least-privilege database policies. No method of transmission or storage is fully secure; we cannot guarantee absolute security."
+    },
+    "s10": {
+      "h": "10. Cookies",
+      "p": "The Service uses strictly necessary cookies for authentication session management and preferences (e.g. theme and language). We do not use advertising cookies or third-party tracking cookies for behavioural advertising."
+    },
+    "s11": {
+      "h": "11. Children",
+      "p": "The Service is not intended for children under 16. We do not knowingly collect personal data from children. If you believe a child has provided personal data, contact us and we will delete it."
+    },
+    "s12": {
+      "h": "12. Changes to this Policy",
+      "p": "We may update this Privacy Policy from time to time. The “Effective date” above reflects the latest revision."
+    },
+    "s13": {
+      "h": "13. Contact",
+      "p": "Privacy questions and data-subject requests: <mail>{email}</mail>."
+    }
+  },
+  "refund": {
+    "title": "Refund Policy",
+    "description": "Refund terms for Coin purchases on {company}.",
+    "intro": "This Refund Policy applies to purchases of virtual coins (“Coins”) made on {company} (the “Service”). It is issued in accordance with the Law of the {country} “On Protection of Consumer Rights” No. 274-IV dated 4 May 2010.",
+    "s1": {
+      "h": "1. Nature of Coins",
+      "p": "Coins are a non-monetary in-service currency used to unlock paid features such as AI Coach analyses. Coins have no real-world cash value, are non-transferable between accounts, and cannot be exchanged for cash or any other consideration except as expressly stated in this Policy."
+    },
+    "s2": {
+      "h": "2. Eligibility for Refund",
+      "p": "You may request a refund of a Coin purchase in the following cases:",
+      "li1": "<b>Cooling-off period.</b> Within fourteen (14) calendar days of purchase, provided that none of the purchased Coins have been spent. Once any portion of a Coin pack has been consumed within the Service, the pack is considered “used” and is no longer refundable, as the digital good has been delivered and consumed.",
+      "li2": "<b>Technical fault.</b> Coins were debited from your account but the paid feature failed to deliver due to a defect attributable to us (e.g. AI Coach analysis permanently failed to produce results). In such cases we will, at our discretion, either re-credit the spent Coins or refund their monetary value.",
+      "li3": "<b>Duplicate charge.</b> You were charged more than once for the same purchase due to a payment processor error.",
+      "li4": "<b>Unauthorised charge.</b> The purchase was made without your authorisation, subject to investigation."
+    },
+    "s3": {
+      "h": "3. Non-Refundable Cases",
+      "p": "Refunds are not available in the following cases:",
+      "li1": "Coins that have been fully or partially consumed within the Service;",
+      "li2": "change of mind after consumption of the digital service;",
+      "li3": "dissatisfaction with AI Coach output where the analysis was technically delivered;",
+      "li4": "account termination due to breach of our <terms>Terms of Service</terms>;",
+      "li5": "requests made more than 14 days after purchase, except where mandatory law provides otherwise."
+    },
+    "s4": {
+      "h": "4. How to Request a Refund",
+      "p": "Send an email to <mail>{email}</mail> from the email address associated with your account, including:",
+      "li1": "your account email and approximate date of purchase;",
+      "li2": "the payment receipt or transaction identifier;",
+      "li3": "a brief explanation of the reason for the refund request."
+    },
+    "s5": {
+      "h": "5. Processing Time",
+      "p": "We aim to respond to refund requests within seven (7) business days. Approved refunds are returned to the original payment method. Settlement may take an additional 5–14 business days depending on your bank or card issuer. Refunds are issued in Kazakhstani Tenge (KZT, ₸) at the original transaction amount; any currency conversion or bank commissions on your side are not within our control."
+    },
+    "s6": {
+      "h": "6. Chargebacks",
+      "p": "Before initiating a chargeback with your bank or card issuer, we kindly ask that you contact us first so we can resolve the matter directly. Filing a chargeback without first contacting us may delay resolution and may result in suspension of your account pending investigation."
+    },
+    "s7": {
+      "h": "7. Consumer Rights",
+      "p": "This Policy does not limit any mandatory rights granted to you as a consumer under the legislation of the {country}. In case of any conflict between this Policy and mandatory consumer protection law, the latter prevails."
+    },
+    "s8": {
+      "h": "8. Contact",
+      "p": "Refund requests and questions: <mail>{email}</mail>."
+    }
+  }
+}
