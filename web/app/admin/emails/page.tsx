@@ -75,7 +75,7 @@ export default async function AdminEmailsPage() {
         </ActionForm>
       </section>
 
-      <div className="space-y-10">
+      <div className="grid gap-10 lg:grid-cols-2">
         {copies.map(({ kind, copy }) => (
           <CopyEditor
             key={kind}

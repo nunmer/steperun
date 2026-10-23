@@ -12,9 +12,10 @@
 - **Same dates and numbers on server and browser.** `lib/format.ts` formats
   from explicit month/weekday tables, because Chrome has no Kazakh locale data
   and `Intl("kk-KZ")` caused hydration mismatches. `INTL_TAGS` is gone.
-- **Editable claim email text.** `/admin/emails` now edits every word of the
-  approved and rejected emails (subject, preview line, headline, message,
-  button, footer) with a live preview. Supports `{name}`, `{runner}`,
+- **Editable claim email text.** On `/admin/emails` the approved and rejected
+  emails stay side by side and their text is edited in place: click any dashed
+  text inside the email and type (subject, inbox preview and the no-name
+  greeting sit above it); "Preview" shows the email exactly as sent. Supports `{name}`, `{runner}`,
   `{coins}`, `{profile_url}`, `{runner_url}`, `**bold**` and `[text](url)`.
   Stored in `app_settings` (`email_copy_approved`, `email_copy_rejected`);
   defaults live in `lib/email/copy.ts`. Audited as `admin_email_copy_changed`.
