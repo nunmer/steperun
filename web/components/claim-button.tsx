@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
@@ -12,6 +13,7 @@ interface ClaimButtonProps {
 }
 
 export function ClaimButton({ runnerId, claimedBy }: ClaimButtonProps) {
+  const t = useTranslations("runners.claim");
   const [userId, setUserId] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export function ClaimButton({ runnerId, claimedBy }: ClaimButtonProps) {
     return (
       <Link href="/profile">
         <Badge variant="secondary" className="text-xs cursor-pointer hover:opacity-80">
-          Your profile ✓
+          {t("yours")}
         </Badge>
       </Link>
     );
@@ -37,7 +39,7 @@ export function ClaimButton({ runnerId, claimedBy }: ClaimButtonProps) {
   if (claimedBy) {
     return (
       <Badge variant="outline" className="text-xs text-muted-foreground">
-        Claimed
+        {t("claimed")}
       </Badge>
     );
   }
@@ -46,9 +48,9 @@ export function ClaimButton({ runnerId, claimedBy }: ClaimButtonProps) {
   if (status === "done") {
     return (
       <div className="flex items-center gap-2">
-        <Badge variant="secondary" className="text-xs">Claimed ✓</Badge>
+        <Badge variant="secondary" className="text-xs">{t("claimedNow")}</Badge>
         <Link href="/profile" className="text-xs text-muted-foreground hover:text-foreground underline">
-          View your profile
+          {t("viewProfile")}
         </Link>
       </div>
     );
@@ -71,13 +73,13 @@ export function ClaimButton({ runnerId, claimedBy }: ClaimButtonProps) {
       const json = await res.json();
       if (!res.ok) {
         setStatus("error");
-        setMessage(json.error ?? "Failed to submit claim");
+        setMessage(json.error ?? t("failed"));
         return;
       }
       setStatus("done");
     } catch {
       setStatus("error");
-      setMessage("Network error. Please try again.");
+      setMessage(t("network"));
     }
   }
 
@@ -89,7 +91,7 @@ export function ClaimButton({ runnerId, claimedBy }: ClaimButtonProps) {
         onClick={handleClaim}
         disabled={status === "loading"}
       >
-        {status === "loading" ? "Submitting…" : "Claim this profile"}
+        {status === "loading" ? t("submitting") : t("claim")}
       </Button>
       {status === "error" && message && (
         <span className="text-xs text-destructive">{message}</span>

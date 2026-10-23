@@ -1,0 +1,34 @@
+{
+  "list": {
+    "title": "Забеги",
+    "summary": "{races, plural, one {# забег} few {# забега} many {# забегов} other {# забега}} · {finishers, plural, one {# финишёр} few {# финишёра} many {# финишёров} other {# финишёра}}",
+    "season": "Сезон",
+    "all": "Все",
+    "date": "Дата",
+    "race": "Забег",
+    "organizer": "Организатор",
+    "finishers": "Финишёры"
+  },
+  "event": {
+    "finishers": "{count, plural, one {финишёр} few {финишёра} many {финишёров} other {финишёра}}",
+    "distances": "{count, plural, one {дистанция} few {дистанции} many {дистанций} other {дистанции}}",
+    "official": "Официальный протокол ↗",
+    "field": "Кто бежал",
+    "distance": "Дистанция",
+    "city": "Город",
+    "country": "Страна",
+    "all": "Все",
+    "none": "Финишёров пока нет",
+    "range": "{from}–{to} из {total}",
+    "empty": "На этой дистанции нет результатов.",
+    "cols": {
+      "place": "Место",
+      "runner": "Бегун",
+      "from": "Откуда",
+      "bib": "Номер",
+      "distance": "Дист.",
+      "chip": "Чистое",
+      "gun": "Общее"
+    }
+  }
+}

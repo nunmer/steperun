@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { RunnerSearch } from "@/components/runner-search";
 
 type Runner = {
@@ -71,8 +72,9 @@ function RadarChart({
   dataA: ComparisonData;
   dataB: ComparisonData;
 }) {
+  const t = useTranslations("runners.h2h");
   // 5 axes: Races, Seasons, Distances, Avg Place (inverted — lower is better), Wins
-  const labels = ["Races", "Seasons", "Distances", "Consistency", "Experience"];
+  const labels = [t("radarRaces"), t("radarSeasons"), t("radarDistances"), t("radarConsistency"), t("radarExperience")];
 
   const maxRaces = Math.max(dataA.totalRaces, dataB.totalRaces, 1);
   const maxSeasons = Math.max(dataA.uniqueSeasons, dataB.uniqueSeasons, 1);
@@ -256,24 +258,25 @@ function RunnerAvatar({
 
 // ─── Share Button ────────────────────────────────────────────────────────────
 
+type H2hT = ReturnType<typeof useTranslations<"runners.h2h">>;
+
 function buildTeaseText(
+  t: H2hT,
   dataA: ComparisonData,
   dataB: ComparisonData,
   winsA: number,
   winsB: number,
 ): string {
-  const a = dataA.runner.full_name.split(" ")[0];
-  const b = dataB.runner.full_name.split(" ")[0];
-  if (winsA + winsB === 0) {
-    return `${a} vs ${b} — who's the real runner?`;
-  }
-  if (winsA > winsB) {
-    return `${a} just smoked ${b} ${winsA}–${winsB} head-to-head. Think you can do better?`;
-  }
-  if (winsB > winsA) {
-    return `${b} crushed ${a} ${winsB}–${winsA}. Don't believe it? See for yourself.`;
-  }
-  return `${a} and ${b} are dead even at ${winsA}–${winsB}. Who breaks the tie?`;
+  const vars = {
+    a: dataA.runner.full_name.split(" ")[0],
+    b: dataB.runner.full_name.split(" ")[0],
+    wa: String(winsA),
+    wb: String(winsB),
+  };
+  if (winsA + winsB === 0) return t("teaseNone", vars);
+  if (winsA > winsB) return t("teaseAWins", vars);
+  if (winsB > winsA) return t("teaseBWins", vars);
+  return t("teaseEven", vars);
 }
 
 function ShareButton({
@@ -287,12 +290,13 @@ function ShareButton({
   winsA: number;
   winsB: number;
 }) {
+  const t = useTranslations("runners.h2h");
   const [status, setStatus] = useState<"idle" | "copied">("idle");
 
   async function handleShare() {
     if (typeof window === "undefined") return;
     const url = `${window.location.origin}/runners/head-to-head?a=${dataA.runner.id}&b=${dataB.runner.id}`;
-    const text = buildTeaseText(dataA, dataB, winsA, winsB);
+    const text = buildTeaseText(t, dataA, dataB, winsA, winsB);
 
     // WhatsApp / Telegram drop the `text` field when `url` is also passed,
     // so we pack everything into `text` and let messengers auto-linkify the URL.
@@ -300,7 +304,7 @@ function ShareButton({
 
     if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
       try {
-        await navigator.share({ title: "Head to Head — steperun", text: payload });
+        await navigator.share({ title: `${t("title")} · Steppe RUN`, text: payload });
         return;
       } catch {
         // User canceled or share failed — fall through to copy
@@ -312,7 +316,7 @@ function ShareButton({
       setStatus("copied");
       setTimeout(() => setStatus("idle"), 2000);
     } catch {
-      window.prompt("Copy this link:", payload);
+      window.prompt(t("copyPrompt"), payload);
     }
   }
 
@@ -320,7 +324,7 @@ function ShareButton({
     <button
       onClick={handleShare}
       className="inline-flex items-center gap-2 h-10 px-4 rounded-sm bg-foreground text-background text-sm font-semibold hover:opacity-90 transition-opacity"
-      aria-label="Share comparison"
+      aria-label={t("shareAria")}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -339,7 +343,7 @@ function ShareButton({
         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
         <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
       </svg>
-      {status === "copied" ? "Link copied!" : "Share this matchup"}
+      {status === "copied" ? t("copied") : t("share")}
     </button>
   );
 }
@@ -347,6 +351,7 @@ function ShareButton({
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export function HeadToHead() {
+  const t = useTranslations("runners.h2h");
   const searchParams = useSearchParams();
   const [runnerA, setRunnerA] = useState<Runner | null>(null);
   const [runnerB, setRunnerB] = useState<Runner | null>(null);
@@ -469,8 +474,8 @@ export function HeadToHead() {
     <div className="space-y-8">
       {/* Runner selection */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <RunnerSearch label="Runner 1" selectedRunner={runnerA} onSelect={setRunnerA} />
-        <RunnerSearch label="Runner 2" selectedRunner={runnerB} onSelect={setRunnerB} />
+        <RunnerSearch label={t("runner1")} selectedRunner={runnerA} onSelect={setRunnerA} />
+        <RunnerSearch label={t("runner2")} selectedRunner={runnerB} onSelect={setRunnerB} />
       </div>
 
       {/* Comparison card */}
@@ -479,7 +484,7 @@ export function HeadToHead() {
           <div className="border-y-2 border-rule py-6 sm:py-8 space-y-8">
             {/* Tease headline */}
             <p className="text-center text-base sm:text-lg font-medium leading-snug">
-              {buildTeaseText(dataA, dataB, winsA, winsB)}
+              {buildTeaseText(t, dataA, dataB, winsA, winsB)}
             </p>
 
             {/* Top section: Avatar — Radar — Avatar */}
@@ -494,15 +499,15 @@ export function HeadToHead() {
             <div className="flex items-end justify-center gap-6 sm:gap-10 text-center">
               <div>
                 <p className="headline text-7xl sm:text-8xl tabular-nums" style={{ color: COLOR_A }}>{winsA}</p>
-                <p className="eyebrow mt-1">Wins</p>
+                <p className="eyebrow mt-1">{t("wins")}</p>
               </div>
               <div className="pb-6">
                 <p className="headline text-3xl text-muted-foreground tabular-nums">{ties}</p>
-                <p className="eyebrow mt-1">Ties</p>
+                <p className="eyebrow mt-1">{t("ties")}</p>
               </div>
               <div>
                 <p className="headline text-7xl sm:text-8xl tabular-nums" style={{ color: COLOR_B }}>{winsB}</p>
-                <p className="eyebrow mt-1">Wins</p>
+                <p className="eyebrow mt-1">{t("wins")}</p>
               </div>
             </div>
 
@@ -514,23 +519,23 @@ export function HeadToHead() {
             {/* Comparison bars */}
             <div className="space-y-4 max-w-lg mx-auto">
               <ComparisonBar
-                label="Total Races"
+                label={t("totalRaces")}
                 valueA={dataA.totalRaces}
                 valueB={dataB.totalRaces}
               />
               <ComparisonBar
-                label="Active Seasons"
+                label={t("activeSeasons")}
                 valueA={dataA.uniqueSeasons}
                 valueB={dataB.uniqueSeasons}
               />
               <ComparisonBar
-                label="Distances"
+                label={t("distances")}
                 valueA={Object.keys(dataA.bestTimes).length}
                 valueB={Object.keys(dataB.bestTimes).length}
               />
               {dataA.avgPlace && dataB.avgPlace && (
                 <ComparisonBar
-                  label="Avg Place"
+                  label={t("avgPlace")}
                   valueA={dataA.avgPlace}
                   valueB={dataB.avgPlace}
                   formatA={`#${dataA.avgPlace}`}
@@ -539,7 +544,7 @@ export function HeadToHead() {
                 />
               )}
               <ComparisonBar
-                label="Shared Races"
+                label={t("sharedRaces")}
                 valueA={sharedEvents.length}
                 valueB={sharedEvents.length}
               />
@@ -547,7 +552,7 @@ export function HeadToHead() {
 
             {sharedEvents.length === 0 && (
               <p className="text-center text-muted-foreground text-sm">
-                No shared races found
+                {t("noShared")}
               </p>
             )}
           </div>
@@ -555,12 +560,12 @@ export function HeadToHead() {
           {/* Personal bests comparison */}
           {allDistances.length > 0 && (
             <section>
-              <h2 className="headline text-3xl border-b-2 border-rule pb-2">Personal Bests</h2>
+              <h2 className="headline text-3xl border-b-2 border-rule pb-2">{t("personalBests")}</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-2 pr-3 eyebrow font-normal">Distance</th>
+                      <th className="text-left py-2 pr-3 eyebrow font-normal">{t("distance")}</th>
                       <th className="text-right py-2 px-3 font-semibold text-sm" style={{ color: COLOR_A }}>
                         {dataA.runner.full_name.split(" ")[0]}
                       </th>
@@ -605,14 +610,14 @@ export function HeadToHead() {
           {sharedEvents.length > 0 && (
             <section>
               <h2 className="headline text-3xl border-b-2 border-rule pb-2">
-                Race History ({sharedEvents.length} shared)
+                {t("raceHistory", { count: sharedEvents.length })}
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-2 pr-3 eyebrow font-normal">Event</th>
-                      <th className="text-left py-2 pr-3 eyebrow font-normal">Distance</th>
+                      <th className="text-left py-2 pr-3 eyebrow font-normal">{t("event")}</th>
+                      <th className="text-left py-2 pr-3 eyebrow font-normal">{t("distance")}</th>
                       <th className="text-right py-2 px-3 font-semibold text-sm" style={{ color: COLOR_A }}>
                         {dataA.runner.full_name.split(" ")[0]}
                       </th>
@@ -663,7 +668,7 @@ export function HeadToHead() {
       {/* Empty state */}
       {(!runnerA || !runnerB) && (
         <p className="py-12 text-muted-foreground border-b">
-          Pick two runners to see who won the races they both ran, and their personal bests side by side.
+          {t("empty")}
         </p>
       )}
     </div>

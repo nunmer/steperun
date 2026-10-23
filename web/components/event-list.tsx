@@ -1,20 +1,22 @@
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import type { EventRow } from "@/lib/queries";
 import { OrganizerPin } from "@/components/organizer-pin";
+import type { Locale } from "@/i18n/config";
+import { formatDate } from "@/lib/format";
+import { formatNumber } from "@/lib/utils";
 
-/** "18 Oct" — the year is already the group heading. */
-function shortDate(date: string | null): string | null {
+/** "18 Oct" / "18 окт" — the year is already the group heading. */
+function shortDate(date: string | null, locale: Locale): string | null {
   if (!date) return null;
-  const d = new Date(`${date.slice(0, 10)}T00:00:00Z`);
-  if (Number.isNaN(d.getTime())) return null;
-  // Built by hand: en-GB says "Sept", which breaks the fixed-width date column.
-  const month = d.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" });
-  return `${String(d.getUTCDate()).padStart(2, "0")} ${month}`;
+  // Three-letter months keep the fixed-width date column aligned.
+  return formatDate(date.slice(0, 10), locale, { day: true, padDay: true, month: "short" });
 }
 
 /** One race as a line in a results index: date · name · organizer · finishers. */
 export function EventLine({ event }: { event: EventRow }) {
-  const date = shortDate(event.date_of_event);
+  const locale = useLocale();
+  const date = shortDate(event.date_of_event, locale);
   return (
     <li>
       <Link
@@ -31,7 +33,7 @@ export function EventLine({ event }: { event: EventRow }) {
         <span className="flex items-baseline gap-4 sm:gap-8">
           <OrganizerPin organizer={event.organizer} className="hidden sm:inline-flex w-36" />
           <span className="time text-sm text-right min-w-[4.5rem]">
-            {event.total_results.toLocaleString()}
+            {formatNumber(event.total_results, locale)}
           </span>
         </span>
       </Link>
@@ -44,6 +46,7 @@ export function EventLine({ event }: { event: EventRow }) {
  * like an almanac margin; on phones it becomes a heading above its list.
  */
 export function EventYearGroups({ groups }: { groups: { label: string; events: EventRow[] }[] }) {
+  const t = useTranslations("events.list");
   return (
     <div className="space-y-10">
       {groups.map(({ label, events }) => (
@@ -53,11 +56,11 @@ export function EventYearGroups({ groups }: { groups: { label: string; events: E
           </h2>
           <div>
             <div className="hidden sm:grid grid-cols-[3.75rem_1fr_auto] gap-x-5 border-b border-rule pb-2 eyebrow lg:pt-3">
-              <span>Date</span>
-              <span>Race</span>
+              <span>{t("date")}</span>
+              <span>{t("race")}</span>
               <span className="flex gap-8">
-                <span className="w-36">Organizer</span>
-                <span className="min-w-[4.5rem] text-right">Finishers</span>
+                <span className="w-36">{t("organizer")}</span>
+                <span className="min-w-[4.5rem] text-right">{t("finishers")}</span>
               </span>
             </div>
             <ul>

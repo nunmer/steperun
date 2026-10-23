@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Coins",
+    "description": "Earn and spend coins on AI Coach analyses.",
+    "costNote": "AI Coach costs {cost, plural, one {# coin} other {# coins}} per analysis. Your first {free} are free.",
+    "balance": "Balance",
+    "paymentReceived": "Payment received. Your coins will appear in a few seconds. Refresh the page if you don’t see them yet.",
+    "earnTitle": "Earn coins",
+    "earn": {
+      "strava": "Connect Strava",
+      "claim": "Get your runner profile claim approved",
+      "race": "Each race in your claimed profile"
+    },
+    "perRace": " / race",
+    "earnHint": "Connect Strava and claim your runner profile from the <profile>Profile</profile> page.",
+    "buyTitle": "Buy coins",
+    "paddleNote": "Payments are processed securely by Paddle. See our <refund>Refund Policy</refund>.",
+    "historyTitle": "History",
+    "noHistory": "No transactions yet.",
+    "table": {
+      "date": "Date",
+      "reason": "Reason",
+      "amount": "Amount"
+    },
+    "reasons": {
+      "claim_approved": "Runner profile claimed",
+      "strava_connected": "Strava connected",
+      "event_participation": "Race participation reward",
+      "purchase": "Coins purchased",
+      "analysis_spent": "AI Coach analysis",
+      "analysis_refund": "Analysis refund",
+      "admin_adjustment": "Adjustment by Steppe RUN"
+    }
+  },
+  "packs": {
+    "notConfigured": "Payments are not configured yet. Please contact support to top up your balance.",
+    "badges": {
+      "save10": "Save 10%",
+      "bestValue": "Best value"
+    },
+    "coinsUnit": "{count, plural, one {coin} other {coins}}",
+    "perCoin": "{price} ₸/coin",
+    "comingSoon": "Coming soon",
+    "opening": "Opening…",
+    "buy": "Buy",
+    "balanceLabel": "{count, plural, one {# coin} other {# coins}}"
+  }
+}

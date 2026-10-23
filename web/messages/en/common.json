@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "description": "Race results, rankings and runner profiles from Kazakhstan's road and trail races."
+  },
+  "footer": {
+    "sources": "Results from almaty-marathon.kz and athletex.kz",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "refunds": "Refunds"
+  },
+  "nav": {
+    "events": "Events",
+    "rankings": "Rankings",
+    "power": "Power",
+    "runners": "Runners",
+    "headToHead": "Head to head",
+    "aiCoach": "AI Coach",
+    "home": "Steppe RUN home",
+    "main": "Main",
+    "searchRunners": "Search runners",
+    "findRunner": "Find a runner",
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme",
+    "signIn": "Sign in",
+    "signInGoogle": "Sign in with Google",
+    "signingIn": "Signing you in…",
+    "signOut": "Sign out",
+    "myProfile": "My profile",
+    "admin": "Admin",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "prev": "← Prev",
+    "next": "Next →"
+  },
+  "search": {
+    "dialog": "Search runners",
+    "placeholder": "Find a runner (Latin or Cyrillic)",
+    "inputLabel": "Runner name",
+    "esc": "Esc",
+    "runners": "Runners",
+    "searching": "Searching",
+    "noMatch": "No runner by that name",
+    "jumpTo": "Jump to",
+    "allResults": "All results for “{query}” →",
+    "move": "↑↓ move",
+    "open": "↵ open",
+    "close": "esc close",
+    "jump": {
+      "events": {
+        "label": "Events",
+        "meta": "Every race, by season"
+      },
+      "rankings": {
+        "label": "Rankings",
+        "meta": "Fastest chip times"
+      },
+      "power": {
+        "label": "Power rankings",
+        "meta": "ELO levels"
+      },
+      "h2h": {
+        "label": "Head to head",
+        "meta": "Compare two runners"
+      },
+      "coach": {
+        "label": "AI Coach",
+        "meta": "Form check from a video"
+      }
+    }
+  },
+  "account": {
+    "label": "Account",
+    "runner": "Runner",
+    "theme": "Theme",
+    "paper": "Paper",
+    "night": "Night",
+    "signOut": "Sign out",
+    "links": {
+      "profile": {
+        "label": "My profile",
+        "meta": "Races, PBs, trainings"
+      },
+      "coins": {
+        "label": "Coins",
+        "meta": "Balance and history"
+      },
+      "coach": {
+        "label": "AI Coach",
+        "meta": "Your form analyses"
+      },
+      "admin": {
+        "label": "Admin",
+        "meta": "Claims, users, data"
+      }
+    }
+  },
+  "notFound": {
+    "title": "Not found",
+    "line1": "Did not",
+    "line2": "finish.",
+    "body": "This page isn't on the results sheet. The race or runner may have been renamed or merged with another profile.",
+    "searchRunners": "Search runners",
+    "browseRaces": "Browse races",
+    "home": "Home"
+  },
+  "error": {
+    "kicker": "Timing down",
+    "title": "Results are temporarily unavailable",
+    "body": "The database isn't responding. Please try again in a minute.",
+    "retry": "Try again"
+  },
+  "breakdown": {
+    "more": "{count} more"
+  },
+  "organizer": {
+    "timing": "Timing: {organizer}"
+  },
+  "distances": {
+    "label": "All distances",
+    "more": "More distances…"
+  }
+}

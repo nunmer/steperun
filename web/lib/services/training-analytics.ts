@@ -444,7 +444,8 @@ export interface PredictedRace {
   label:    string;
   distance: number;   // metres
   seconds:  number | null;
-  sourceLabel: string | null; // e.g. "projected from your 10K PR"
+  /** Where the time comes from: the runner's own best, or projected from another distance's best (its label). */
+  source: { kind: "best" } | { kind: "projected"; from: string } | null;
 }
 
 const RACE_TARGETS: { label: string; distance: number }[] = [
@@ -457,20 +458,20 @@ const RACE_TARGETS: { label: string; distance: number }[] = [
 export function computePredictedRaces(bests: BestEffort[]): PredictedRace[] {
   const available = bests.filter((b) => b.pace !== null && b.totalTime !== null);
   if (available.length === 0) {
-    return RACE_TARGETS.map((r) => ({ ...r, seconds: null, sourceLabel: null }));
+    return RACE_TARGETS.map((r) => ({ ...r, seconds: null, source: null }));
   }
   // Prefer longer references (more reliable for predictions) but within reason.
   const ref = available.reduce((best, cur) => (cur.distance > best.distance ? cur : best), available[0]);
 
   return RACE_TARGETS.map(({ label, distance }) => {
     if (ref.distance === distance) {
-      return { label, distance, seconds: ref.totalTime, sourceLabel: "your best" };
+      return { label, distance, seconds: ref.totalTime, source: { kind: "best" } };
     }
     const t1 = ref.totalTime!;
     const d1 = ref.distance / 1000;
     const d2 = distance / 1000;
     const t2 = t1 * Math.pow(d2 / d1, 1.06);
-    return { label, distance, seconds: t2, sourceLabel: `projected from ${ref.label}` };
+    return { label, distance, seconds: t2, source: { kind: "projected", from: ref.label } };
   });
 }
 

@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Монеты",
+    "description": "Зарабатывайте монеты и тратьте их на разбор техники от ИИ-тренера.",
+    "costNote": "Разбор от ИИ-тренера стоит {cost, plural, one {# монету} few {# монеты} many {# монет} other {# монеты}}. Первые {free} бесплатно.",
+    "balance": "Баланс",
+    "paymentReceived": "Оплата прошла. Монеты придут через несколько секунд. Если их нет, обновите страницу.",
+    "earnTitle": "Как получить монеты",
+    "earn": {
+      "strava": "Подключить Strava",
+      "claim": "Подтвердить профиль бегуна",
+      "race": "Каждый забег в вашем профиле"
+    },
+    "perRace": " / забег",
+    "earnHint": "Подключить Strava и подтвердить профиль можно на странице <profile>Профиль</profile>.",
+    "buyTitle": "Купить монеты",
+    "paddleNote": "Платежи принимает Paddle. Условия возврата описаны в <refund>политике возврата</refund>.",
+    "historyTitle": "История",
+    "noHistory": "Операций пока нет.",
+    "table": {
+      "date": "Дата",
+      "reason": "Операция",
+      "amount": "Сумма"
+    },
+    "reasons": {
+      "claim_approved": "Профиль подтверждён",
+      "strava_connected": "Strava подключена",
+      "event_participation": "Бонус за забег",
+      "purchase": "Покупка монет",
+      "analysis_spent": "Разбор ИИ-тренера",
+      "analysis_refund": "Возврат за разбор",
+      "admin_adjustment": "Корректировка баланса"
+    }
+  },
+  "packs": {
+    "notConfigured": "Оплата пока недоступна. Чтобы пополнить баланс, напишите нам.",
+    "badges": {
+      "save10": "Скидка 10%",
+      "bestValue": "Выгоднее всего"
+    },
+    "coinsUnit": "{count, plural, one {монета} few {монеты} many {монет} other {монеты}}",
+    "perCoin": "{price} ₸/монета",
+    "comingSoon": "Скоро",
+    "opening": "Открываем оплату…",
+    "buy": "Купить",
+    "balanceLabel": "{count, plural, one {# монета} few {# монеты} many {# монет} other {# монеты}}"
+  }
+}

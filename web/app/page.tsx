@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getStats, getEvents, getRankingsOverview } from "@/lib/queries";
 import { EventLine } from "@/components/event-list";
 import { Odometer } from "@/components/home/odometer";
@@ -9,18 +10,17 @@ import { ResultsTicker, type TickerItem } from "@/components/home/results-ticker
 import { RaceReplay, type ReplayDistance } from "@/components/home/race-replay";
 import { timeToSeconds } from "@/lib/params";
 import { buildHref } from "@/components/pagination";
-
-export const revalidate = 86400;
+import { formatNumber } from "@/lib/utils";
 
 const LATEST_COUNT = 8;
 const REPLAY_SIZE = 8;
 const TICKER_PER_DISTANCE = 3;
 
 /** "42 км 195 м" → "Marathon" etc.; anything else keeps its own label. */
-const DISTANCE_NAMES: Record<string, string> = {
-  "42 км 195 м": "Marathon",
-  "21 км 97,5 м": "Half marathon",
-  "10 км": "10 km",
+const DISTANCE_KEYS: Record<string, "marathon" | "half" | "tenK"> = {
+  "42 км 195 м": "marathon",
+  "21 км 97,5 м": "half",
+  "10 км": "tenK",
 };
 
 function Figure({ value, label, delay }: { value: number; label: string; delay: number }) {
@@ -32,9 +32,11 @@ function Figure({ value, label, delay }: { value: number; label: string; delay: 
   );
 }
 
-const HEADLINE = ["Every finish,", "every runner,"];
-
 export default async function HomePage() {
+  const t = await getTranslations("home");
+  const locale = await getLocale();
+  const distanceName = (d: string) => (DISTANCE_KEYS[d] ? t(`distances.${DISTANCE_KEYS[d]}`) : d);
+  const headline = [t("hero.line1"), t("hero.line2")];
   const [stats, events, overview] = await Promise.all([
     getStats(),
     getEvents(),
@@ -48,7 +50,7 @@ export default async function HomePage() {
 
   const replay: ReplayDistance[] = groups.map((g) => ({
     key: g.distance,
-    label: DISTANCE_NAMES[g.distance] ?? g.distance,
+    label: distanceName(g.distance),
     href: buildHref("/rankings", { distance: g.distance }),
     runners: g.rows
       .map((row) => ({
@@ -67,14 +69,14 @@ export default async function HomePage() {
       href: `/runners/${row.runners.id}`,
       label: row.runners.full_name,
       value: row.chip_time ?? "",
-      note: `${DISTANCE_NAMES[g.distance] ?? g.distance} #${i + 1}`,
+      note: `${distanceName(g.distance)} #${i + 1}`,
     })),
   );
   const raceItems: TickerItem[] = latest.map((e) => ({
     href: `/events/${e.slug}`,
     label: e.name,
-    value: e.total_results.toLocaleString("en-US"),
-    note: "Finishers",
+    value: formatNumber(e.total_results, locale),
+    note: t("ticker.finishers"),
   }));
   const ticker = podiumItems.flatMap((p, i) => (raceItems[i] ? [p, raceItems[i]] : [p]));
 
@@ -100,22 +102,22 @@ export default async function HomePage() {
         <div className="relative flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-32 pb-16 grid gap-10 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-12 items-end">
           <div>
             <p className="eyebrow mb-5">
-              Race results · Kazakhstan{Number.isFinite(firstYear) ? ` · since ${firstYear}` : ""}
+              {t("hero.kicker")}{Number.isFinite(firstYear) ? t("hero.since", { year: firstYear }) : ""}
             </p>
             <h1 className="headline text-[3.6rem] leading-[0.86] sm:text-8xl">
-              {HEADLINE.map((line, i) => (
+              {headline.map((line, i) => (
                 <span key={line} className="reveal-line sm:whitespace-nowrap" style={{ ["--i" as string]: i }}>
                   <span>{line}</span>
                 </span>
               ))}
-              <span className="reveal-line tape text-primary sm:whitespace-nowrap" style={{ ["--i" as string]: HEADLINE.length }}>
-                <span>one results sheet.</span>
+              <span className="reveal-line tape text-primary sm:whitespace-nowrap" style={{ ["--i" as string]: headline.length }}>
+                <span>{t("hero.line3")}</span>
               </span>
             </h1>
             <dl className="mt-10 grid grid-cols-3 gap-4 sm:gap-8 max-w-xl">
-              <Figure value={stats.results} label="Finishes" delay={500} />
-              <Figure value={stats.runners} label="Runners" delay={650} />
-              <Figure value={stats.events} label="Races" delay={800} />
+              <Figure value={stats.results} label={t("hero.finishes")} delay={500} />
+              <Figure value={stats.runners} label={t("hero.runners")} delay={650} />
+              <Figure value={stats.events} label={t("hero.races")} delay={800} />
             </dl>
           </div>
 
@@ -123,9 +125,9 @@ export default async function HomePage() {
             <HomeSearch names={hintNames} />
             <ul className="mt-4 text-sm divide-y divide-foreground/15 border-b border-foreground/15">
               {[
-                { href: "/rankings", label: "Fastest times by distance" },
-                { href: "/power-rankings", label: "ELO power rankings" },
-                { href: "/runners/head-to-head", label: "Compare two runners" },
+                { href: "/rankings", label: t("links.rankings") },
+                { href: "/power-rankings", label: t("links.power") },
+                { href: "/runners/head-to-head", label: t("links.h2h") },
               ].map(({ href, label }) => (
                 <li key={href}>
                   <Link href={href} className="group flex justify-between py-2.5 hover:text-primary transition-colors">
@@ -149,9 +151,9 @@ export default async function HomePage() {
 
       <section>
         <div className="flex items-end justify-between border-b-2 border-rule pb-2">
-          <h2 className="headline text-5xl sm:text-6xl">Latest results</h2>
+          <h2 className="headline text-5xl sm:text-6xl">{t("latest.title")}</h2>
           <Link href="/events" className="text-sm text-muted-foreground hover:text-foreground">
-            All {stats.events} races →
+            {t("latest.all", { count: stats.events })}
           </Link>
         </div>
         <ul className="grid lg:grid-cols-2 lg:gap-x-12">

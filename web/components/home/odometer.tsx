@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "next-intl";
+import { formatNumber } from "@/lib/utils";
 
 const DIGITS = Array.from({ length: 20 }, (_, i) => i % 10);
 
@@ -10,6 +12,7 @@ const DIGITS = Array.from({ length: 20 }, (_, i) => i % 10);
  * Server render shows zeros; the real value is always in the accessible text.
  */
 export function Odometer({ value, delay = 0 }: { value: number; delay?: number }) {
+  const locale = useLocale();
   const [rolled, setRolled] = useState(false);
 
   useEffect(() => {
@@ -17,12 +20,13 @@ export function Odometer({ value, delay = 0 }: { value: number; delay?: number }
     return () => cancelAnimationFrame(id);
   }, []);
 
-  const chars = value.toLocaleString("en-US").split("");
+  const formatted = formatNumber(value, locale);
+  const chars = formatted.split("");
   let digitIndex = 0;
 
   return (
     <span className="tabular-nums whitespace-nowrap">
-      <span className="sr-only">{value.toLocaleString("en-US")}</span>
+      <span className="sr-only">{formatted}</span>
       <span aria-hidden>
         {chars.map((ch, i) => {
           if (!/\d/.test(ch)) {

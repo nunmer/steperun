@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export interface TickerItem {
   href: string;
@@ -13,11 +14,12 @@ export interface TickerItem {
  * Pauses on hover/focus so a name can be clicked.
  */
 export function ResultsTicker({ items }: { items: TickerItem[] }) {
+  const t = useTranslations("home.ticker");
   if (items.length === 0) return null;
   const loop = [...items, ...items];
   return (
     <section
-      aria-label="Recent results"
+      aria-label={t("label")}
       className="ticker relative w-screen ml-[calc(50%-50vw)] bg-foreground text-background overflow-hidden border-y-4 border-primary"
       style={{ ["--ticker-duration" as string]: `${items.length * 5}s` }}
     >

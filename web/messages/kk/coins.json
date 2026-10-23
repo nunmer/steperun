@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Монеталар",
+    "description": "Монета жинап, оларды ЖИ-бапкердің талдауына жұмсаңыз.",
+    "costNote": "ЖИ-бапкердің бір талдауы {cost} монета тұрады. Алғашқы {free} талдау тегін.",
+    "balance": "Баланс",
+    "paymentReceived": "Төлем өтті. Монеталар бірнеше секундтан кейін түседі. Көрінбесе, бетті жаңартыңыз.",
+    "earnTitle": "Монетаны қалай алуға болады",
+    "earn": {
+      "strava": "Strava-ны қосу",
+      "claim": "Жүгіруші профилін растау",
+      "race": "Профиліңіздегі әр жарыс"
+    },
+    "perRace": " / жарыс",
+    "earnHint": "Strava-ны қосу мен профильді растау <profile>Профиль</profile> бетінде.",
+    "buyTitle": "Монета сатып алу",
+    "paddleNote": "Төлемдерді Paddle қабылдайды. Қайтару шарттары <refund>қаражатты қайтару саясатында</refund> жазылған.",
+    "historyTitle": "Тарих",
+    "noHistory": "Әзірге операциялар жоқ.",
+    "table": {
+      "date": "Күні",
+      "reason": "Операция",
+      "amount": "Сома"
+    },
+    "reasons": {
+      "claim_approved": "Жүгіруші профилі расталды",
+      "strava_connected": "Strava қосылды",
+      "event_participation": "Жарыс үшін бонус",
+      "purchase": "Монета сатып алынды",
+      "analysis_spent": "ЖИ-бапкер талдауы",
+      "analysis_refund": "Талдау үшін қайтарым",
+      "admin_adjustment": "Балансты түзету"
+    }
+  },
+  "packs": {
+    "notConfigured": "Төлем әзірге қолжетімсіз. Балансты толтыру үшін бізге жазыңыз.",
+    "badges": {
+      "save10": "10% үнемдеу",
+      "bestValue": "Ең тиімді"
+    },
+    "coinsUnit": "{count, plural, one {монета} other {монета}}",
+    "perCoin": "{price} ₸/монета",
+    "comingSoon": "Жақында",
+    "opening": "Төлем ашылуда…",
+    "buy": "Сатып алу",
+    "balanceLabel": "{count, plural, one {# монета} other {# монета}}"
+  }
+}

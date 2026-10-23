@@ -1,4 +1,7 @@
-export default function HomeLoading() {
+import { getTranslations } from "next-intl/server";
+
+export default async function HomeLoading() {
+  const t = await getTranslations("home.hero");
   return (
     <div
       aria-busy="true"
@@ -8,11 +11,11 @@ export default function HomeLoading() {
       <div className="absolute inset-0 bg-background/70" />
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-32">
         <h1 className="headline text-[3.6rem] leading-[0.86] sm:text-8xl text-foreground/30">
-          Every finish,
+          {t("line1")}
           <br />
-          every runner,
+          {t("line2")}
           <br />
-          one results sheet.
+          {t("line3")}
         </h1>
       </div>
     </div>

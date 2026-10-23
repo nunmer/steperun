@@ -29,7 +29,7 @@ function adminClient() {
 
 export async function checkRateLimit(
   userId: string,
-  ipAddress: string,
+  ipAddress: string | undefined,
   action: string,
   maxCount: number,
   windowMs: number
@@ -46,7 +46,9 @@ export async function checkRateLimit(
 
   if ((userCount ?? 0) >= maxCount) return false;
 
-  await db.from("rate_limit_log").insert({ user_id: userId, ip_address: ipAddress, action });
+  const { error } = await db.from("rate_limit_log").insert({ user_id: userId, ip_address: ipAddress ?? null, action });
+  // A failed insert means the next check undercounts; log it rather than block the user.
+  if (error) console.error("[rate-limit] Failed to record attempt:", error.message);
   return true;
 }
 
@@ -64,7 +66,7 @@ export interface CreateClaimResult {
 export async function createClaim(
   userId: string,
   runnerId: number,
-  ipAddress: string
+  ipAddress: string | undefined
 ): Promise<CreateClaimResult> {
   const db = adminClient();
 

@@ -20,7 +20,7 @@ export async function createDispute(
   claimId: number,
   reason: string,
   evidence: Record<string, unknown> | null,
-  ipAddress: string
+  ipAddress: string | undefined
 ): Promise<CreateDisputeResult> {
   const db = adminClient();
 

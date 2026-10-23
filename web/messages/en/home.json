@@ -1,0 +1,94 @@
+{
+  "hero": {
+    "kicker": "Race results · Kazakhstan",
+    "since": " · since {year}",
+    "line1": "Every finish,",
+    "line2": "every runner,",
+    "line3": "one results sheet.",
+    "finishes": "Finishes",
+    "runners": "Runners",
+    "races": "Races"
+  },
+  "links": {
+    "rankings": "Fastest times by distance",
+    "power": "ELO power rankings",
+    "h2h": "Compare two runners"
+  },
+  "distances": {
+    "marathon": "Marathon",
+    "half": "Half marathon",
+    "tenK": "10 km"
+  },
+  "ticker": {
+    "label": "Recent results",
+    "finishers": "Finishers"
+  },
+  "latest": {
+    "title": "Latest results",
+    "all": "All {count, plural, one {# race} other {# races}} →"
+  },
+  "search": {
+    "label": "Find your results",
+    "hint": "Latin or Cyrillic, any word order.",
+    "placeholder": "Name and surname",
+    "submit": "Search"
+  },
+  "video": {
+    "pauseLabel": "Pause background video",
+    "playLabel": "Play background video",
+    "pause": "Pause",
+    "play": "Play"
+  },
+  "photos": {
+    "label": "Photographs",
+    "kicker": "Between the lines",
+    "quote1": "Fast is a feeling.",
+    "quote2": "The chip makes it a fact.",
+    "shots": {
+      "blocks": {
+        "caption": "On your marks",
+        "alt": "Sprinter driving out of the starting blocks, long shadow across the track"
+      },
+      "strideMono": {
+        "caption": "Cadence",
+        "alt": "Black-and-white close-up of runners' legs and shoes on asphalt"
+      },
+      "goldenHour": {
+        "caption": "Golden hour",
+        "alt": "Runner seen from above in a band of low sun, shadow stretching behind"
+      },
+      "finishLanes": {
+        "caption": "Lane four",
+        "alt": "Runner crossing numbered lanes at the finish line of a blue track"
+      },
+      "redTrack": {
+        "caption": "The oval",
+        "alt": "Aerial view of a lone runner on a red running track"
+      },
+      "packMono": {
+        "caption": "The pack",
+        "alt": "Black-and-white group of runners side by side, motion blur"
+      },
+      "sprintBlur": {
+        "caption": "Negative split",
+        "alt": "Blurred black-and-white runner mid-stride in profile"
+      },
+      "overheadPack": {
+        "caption": "Morning long run",
+        "alt": "Overhead view of four runners on pale asphalt with soft shadows"
+      }
+    }
+  },
+  "replay": {
+    "label": "Race replay",
+    "kicker": "Race replay · all-time top {count}",
+    "title": "The fastest, raced again",
+    "clock": "Race clock",
+    "distance": "Distance",
+    "replay": "↻ Replay",
+    "winner": "winner",
+    "gapSeconds": "+{s}s",
+    "note": "Gaps are stretched so you can see them; the times are real.",
+    "full": "Full ranking →"
+  }
+}

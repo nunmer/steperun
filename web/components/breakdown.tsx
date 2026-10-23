@@ -1,3 +1,6 @@
+import { useLocale, useTranslations } from "next-intl";
+import { formatNumber } from "@/lib/format";
+
 type Slice = { label: string; count: number };
 
 /**
@@ -5,11 +8,13 @@ type Slice = { label: string; count: number };
  * keeps every value visible without hovering (and works on touch).
  */
 export function Breakdown({ title, data, max = 5 }: { title: string; data: Slice[]; max?: number }) {
+  const t = useTranslations("common.breakdown");
+  const locale = useLocale();
   if (data.length === 0) return null;
   const total = data.reduce((sum, s) => sum + s.count, 0);
   const top = data.slice(0, max);
   const rest = data.slice(max).reduce((sum, s) => sum + s.count, 0);
-  const rows = rest > 0 ? [...top, { label: `${data.length - max} more`, count: rest }] : top;
+  const rows = rest > 0 ? [...top, { label: t("more", { count: data.length - max }), count: rest }] : top;
   const largest = Math.max(...top.map((s) => s.count), 1);
 
   return (
@@ -23,7 +28,7 @@ export function Breakdown({ title, data, max = 5 }: { title: string; data: Slice
               <div className="flex items-baseline justify-between gap-3">
                 <span className={isRest ? "text-muted-foreground truncate" : "truncate"}>{s.label}</span>
                 <span className="time text-xs text-muted-foreground">
-                  {s.count.toLocaleString()}
+                  {formatNumber(s.count, locale)}
                   <span className="inline-block w-10 text-right">{Math.round((s.count / total) * 100)}%</span>
                 </span>
               </div>

@@ -26,8 +26,9 @@ Status checked against the live database on 2026-10-21.
 | 13 | `003_enable_rls_core_tables.sql` | RLS on `runners`/`events`/`results`, `v_results` `security_invoker` | ✅ |
 | 14 | `004_event_organizer.sql` | `events.organizer` + fill by source | ✅ |
 | 15 | `005_site_audit_fixes.sql` | `get_event_categories_by_id` (was missing), `get_distance_options` (formalized), `get_rankings_page`, `fold_name` + `search_runners` (Latin/Cyrillic search), composite event-results index, drops 4 redundant indexes, null-year fix | ✅ |
+| 16 | `006_app_settings.sql` | `app_settings` key/value table (service key only) for runtime settings; email sender and claim email text on `/admin/emails` | ❌ |
 
-**New migrations:** name them `NNN_description.sql` (next is `006_…`), add a row
+**New migrations:** name them `NNN_description.sql` (next is `007_…`), add a row
 here, and run the migration *before* deploying code that depends on it.
 Otherwise queries that select a missing column return nothing, and pages show
 up empty.

@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { DropdownMenu } from "radix-ui";
 import { ChevronDown, Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 
+// Labels and blurbs: common.account.links.<key>.
 const LINKS = [
-  { href: "/profile", label: "My profile", meta: "Races, PBs, trainings" },
-  { href: "/coins", label: "Coins", meta: "Balance and history" },
-  { href: "/run-analyzer", label: "AI Coach", meta: "Your form analyses" },
-];
-const ADMIN_LINK = { href: "/admin", label: "Admin", meta: "Claims, users, data" };
+  { href: "/profile", key: "profile" },
+  { href: "/coins", key: "coins" },
+  { href: "/run-analyzer", key: "coach" },
+] as const;
+const ADMIN_LINK = { href: "/admin", key: "admin" } as const;
 
 function Avatar({ user, className }: { user: User; className?: string }) {
   const src = user.user_metadata?.avatar_url as string | undefined;
@@ -44,14 +46,15 @@ export function AccountMenu({
   onToggleTheme: () => void;
   onSignOut: () => void;
 }) {
-  const fullName = (user.user_metadata?.full_name as string | undefined) ?? user.email?.split("@")[0] ?? "Runner";
+  const t = useTranslations("common.account");
+  const fullName = (user.user_metadata?.full_name as string | undefined) ?? user.email?.split("@")[0] ?? t("runner");
   const first = fullName.split(" ")[0];
 
   return (
     <DropdownMenu.Root modal={false}>
       <DropdownMenu.Trigger
         className="group flex items-center gap-2 h-9 pl-1 pr-2 rounded-sm outline-none hover:bg-foreground/10 data-[state=open]:bg-foreground/10 transition-colors"
-        aria-label="Account"
+        aria-label={t("label")}
       >
         <Avatar user={user} className="size-7 text-base rounded-sm" />
         <span className="hidden xl:inline text-sm font-medium leading-none max-w-[8rem] truncate">{first}</span>
@@ -82,8 +85,8 @@ export function AccountMenu({
                 >
                   <span className="time text-[10px] text-primary">{String(i + 1).padStart(2, "0")}</span>
                   <span>
-                    <span className="block text-sm font-medium">{l.label}</span>
-                    <span className="block text-xs text-muted-foreground group-data-[highlighted]/item:text-background/60">{l.meta}</span>
+                    <span className="block text-sm font-medium">{t(`links.${l.key}.label`)}</span>
+                    <span className="block text-xs text-muted-foreground group-data-[highlighted]/item:text-background/60">{t(`links.${l.key}.meta`)}</span>
                   </span>
                   <span aria-hidden className="text-sm">→</span>
                 </Link>
@@ -98,19 +101,19 @@ export function AccountMenu({
             >
               <span className="flex items-center gap-2">
                 {theme === "dark" ? <Moon size={14} /> : <Sun size={14} />}
-                Theme
+                {t("theme")}
               </span>
               {/* Two-position switch: paper / night. */}
               <span className="flex border border-rule/60 text-[11px] time">
-                <span className={cn("px-2 py-0.5", theme !== "dark" && "bg-foreground text-background")}>Paper</span>
-                <span className={cn("px-2 py-0.5", theme === "dark" && "bg-foreground text-background")}>Night</span>
+                <span className={cn("px-2 py-0.5", theme !== "dark" && "bg-foreground text-background")}>{t("paper")}</span>
+                <span className={cn("px-2 py-0.5", theme === "dark" && "bg-foreground text-background")}>{t("night")}</span>
               </span>
             </DropdownMenu.Item>
             <DropdownMenu.Item
               onSelect={onSignOut}
               className="px-4 py-2.5 text-sm text-muted-foreground outline-none cursor-default data-[highlighted]:bg-muted data-[highlighted]:text-destructive"
             >
-              Sign out
+              {t("signOut")}
             </DropdownMenu.Item>
           </div>
         </DropdownMenu.Content>

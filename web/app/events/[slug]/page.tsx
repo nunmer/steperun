@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getEvent, getEventResults, getEventStats, PAGE_SIZE } from "@/lib/queries";
 import { parsePage } from "@/lib/params";
@@ -9,9 +10,7 @@ import {
 import { Breakdown } from "@/components/breakdown";
 import { OrganizerPin } from "@/components/organizer-pin";
 import { BackLink, EmptyState, FilterLink, FilterRow, PageHeader, Place, Rank } from "@/components/sheet";
-import { formatEventDate } from "@/lib/utils";
-
-export const revalidate = 86400;
+import { formatEventDate, formatNumber } from "@/lib/utils";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -31,6 +30,8 @@ export default async function EventPage({
 
   const event = await getEvent(slug);
   if (!event) notFound();
+  const [t, tList, locale] = await Promise.all([getTranslations("events.event"), getTranslations("events.list"), getLocale()]);
+  const num = (n: number) => formatNumber(n, locale);
 
   // Distances, counts and totals all come from the stats RPC (one aggregate),
   // so the filter lists every distance and pagination totals are exact.
@@ -53,19 +54,19 @@ export default async function EventPage({
   return (
     <div>
       <PageHeader
-        kicker={<BackLink href="/events">Events</BackLink>}
+        kicker={<BackLink href="/events">{tList("title")}</BackLink>}
         title={event.name}
-        aside={<span className="time">{formatEventDate(event.date_of_event) ?? event.year}</span>}
+        aside={<span className="time">{formatEventDate(event.date_of_event, locale) ?? event.year}</span>}
       >
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           <span>
-            <span className="time font-semibold">{event.total_results.toLocaleString()}</span>{" "}
-            <span className="text-muted-foreground">finishers</span>
+            <span className="time font-semibold">{num(event.total_results)}</span>{" "}
+            <span className="text-muted-foreground">{t("finishers", { count: event.total_results })}</span>
           </span>
           {categories.length > 0 && (
             <span>
               <span className="time font-semibold">{categories.length}</span>{" "}
-              <span className="text-muted-foreground">{categories.length === 1 ? "distance" : "distances"}</span>
+              <span className="text-muted-foreground">{t("distances", { count: categories.length })}</span>
             </span>
           )}
           <OrganizerPin organizer={event.organizer} />
@@ -76,7 +77,7 @@ export default async function EventPage({
               rel="noopener noreferrer"
               className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
             >
-              Official results ↗
+              {t("official")}
             </a>
           )}
         </div>
@@ -84,16 +85,16 @@ export default async function EventPage({
 
       {/* Who ran: the field broken down by distance, country and city. */}
       {(stats.distances.length > 0 || stats.countries.length > 0 || stats.cities.length > 0) && (
-        <section aria-label="The field" className="grid gap-8 sm:grid-cols-3 mb-10">
-          <Breakdown title="Distance" data={stats.distances} />
-          <Breakdown title="City" data={stats.cities} />
-          <Breakdown title="Country" data={stats.countries} />
+        <section aria-label={t("field")} className="grid gap-8 sm:grid-cols-3 mb-10">
+          <Breakdown title={t("distance")} data={stats.distances} />
+          <Breakdown title={t("city")} data={stats.cities} />
+          <Breakdown title={t("country")} data={stats.countries} />
         </section>
       )}
 
       {multi && (
-        <FilterRow label="Distance">
-          <FilterLink href={hrefWithParams({ category: undefined, page: "1" })} active={!category}>All</FilterLink>
+        <FilterRow label={t("distance")}>
+          <FilterLink href={hrefWithParams({ category: undefined, page: "1" })} active={!category}>{t("all")}</FilterLink>
           {categories.map((cat) => (
             <FilterLink key={cat} href={hrefWithParams({ category: cat, page: "1" })} active={category === cat}>
               {cat}
@@ -104,23 +105,23 @@ export default async function EventPage({
 
       <p className="eyebrow mt-6 mb-2">
         {total === 0
-          ? "No finishers recorded"
-          : `${((page - 1) * PAGE_SIZE + 1).toLocaleString()}–${Math.min(page * PAGE_SIZE, total).toLocaleString()} of ${total.toLocaleString()}`}
+          ? t("none")
+          : t("range", { from: num((page - 1) * PAGE_SIZE + 1), to: num(Math.min(page * PAGE_SIZE, total)), total: num(total) })}
       </p>
 
       {rows.length === 0 ? (
-        <EmptyState>No results for this distance.</EmptyState>
+        <EmptyState>{t("empty")}</EmptyState>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">Pl.</TableHead>
-              <TableHead>Runner</TableHead>
-              <TableHead className="hidden md:table-cell">From</TableHead>
-              <TableHead className="hidden lg:table-cell">Bib</TableHead>
-              {multi && <TableHead className="hidden sm:table-cell">Distance</TableHead>}
-              <TableHead className="text-right">Chip</TableHead>
-              <TableHead className="hidden sm:table-cell text-right">Gun</TableHead>
+              <TableHead className="w-12">{t("cols.place")}</TableHead>
+              <TableHead>{t("cols.runner")}</TableHead>
+              <TableHead className="hidden md:table-cell">{t("cols.from")}</TableHead>
+              <TableHead className="hidden lg:table-cell">{t("cols.bib")}</TableHead>
+              {multi && <TableHead className="hidden sm:table-cell">{t("cols.distance")}</TableHead>}
+              <TableHead className="text-right">{t("cols.chip")}</TableHead>
+              <TableHead className="hidden sm:table-cell text-right">{t("cols.gun")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

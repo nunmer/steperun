@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 interface RunnerHit {
@@ -18,13 +19,14 @@ interface Item {
   meta: string;
 }
 
-const JUMP_TO: Item[] = [
-  { key: "events", href: "/events", label: "Events", meta: "Every race, by season" },
-  { key: "rankings", href: "/rankings", label: "Rankings", meta: "Fastest chip times" },
-  { key: "power", href: "/power-rankings", label: "Power rankings", meta: "ELO levels" },
-  { key: "h2h", href: "/runners/head-to-head", label: "Head to head", meta: "Compare two runners" },
-  { key: "coach", href: "/run-analyzer", label: "AI Coach", meta: "Form check from a video" },
-];
+// Labels and blurbs: common.search.jump.<key>.
+const JUMP_TO = [
+  { key: "events", href: "/events" },
+  { key: "rankings", href: "/rankings" },
+  { key: "power", href: "/power-rankings" },
+  { key: "h2h", href: "/runners/head-to-head" },
+  { key: "coach", href: "/run-analyzer" },
+] as const;
 
 /**
  * Runner search as a command palette: opens from the nav, "/" or Ctrl/⌘+K.
@@ -32,6 +34,7 @@ const JUMP_TO: Item[] = [
  * Arrow keys move, Enter opens, Esc closes.
  */
 export function CommandSearch({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTranslations("common.search");
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
@@ -85,7 +88,7 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
         label: r.full_name,
         meta: [r.city, r.country].filter(Boolean).join(", "),
       }))
-    : JUMP_TO;
+    : JUMP_TO.map(({ key, href }) => ({ key, href, label: t(`jump.${key}.label`), meta: t(`jump.${key}.meta`) }));
 
   function close() {
     setQuery("");
@@ -119,7 +122,7 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
       onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}
       role="dialog"
       aria-modal="true"
-      aria-label="Search runners"
+      aria-label={t("dialog")}
     >
       <div
         className="mx-auto mt-[10vh] w-[calc(100%-2rem)] max-w-2xl bg-background text-foreground border-2 border-rule animate-in slide-in-from-top-2 fade-in-0 duration-200"
@@ -131,16 +134,16 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Find a runner — Latin or Cyrillic"
-            aria-label="Runner name"
+            placeholder={t("placeholder")}
+            aria-label={t("inputLabel")}
             className="h-16 flex-1 min-w-0 bg-transparent headline text-3xl normal-case placeholder:text-muted-foreground/60 outline-none"
           />
           {loading && <span className="eyebrow">…</span>}
-          <button onClick={close} className="eyebrow hover:text-foreground">Esc</button>
+          <button onClick={close} className="eyebrow hover:text-foreground">{t("esc")}</button>
         </div>
 
         <p className="eyebrow px-4 pt-3 pb-1">
-          {searching ? (hits.length ? "Runners" : loading ? "Searching" : "No runner by that name") : "Jump to"}
+          {searching ? (hits.length ? t("runners") : loading ? t("searching") : t("noMatch")) : t("jumpTo")}
         </p>
         <ul className="max-h-[50vh] overflow-y-auto pb-2">
           {items.map((item, i) => (
@@ -169,11 +172,11 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
             onClick={() => go(undefined)}
             className="w-full border-t px-4 py-2.5 text-left text-sm text-muted-foreground hover:text-foreground"
           >
-            All results for “{query.trim()}” →
+            {t("allResults", { query: query.trim() })}
           </button>
         )}
         <div className="hidden sm:flex gap-5 border-t px-4 py-2 eyebrow">
-          <span>↑↓ move</span><span>↵ open</span><span>esc close</span>
+          <span>{t("move")}</span><span>{t("open")}</span><span>{t("close")}</span>
         </div>
       </div>
     </div>

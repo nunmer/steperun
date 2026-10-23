@@ -1,23 +1,25 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 const SECTIONS = [
-  { href: "/legal/terms",   label: "Terms of Service" },
-  { href: "/legal/privacy", label: "Privacy Policy"   },
-  { href: "/legal/refund",  label: "Refund Policy"    },
-];
+  { href: "/legal/terms",   key: "terms"   },
+  { href: "/legal/privacy", key: "privacy" },
+  { href: "/legal/refund",  key: "refund"  },
+] as const;
 
-export default function LegalLayout({ children }: { children: React.ReactNode }) {
+export default async function LegalLayout({ children }: { children: React.ReactNode }) {
+  const t = await getTranslations("legal.nav");
   return (
     <div className="grid gap-8 md:grid-cols-[220px_1fr]">
       <aside className="md:sticky md:top-20 md:self-start">
         <nav className="flex md:flex-col gap-x-5 text-sm border-b-2 border-rule md:border-b-0 md:border-t-2">
-          {SECTIONS.map(({ href, label }) => (
+          {SECTIONS.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
               className="py-2 md:border-b text-muted-foreground hover:text-foreground transition-colors"
             >
-              {label}
+              {t(key)}
             </Link>
           ))}
         </nav>

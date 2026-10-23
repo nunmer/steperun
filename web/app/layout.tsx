@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { CLIENT_NAMESPACES } from "@/i18n/config";
 import { Fira_Sans_Extra_Condensed, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
@@ -31,23 +34,32 @@ export const viewport: Viewport = {
   ],
 };
 
-export const metadata: Metadata = {
-  title: { default: "Steppe RUN", template: "%s | Steppe RUN" },
-  description: "Race results, rankings and runner profiles from Kazakhstan's road and trail races.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("common.meta");
+  return {
+    title: { default: "Steppe RUN", template: "%s | Steppe RUN" },
+    description: t("description"),
+  };
+}
 
 const FOOTER_LINKS = [
-  { href: "/legal/terms", label: "Terms" },
-  { href: "/legal/privacy", label: "Privacy" },
-  { href: "/legal/refund", label: "Refunds" },
-];
+  { href: "/legal/terms", key: "terms" },
+  { href: "/legal/privacy", key: "privacy" },
+  { href: "/legal/refund", key: "refunds" },
+] as const;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const t = await getTranslations("common.footer");
+  const messages = await getMessages();
+  // Only what client components need; legal/events/rankings texts stay on the server.
+  const clientMessages = Object.fromEntries(CLIENT_NAMESPACES.map((ns) => [ns, messages[ns]]));
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
         className={`${display.variable} ${plexSans.variable} ${plexMono.variable} font-sans antialiased min-h-screen bg-background overflow-x-clip`}
       >
+        <NextIntlClientProvider messages={clientMessages}>
         <ThemeProvider>
           <Nav />
           <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 pb-16 sm:pt-10">{children}</main>
@@ -56,20 +68,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <p>
                 <span className="headline text-sm text-foreground">Steppe RUN</span>
                 <span className="mx-2">·</span>
-                Results from almaty-marathon.kz and athletex.kz
+                {t("sources")}
                 <span className="mx-2">·</span>
                 BTS Team, {new Date().getFullYear()}
               </p>
               <nav className="flex gap-4">
-                {FOOTER_LINKS.map(({ href, label }) => (
+                {FOOTER_LINKS.map(({ href, key }) => (
                   <Link key={href} href={href} className="hover:text-foreground underline-offset-4 hover:underline">
-                    {label}
+                    {t(key)}
                   </Link>
                 ))}
               </nav>
             </div>
           </footer>
         </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

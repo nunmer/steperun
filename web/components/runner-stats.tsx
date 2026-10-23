@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "next-intl";
+import { cn, formatNumber } from "@/lib/utils";
 import { eloLevel, nextLevel, MAX_LEVEL, TIER_COLOR } from "@/lib/elo-levels";
 import { TierBadge } from "@/components/tier-badge";
 
@@ -8,8 +9,9 @@ import { TierBadge } from "@/components/tier-badge";
  * growing taller up the ladder — the climb at a glance.
  */
 export function LevelMeter({ level }: { level: number }) {
+  const t = useTranslations("runners.stats");
   return (
-    <span className="flex items-end gap-[3px]" role="img" aria-label={`Level ${level} of ${MAX_LEVEL}`}>
+    <span className="flex items-end gap-[3px]" role="img" aria-label={t("levelOf", { level: String(level), max: String(MAX_LEVEL) })}>
       {Array.from({ length: MAX_LEVEL }, (_, i) => (
         <span
           key={i}
@@ -26,8 +28,9 @@ export function LevelMeter({ level }: { level: number }) {
 
 /** "142 to Gold II" with a thin bar through the current tier. */
 function NextTier({ score, level }: { score: number; level: number }) {
+  const t = useTranslations("runners.stats");
   const next = nextLevel(score, level);
-  if (!next) return <p className="eyebrow !text-primary mt-1.5">Top tier reached</p>;
+  if (!next) return <p className="eyebrow !text-primary mt-1.5">{t("topTier")}</p>;
   const from = eloLevel(level).min;
   const pct = Math.min(100, Math.max(0, ((score - from) / (next.min - from)) * 100));
   return (
@@ -36,7 +39,11 @@ function NextTier({ score, level }: { score: number; level: number }) {
         <span className="block h-full bg-primary" style={{ width: `${pct}%` }} />
       </span>
       <span className="mt-1 block text-xs text-muted-foreground group-hover:text-foreground">
-        <span className="time font-semibold text-foreground">{next.missing.toLocaleString()}</span> to {next.name}
+        {t.rich("toNext", {
+          missing: next.missing,
+          name: next.name,
+          n: (chunks) => <span className="time font-semibold text-foreground">{chunks}</span>,
+        })}
       </span>
     </Link>
   );
@@ -62,13 +69,15 @@ interface RunnerStatLineProps {
 
 /** One ruled strip of numbers under a runner's name. No cards, no glow. */
 export function RunnerStatLine({ elo, city, country, races, seasons, distances }: RunnerStatLineProps) {
+  const t = useTranslations("runners.stats");
+  const locale = useLocale();
   return (
     <dl className="grid grid-cols-3 sm:flex sm:flex-wrap border-b gap-x-4">
       {elo && (
-        <Stat label="Power score" className="col-span-3 border-b sm:border-b-0 sm:pr-8">
+        <Stat label={t("powerScore")} className="col-span-3 border-b sm:border-b-0 sm:pr-8">
           <div className="flex items-center gap-3">
             <Link href={`/power-rankings?level=${elo.level}`} className="headline text-5xl tabular-nums hover:text-primary">
-              {elo.score.toLocaleString()}
+              {formatNumber(elo.score, locale)}
             </Link>
             <div className="space-y-1">
               <LevelMeter level={elo.level} />
@@ -81,16 +90,16 @@ export function RunnerStatLine({ elo, city, country, races, seasons, distances }
           <NextTier score={elo.score} level={elo.level} />
           {(elo.cityRank || elo.countryRank) && (
             <p className="text-xs text-muted-foreground mt-1.5">
-              {elo.cityRank && city && <>#{elo.cityRank.toLocaleString()} in {city}</>}
+              {elo.cityRank && city && t("rankIn", { rank: elo.cityRank, place: city })}
               {elo.cityRank && city && elo.countryRank && country && " · "}
-              {elo.countryRank && country && <>#{elo.countryRank.toLocaleString()} in {country}</>}
+              {elo.countryRank && country && t("rankIn", { rank: elo.countryRank, place: country })}
             </p>
           )}
         </Stat>
       )}
-      <Stat label="Finishes"><span className="headline text-4xl tabular-nums">{races}</span></Stat>
-      <Stat label="Seasons"><span className="headline text-4xl tabular-nums">{seasons}</span></Stat>
-      <Stat label="Distances"><span className="headline text-4xl tabular-nums">{distances}</span></Stat>
+      <Stat label={t("finishes")}><span className="headline text-4xl tabular-nums">{races}</span></Stat>
+      <Stat label={t("seasons")}><span className="headline text-4xl tabular-nums">{seasons}</span></Stat>
+      <Stat label={t("distances")}><span className="headline text-4xl tabular-nums">{distances}</span></Stat>
     </dl>
   );
 }

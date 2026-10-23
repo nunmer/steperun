@@ -1,0 +1,35 @@
+{
+  "list": {
+    "title": "Рейтинг",
+    "fullList": "Весь рейтинг →",
+    "colRunner": "Бегун",
+    "colFrom": "Откуда",
+    "colRace": "Забег",
+    "colChip": "Время",
+    "asideDefault": "Лучшее чистое время каждого бегуна",
+    "emptySeason": "За этот сезон результатов пока нет.",
+    "emptyDistance": "На этой дистанции результатов пока нет.",
+    "runnersSeason": "<n>{count, number}</n> {count, plural, one {бегун} few {бегуна} many {бегунов} other {бегуна}} · {season}",
+    "runnersAllTime": "<n>{count, number}</n> {count, plural, one {бегун} few {бегуна} many {бегунов} other {бегуна}} · за всё время",
+    "filterDistance": "Дистанция",
+    "overview": "Обзор",
+    "filterSeason": "Сезон",
+    "allTime": "За всё время"
+  },
+  "power": {
+    "title": "Рейтинг силы",
+    "filterAria": "Фильтр по уровню",
+    "perLevel": "Бегуны по уровням. Нажмите на столбец, чтобы оставить один уровень.",
+    "clear": "Сбросить ×",
+    "nextUp": "Следующий уровень: <b>{name}</b><m>, от {min, number} ELO</m> →",
+    "topLadder": "Высший уровень",
+    "kicker": "Рейтинг силы · Уровень {level} · ELO {range}",
+    "aside": "Рейтинг силы учитывает лучшие времена, призовые места, стабильность, разнообразие дистанций и число сезонов.",
+    "asideTop": " Первые {n, number} в рейтинге получают статус Challenger.",
+    "empty": "На этом уровне пока никого нет.",
+    "colRunner": "Бегун",
+    "colFrom": "Откуда",
+    "colLevel": "Уровень",
+    "runners": "{count, number} {count, plural, one {бегун} few {бегуна} many {бегунов} other {бегуна}}"
+  }
+}

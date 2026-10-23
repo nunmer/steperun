@@ -65,7 +65,8 @@ After any manual data fix, purge the site cache (`POST /api/revalidate`, bearer
   `athletex_<folder>`. `events.organizer` is set by the scraper per source.
 - **Caching:** public reads go through `cachedQuery` (`lib/cache.ts`: 24 h,
   tag `results`; runner data also `runner:<id>`). Pages with `searchParams` are
-  dynamic but read cached data; `/runners/[id]` is ISR. The scraper workflow
+  dynamic but read cached data; every page renders per request (the root
+  layout reads the language cookie), so there is no page-level ISR. The scraper workflow
   calls `/api/revalidate`; claim changes call `invalidateRunner(id)`.
   `PAGE_SIZE = 30`. Cached queries must **throw** on a Supabase error
   (`orThrow`), never return empty data, or an outage gets cached for a day.
@@ -80,4 +81,11 @@ After any manual data fix, purge the site cache (`POST /api/revalidate`, bearer
   `clean_runners.py` deletes team/relay results.
 - **DNF** is `chip_time = '--:--:--'`. Exclude it from PBs, finish counts and
   rankings (`isFinishTime` in `lib/params.ts`).
+- **Languages:** every user-facing string goes through `next-intl`
+  (`t("…")`), with the text added to `web/messages/{ru,kk,en}/<area>.json`
+  (Russian is the source of truth and the default). No hardcoded `"en-US"`
+  formatting: use `formatEventDate`/`formatNumber` with the locale. The admin
+  panel is English-only.
+- **IPs:** use `clientIp(request.headers)` (`lib/client-ip.ts`); the
+  `ip_address` columns are `INET` and reject raw `x-forwarded-for` lists.
 - Commits: conventional commits (`feat:`, `fix:`, …).

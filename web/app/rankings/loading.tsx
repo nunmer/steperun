@@ -1,5 +1,7 @@
+import { getTranslations } from "next-intl/server";
 import { SheetSkeleton } from "@/components/sheet-skeleton";
 
-export default function RankingsLoading() {
-  return <SheetSkeleton title="Rankings" filters={2} />;
+export default async function RankingsLoading() {
+  const t = await getTranslations("rankings.list");
+  return <SheetSkeleton title={t("title")} filters={2} />;
 }

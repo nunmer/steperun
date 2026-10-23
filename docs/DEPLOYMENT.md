@@ -52,11 +52,11 @@ covers `steppe.run` and `www.steppe.run`).
 | `RUN_ANALYZER_API_KEY` | Shared secret, same value as the analyzer's `ANALYZER_API_KEY` |
 | `REVALIDATE_SECRET` | Bearer token for `POST /api/revalidate` (same value as the GitHub secret) |
 | `PADDLE_CLIENT_TOKEN`, `PADDLE_ENVIRONMENT`, `PADDLE_WEBHOOK_SECRET`, `PADDLE_PRICE_ID_PACK_10/_50/_200` | *Unset* = earn-only coins. Set all of them to sell coin packs |
-| `RESEND_API_KEY`, `RESEND_EMAIL_DOMAIN` | Set by the Resend Marketplace integration (`resend-email-aqua-bucket`, region eu-west-1). Claim emails come from `claims@<domain>` |
+| `RESEND_API_KEY`, `RESEND_EMAIL_DOMAIN` | Set by the Resend Marketplace integration (`resend-email-aqua-bucket`, region eu-west-1). Sender name, mailbox and Reply-To are edited at `/admin/emails` (default `Steppe RUN <claims@<domain>>`) |
 | `EMAIL_DELIVERY` | `off` (default when unset: never sends, logs to `claim_audit_log`), `allowlist`, or `on` |
 | `EMAIL_ALLOWLIST` | Comma-separated addresses that may receive mail while `EMAIL_DELIVERY=allowlist` |
 | `GITHUB_ACTIONS_TOKEN` | *Optional.* Fine-grained token for this repo with **Actions: read & write**; lets `/admin` list scrape runs and start one. `GITHUB_REPO` overrides `nunmer/steperun` |
-| `EMAIL_REPLY_TO` | Optional Reply-To for claim emails; defaults to the legal contact address |
+| `EMAIL_REPLY_TO` | Default Reply-To until one is saved at `/admin/emails`; falls back to the legal contact address |
 | `SCRAPER_DELAY`, `SCRAPER_BATCH_SIZE` | Unused by the web app (leftovers) |
 
 ### Vercel `steperun-analyzer`

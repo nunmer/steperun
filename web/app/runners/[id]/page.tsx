@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getRunnerFull } from "@/lib/queries";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -10,18 +11,14 @@ import { BackLink, PageHeader, Place } from "@/components/sheet";
 import { RunnerStatLine } from "@/components/runner-stats";
 import { isFinishTime, timeToSeconds } from "@/lib/params";
 
-export const revalidate = 86400;
-
-// No paths at build time; each profile is rendered on first visit, then
-// cached (ISR) until revalidated by the scraper or a claim change.
-export async function generateStaticParams() {
-  return [];
-}
+// Rendered per request (the language comes from a cookie, so ISR would 500
+// with DYNAMIC_SERVER_USAGE); the data itself is cached by cachedQuery.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const data = await getRunnerFull(Number(id));
-  return { title: data?.runner.full_name ?? "Runner" };
+  const [data, t] = await Promise.all([getRunnerFull(Number(id)), getTranslations("runners.profile")]);
+  return { title: data?.runner.full_name ?? t("metaFallback") };
 }
 
 type Result = NonNullable<Awaited<ReturnType<typeof getRunnerFull>>>["results"][number];
@@ -43,14 +40,15 @@ function getPersonalBests(results: Result[]) {
   return [...bests.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
 
-function showTime(t: string | null): string {
-  return isFinishTime(t) ? t : t ? "DNF" : "—";
+function showTime(t: string | null, dnf: string): string {
+  return isFinishTime(t) ? t : t ? dnf : "—";
 }
 
 export default async function RunnerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const data = /^\d+$/.test(id) ? await getRunnerFull(Number(id)) : null;
   if (!data) notFound();
+  const t = await getTranslations("runners.profile");
 
   const { runner, results, cityRank, countryRank } = data;
   const pbs = getPersonalBests(results);
@@ -69,7 +67,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
   return (
     <div>
       <PageHeader
-        kicker={<BackLink href="/runners">Runners</BackLink>}
+        kicker={<BackLink href="/runners">{t("back")}</BackLink>}
         title={runner.full_name}
         aside={
           <div className="flex flex-col sm:items-end gap-2">
@@ -93,7 +91,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
       {/* Personal bests are the headline of a runner's page: big times, one per distance. */}
       {pbs.length > 0 && (
         <section className="mt-12">
-          <h2 className="headline text-4xl border-b-2 border-rule pb-2">Personal bests</h2>
+          <h2 className="headline text-4xl border-b-2 border-rule pb-2">{t("personalBests")}</h2>
           <ul className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4">
             {pbs.map(([cat, r]) => (
               <li key={cat} className="border-b py-4 min-[420px]:odd:pr-4 lg:pr-4">
@@ -103,7 +101,7 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                   <Link href={`/events/${r.events?.slug}`} className="hover:text-foreground underline-offset-2 hover:underline">
                     {r.events?.name}
                   </Link>
-                  {r.place ? <> · place {r.place.toLocaleString()}</> : null}
+                  {r.place ? <> · {t("place", { place: r.place })}</> : null}
                 </p>
               </li>
             ))}
@@ -113,17 +111,17 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
 
       <section className="mt-12">
         <div className="flex items-end justify-between border-b-2 border-rule pb-2">
-          <h2 className="headline text-4xl">Race history</h2>
-          <span className="time text-xs text-muted-foreground">{results.length} starts</span>
+          <h2 className="headline text-4xl">{t("raceHistory")}</h2>
+          <span className="time text-xs text-muted-foreground">{t("starts", { count: results.length })}</span>
         </div>
         <Table>
           <TableHeader className="sr-only sm:table-header-group">
             <TableRow>
-              <TableHead>Race</TableHead>
-              <TableHead className="hidden sm:table-cell">Distance</TableHead>
-              <TableHead className="text-right">Pl.</TableHead>
-              <TableHead className="text-right">Chip</TableHead>
-              <TableHead className="hidden sm:table-cell text-right">Gun</TableHead>
+              <TableHead>{t("colRace")}</TableHead>
+              <TableHead className="hidden sm:table-cell">{t("colDistance")}</TableHead>
+              <TableHead className="text-right">{t("colPlace")}</TableHead>
+              <TableHead className="text-right">{t("colChip")}</TableHead>
+              <TableHead className="hidden sm:table-cell text-right">{t("colGun")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -149,14 +147,14 @@ export default async function RunnerPage({ params }: { params: Promise<{ id: str
                     </TableCell>
                     <TableCell className="text-muted-foreground hidden sm:table-cell">{r.distance_category}</TableCell>
                     <TableCell className="time text-right text-muted-foreground text-sm">
-                      {r.place ? r.place.toLocaleString() : "—"}
+                      {r.place ?? "—"}
                     </TableCell>
                     <TableCell className="time text-right">
-                      {isPb && <span className="eyebrow !text-primary mr-2">PB</span>}
-                      <span className={isPb ? "font-semibold" : undefined}>{showTime(r.chip_time)}</span>
+                      {isPb && <span className="eyebrow !text-primary mr-2">{t("pb")}</span>}
+                      <span className={isPb ? "font-semibold" : undefined}>{showTime(r.chip_time, t("dnf"))}</span>
                     </TableCell>
                     <TableCell className="time text-right text-muted-foreground hidden sm:table-cell">
-                      {showTime(r.finish_time)}
+                      {showTime(r.finish_time, t("dnf"))}
                     </TableCell>
                   </TableRow>
                 </Fragment>

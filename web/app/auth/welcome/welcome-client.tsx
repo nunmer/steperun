@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +18,7 @@ type RunnerMatch = {
 type ClaimState = "idle" | "loading" | "done" | "error";
 
 export default function WelcomeClient({ matches }: { matches: RunnerMatch[] }) {
+  const t = useTranslations("profile.welcome");
   const router = useRouter();
   const [claimStates, setClaimStates] = useState<Record<number, ClaimState>>({});
   const [claimMessages, setClaimMessages] = useState<Record<number, string>>({});
@@ -32,22 +34,22 @@ export default function WelcomeClient({ matches }: { matches: RunnerMatch[] }) {
       const json = await res.json();
       if (!res.ok) {
         setClaimStates((s) => ({ ...s, [runnerId]: "error" }));
-        setClaimMessages((s) => ({ ...s, [runnerId]: json.error ?? "Failed" }));
+        setClaimMessages((s) => ({ ...s, [runnerId]: json.error ?? t("failed") }));
         return;
       }
       setClaimStates((s) => ({ ...s, [runnerId]: "done" }));
     } catch {
       setClaimStates((s) => ({ ...s, [runnerId]: "error" }));
-      setClaimMessages((s) => ({ ...s, [runnerId]: "Network error" }));
+      setClaimMessages((s) => ({ ...s, [runnerId]: t("networkError") }));
     }
   }
 
   return (
     <div className="max-w-lg space-y-6 py-4">
       <div>
-        <h1 className="headline text-5xl">Is this you?</h1>
+        <h1 className="headline text-5xl">{t("title")}</h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          We found {matches.length === 1 ? "a runner" : "runners"} matching your name. Claim your profile to own your race history.
+          {t("intro", { count: matches.length })}
         </p>
       </div>
 
@@ -77,14 +79,14 @@ export default function WelcomeClient({ matches }: { matches: RunnerMatch[] }) {
                 <div className="shrink-0 flex flex-col items-end gap-2">
                   {claimed ? (
                     <>
-                      <Badge variant="secondary">Claimed ✓</Badge>
+                      <Badge variant="secondary">{t("claimed")}</Badge>
                       <Link href="/profile">
-                        <Button size="sm" variant="outline">View profile →</Button>
+                        <Button size="sm" variant="outline">{t("viewProfile")}</Button>
                       </Link>
                     </>
                   ) : (
                     <Button size="sm" onClick={() => handleClaim(runner.id)} disabled={state === "loading"}>
-                      {state === "loading" ? "Claiming…" : "Claim"}
+                      {state === "loading" ? t("claiming") : t("claim")}
                     </Button>
                   )}
                 </div>
@@ -95,7 +97,7 @@ export default function WelcomeClient({ matches }: { matches: RunnerMatch[] }) {
       </div>
 
       <button onClick={() => router.replace("/profile")} className="text-sm text-muted-foreground hover:text-foreground">
-        None of these are me →
+        {t("noneMe")}
       </button>
     </div>
   );

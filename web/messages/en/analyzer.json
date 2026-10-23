@@ -1,0 +1,119 @@
+{
+  "meta": {
+    "title": "AI Running Coach",
+    "description": "Upload your running video for AI-powered biomechanics analysis"
+  },
+  "eyebrow": "AI Coach",
+  "gate": {
+    "title": "Check your running form from one video",
+    "steps": {
+      "film": {
+        "title": "Film",
+        "text": "A few seconds of you running past the camera, filmed side-on."
+      },
+      "frames": {
+        "title": "Frames",
+        "text": "We pull out the key moments of your stride and map your joints."
+      },
+      "feedback": {
+        "title": "Feedback",
+        "text": "Foot strike, cadence, posture, arms, hips and knee drive, each rated, plus what to fix first."
+      }
+    },
+    "signIn": "Sign in with Google to start",
+    "pricing": "First {free, plural, one {# analysis} other {# analyses}} free, then {cost, plural, one {# coin} other {# coins}} each."
+  },
+  "title": "Running form analysis",
+  "newAnalysis": "New Analysis",
+  "closeSidebar": "Close sidebar",
+  "openSidebar": "Open sidebar",
+  "sessions": "Sessions",
+  "status": {
+    "extracting": "extracting",
+    "extracted": "extracted",
+    "analyzing": "analyzing",
+    "done": "done",
+    "error": "error"
+  },
+  "loading": {
+    "extractWords": [
+      "initializing",
+      "scanning",
+      "detecting",
+      "mapping",
+      "analyzing",
+      "processing",
+      "extracting",
+      "finishing"
+    ],
+    "analyzeWords": [
+      "thinking",
+      "observing",
+      "measuring",
+      "comparing",
+      "evaluating",
+      "diagnosing",
+      "crafting",
+      "polishing"
+    ],
+    "extracting": "Extracting key frames...",
+    "analyzing": "AI is analyzing your form..."
+  },
+  "errors": {
+    "createSession": "Failed to create session",
+    "upload": "Upload failed",
+    "uploadWith": "Upload failed: {message}",
+    "extract": "Extraction failed",
+    "analyze": "Analysis failed",
+    "insufficient": "Not enough coins (have {balance}, need {cost}). Get more on the Coins page."
+  },
+  "sections": {
+    "upload": "Upload Video",
+    "keyFrames": "Key Frames",
+    "technique": "Technique Analysis",
+    "breakdown": "Detailed Breakdown"
+  },
+  "rating": {
+    "good": "good",
+    "warning": "warning",
+    "bad": "bad"
+  },
+  "workOnFirst": "Work on first",
+  "overall": "Overall",
+  "player": {
+    "loadingFrames": "Loading frames...",
+    "frameAlt": "Analysis frame",
+    "keyFrameAlt": "Key frame",
+    "coaching": "Coaching",
+    "less": "less",
+    "more": "more",
+    "play": "Play",
+    "pause": "Pause",
+    "previous": "Previous",
+    "next": "Next",
+    "ms": "{ms}ms"
+  },
+  "phase": {
+    "foot_strike": "foot strike",
+    "mid_stance": "mid stance",
+    "toe_off": "toe off",
+    "flight": "flight",
+    "unknown": "unknown"
+  },
+  "quota": {
+    "free": "Free analyses",
+    "balance": "Balance",
+    "remaining": "{left} of {total} remaining",
+    "getCoins": "Get coins"
+  },
+  "cta": {
+    "needCoins": "You need {cost, plural, one {# coin} other {# coins}} to analyze. You have {balance}.",
+    "analyze": "Analyze my form",
+    "free": "free",
+    "cost": "−{cost, plural, one {# coin} other {# coins}}"
+  },
+  "upload": {
+    "drop": "Drop a video, or <choose>choose a file</choose>",
+    "hint": "MOV or MP4 · a few seconds · filmed side-on"
+  }
+}

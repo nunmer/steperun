@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 /**
@@ -10,6 +11,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
  * page (so the server gets fresh cookies) or redirects to / if truly logged out.
  */
 export function ProfileAuthGate() {
+  const t = useTranslations("profile.page");
   const router = useRouter();
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function ProfileAuthGate() {
 
   return (
     <div className="flex items-center justify-center min-h-[40vh] text-muted-foreground text-sm">
-      Loading…
+      {t("loading")}
     </div>
   );
 }

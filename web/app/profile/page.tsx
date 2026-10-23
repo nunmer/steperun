@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { getAuthUser } from "@/lib/supabase-server";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +23,12 @@ import {
 } from "@/lib/services/strava";
 import { TrainingTab } from "@/components/training-tab";
 import { isRun } from "@/lib/services/training-analytics";
+import { formatNumber } from "@/lib/utils";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("profile.page");
+  return { title: t("kicker") };
+}
 
 export default async function ProfilePage({
   searchParams,
@@ -29,6 +37,7 @@ export default async function ProfilePage({
 }) {
   const user = await getAuthUser();
   if (!user) redirect("/");
+  const [t, locale] = await Promise.all([getTranslations("profile.page"), getLocale()]);
 
   const { strava: stravaStatus } = await searchParams;
 
@@ -81,7 +90,7 @@ export default async function ProfilePage({
       return (
         <div className="space-y-8">
           <PageHeader
-            kicker="My profile"
+            kicker={t("kicker")}
             title={
               <span className="flex items-center gap-4">
                 <Monogram name={runner.full_name} src={user.user_metadata?.avatar_url} className="hidden sm:flex size-16" />
@@ -93,8 +102,8 @@ export default async function ProfilePage({
                 <span className="text-foreground"><Place city={runner.city} country={runner.country} /></span>
                 <div className="flex items-center gap-3">
                   {claimStatus === "approved"
-                    ? <Link href={`/runners/${runner.id}`} className="text-xs underline underline-offset-4">Public page</Link>
-                    : <Badge variant="outline" className="text-xs text-muted-foreground">Claim pending review</Badge>
+                    ? <Link href={`/runners/${runner.id}`} className="text-xs underline underline-offset-4">{t("publicPage")}</Link>
+                    : <Badge variant="outline" className="text-xs text-muted-foreground">{t("claimPending")}</Badge>
                   }
                   <CoinBalance amount={coins} />
                 </div>
@@ -117,14 +126,14 @@ export default async function ProfilePage({
           <Tabs className="mt-10" defaultValue={stravaStatus === "connected" ? "trainings" : "races"}>
             <TabsList>
               <TabsTrigger value="races">
-                Official races
+                {t("officialRaces")}
                 <span className="time text-xs text-muted-foreground">{results.length}</span>
               </TabsTrigger>
               <TabsTrigger value="trainings" className="gap-2">
                 <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0" fill="#FC4C02">
                   <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
                 </svg>
-                Trainings
+                {t("trainings")}
                 {stravaToken && (
                   <span className="time text-xs text-muted-foreground">{stravaActivities.filter(isRun).length}</span>
                 )}
@@ -137,10 +146,10 @@ export default async function ProfilePage({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Event</TableHead>
-                        <TableHead>Distance</TableHead>
-                        <TableHead>Place</TableHead>
-                        <TableHead>Time</TableHead>
+                        <TableHead>{t("table.event")}</TableHead>
+                        <TableHead>{t("table.distance")}</TableHead>
+                        <TableHead>{t("table.place")}</TableHead>
+                        <TableHead>{t("table.time")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -155,7 +164,7 @@ export default async function ProfilePage({
                               <div className="text-xs text-muted-foreground">{event?.year}</div>
                             </TableCell>
                             <TableCell className="text-muted-foreground">{r.distance_category}</TableCell>
-                            <TableCell className="time text-sm text-muted-foreground">{r.place ? r.place.toLocaleString() : "—"}</TableCell>
+                            <TableCell className="time text-sm text-muted-foreground">{r.place ? formatNumber(r.place, locale) : "—"}</TableCell>
                             <TableCell className="time text-sm">{r.chip_time ?? r.finish_time ?? "—"}</TableCell>
                           </TableRow>
                         );
@@ -182,11 +191,11 @@ export default async function ProfilePage({
   return (
     <div className="space-y-8">
       <PageHeader
-        kicker="My profile"
+        kicker={t("kicker")}
         title={
           <span className="flex items-center gap-4">
-            <Monogram name={name ?? "Runner"} src={avatar} className="hidden sm:flex size-16" />
-            <span className="min-w-0">{name ?? "Runner"}</span>
+            <Monogram name={name ?? t("runner")} src={avatar} className="hidden sm:flex size-16" />
+            <span className="min-w-0">{name ?? t("runner")}</span>
           </span>
         }
         aside={
@@ -199,13 +208,13 @@ export default async function ProfilePage({
 
       <div className="border-2 border-rule p-4 sm:p-5 bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <p className="headline text-2xl">Claim your race history</p>
+          <p className="headline text-2xl">{t("claimTitle")}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Find your name among the results and claim it. Your finishes, PBs and power score then live here.
+            {t("claimBody")}
           </p>
         </div>
         <Link href="/runners" className="h-10 px-4 shrink-0 inline-flex items-center rounded-sm bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90">
-          Find my name →
+          {t("findName")}
         </Link>
       </div>
 

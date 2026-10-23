@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import {
   getDistanceOptions, getEventYears, getRankingsOverview, getRankingsPage,
   MAIN_DISTANCES, PAGE_SIZE, type RankingRow,
@@ -11,14 +12,16 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 
-export const metadata = { title: "Rankings" };
-export const revalidate = 86400;
-
+export async function generateMetadata() {
+  const t = await getTranslations("rankings.list");
+  return { title: t("title") };
+}
 const OVERVIEW_SIZE = 10;
 const CHIP_COUNT = 8;
 
 /** Compact leaderboard for the overview: rank, name, time. Event on hover/title. */
-function Board({ distance, rows, year }: { distance: string; rows: RankingRow[]; year?: number }) {
+async function Board({ distance, rows, year }: { distance: string; rows: RankingRow[]; year?: number }) {
+  const t = await getTranslations("rankings.list");
   return (
     <section>
       <div className="flex items-end justify-between gap-2 border-b-2 border-rule pb-1.5">
@@ -27,7 +30,7 @@ function Board({ distance, rows, year }: { distance: string; rows: RankingRow[];
           href={buildHref("/rankings", { distance, year })}
           className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap"
         >
-          Full list →
+          {t("fullList")}
         </Link>
       </div>
       <ol>
@@ -56,16 +59,17 @@ function Board({ distance, rows, year }: { distance: string; rows: RankingRow[];
   );
 }
 
-function RankingTable({ rows, offset }: { rows: RankingRow[]; offset: number }) {
+async function RankingTable({ rows, offset }: { rows: RankingRow[]; offset: number }) {
+  const t = await getTranslations("rankings.list");
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-12">#</TableHead>
-          <TableHead>Runner</TableHead>
-          <TableHead className="hidden md:table-cell">From</TableHead>
-          <TableHead className="hidden sm:table-cell">Race</TableHead>
-          <TableHead className="text-right">Chip</TableHead>
+          <TableHead>{t("colRunner")}</TableHead>
+          <TableHead className="hidden md:table-cell">{t("colFrom")}</TableHead>
+          <TableHead className="hidden sm:table-cell">{t("colRace")}</TableHead>
+          <TableHead className="text-right">{t("colChip")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -99,6 +103,7 @@ export default async function RankingsPage({
   searchParams: Promise<{ distance?: string; year?: string; page?: string }>;
 }) {
   const { distance: distParam, year: yearParam, page: pageParam } = await searchParams;
+  const t = await getTranslations("rankings.list");
   const [options, years] = await Promise.all([getDistanceOptions(), getEventYears()]);
   const year = parseIntInRange(yearParam, 2000, 2100);
   const known = new Set(options.map((o) => o.label));
@@ -109,11 +114,11 @@ export default async function RankingsPage({
     .slice(0, CHIP_COUNT);
 
   let body: React.ReactNode;
-  let aside: React.ReactNode = "Best chip time per runner";
+  let aside: React.ReactNode = t("asideDefault");
   if (!distance) {
     const groups = (await getRankingsOverview(OVERVIEW_SIZE, year)).filter((g) => g.rows.length > 0);
     body = groups.length === 0 ? (
-      <EmptyState>No results for this season.</EmptyState>
+      <EmptyState>{t("emptySeason")}</EmptyState>
     ) : (
       <div className="grid gap-10 lg:grid-cols-3 lg:gap-8">
         {groups.map((g) => <Board key={g.distance} distance={g.distance} rows={g.rows} year={year} />)}
@@ -125,16 +130,16 @@ export default async function RankingsPage({
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     const page = Math.min(requested, totalPages);
     if (page !== requested) ({ rows, total } = await getRankingsPage(distance, year, page));
+    const n = (chunks: React.ReactNode) => <span className="time text-foreground">{chunks}</span>;
     aside = (
       <span>
-        <span className="time text-foreground">{total.toLocaleString()}</span> runners
-        {year ? ` · ${year}` : " · all-time"}
+        {year ? t.rich("runnersSeason", { count: total, season: String(year), n }) : t.rich("runnersAllTime", { count: total, n })}
       </span>
     );
     body = (
       <div className="space-y-6">
         {rows.length === 0 ? (
-          <EmptyState>No results for this distance.</EmptyState>
+          <EmptyState>{t("emptyDistance")}</EmptyState>
         ) : (
           <RankingTable rows={rows} offset={(page - 1) * PAGE_SIZE} />
         )}
@@ -149,11 +154,11 @@ export default async function RankingsPage({
 
   return (
     <div>
-      <PageHeader title={distance ?? "Rankings"} kicker={distance ? "Rankings" : undefined} aside={aside} />
+      <PageHeader title={distance ?? t("title")} kicker={distance ? t("title") : undefined} aside={aside} />
 
       <div className="mb-8">
-        <FilterRow label="Distance">
-          <FilterLink href={buildHref("/rankings", { year })} active={!distance}>Overview</FilterLink>
+        <FilterRow label={t("filterDistance")}>
+          <FilterLink href={buildHref("/rankings", { year })} active={!distance}>{t("overview")}</FilterLink>
           {chips.map((d) => (
             <FilterLink key={d} href={buildHref("/rankings", { distance: d, year })} active={distance === d}>
               {d}
@@ -167,8 +172,8 @@ export default async function RankingsPage({
             />
           )}
         </FilterRow>
-        <FilterRow label="Season">
-          <FilterLink href={buildHref("/rankings", { distance })} active={!year}>All-time</FilterLink>
+        <FilterRow label={t("filterSeason")}>
+          <FilterLink href={buildHref("/rankings", { distance })} active={!year}>{t("allTime")}</FilterLink>
           {years.map((y) => (
             <FilterLink key={y} href={buildHref("/rankings", { distance, year: y })} active={year === y}>
               {y}

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { formatNumber } from "@/lib/format";
 
 const edge = "time text-sm py-2";
 
@@ -17,22 +19,24 @@ export function Pagination({
   href: (page: number) => string;
   label?: string;
 }) {
+  const t = useTranslations("common.pagination");
+  const locale = useLocale();
   if (totalPages <= 1) return null;
   return (
-    <nav className="flex items-center justify-between gap-2 border-t border-rule pt-1" aria-label="Pagination">
+    <nav className="flex items-center justify-between gap-2 border-t border-rule pt-1" aria-label={t("label")}>
       {page > 1 ? (
-        <Link href={href(page - 1)} rel="prev" className={`${edge} hover:text-primary`}>← Prev</Link>
+        <Link href={href(page - 1)} rel="prev" className={`${edge} hover:text-primary`}>{t("prev")}</Link>
       ) : (
-        <span className={`${edge} text-muted-foreground/50`} aria-hidden>← Prev</span>
+        <span className={`${edge} text-muted-foreground/50`} aria-hidden>{t("prev")}</span>
       )}
       <span className="time text-xs text-muted-foreground text-center">
-        {page.toLocaleString()} / {totalPages.toLocaleString()}
+        {formatNumber(page, locale)} / {formatNumber(totalPages, locale)}
         {label ? <span className="hidden sm:inline"> · {label}</span> : null}
       </span>
       {page < totalPages ? (
-        <Link href={href(page + 1)} rel="next" className={`${edge} hover:text-primary`}>Next →</Link>
+        <Link href={href(page + 1)} rel="next" className={`${edge} hover:text-primary`}>{t("next")}</Link>
       ) : (
-        <span className={`${edge} text-muted-foreground/50`} aria-hidden>Next →</span>
+        <span className={`${edge} text-muted-foreground/50`} aria-hidden>{t("next")}</span>
       )}
     </nav>
   );

@@ -1,17 +1,21 @@
+import { getTranslations } from "next-intl/server";
 import { getEvents, getEventYears } from "@/lib/queries";
 import { groupByYear } from "@/lib/events";
 import { parseIntInRange } from "@/lib/params";
 import { EventYearGroups } from "@/components/event-list";
 import { FilterLink, FilterRow, PageHeader } from "@/components/sheet";
 
-export const metadata = { title: "Events" };
-export const revalidate = 86400;
+export async function generateMetadata() {
+  const t = await getTranslations("events.list");
+  return { title: t("title") };
+}
 
 export default async function EventsPage({
   searchParams,
 }: {
   searchParams: Promise<{ year?: string }>;
 }) {
+  const t = await getTranslations("events.list");
   const { year: yearParam } = await searchParams;
   const year = parseIntInRange(yearParam, 2000, 2100);
 
@@ -22,17 +26,17 @@ export default async function EventsPage({
   return (
     <div>
       <PageHeader
-        title="Events"
+        title={t("title")}
         aside={
           <span className="time">
-            {events.length} races · {finishers.toLocaleString()} finishers
+            {t("summary", { races: events.length, finishers })}
           </span>
         }
       />
 
       <div className="mb-8">
-        <FilterRow label="Season">
-          <FilterLink href="/events" active={!year}>All</FilterLink>
+        <FilterRow label={t("season")}>
+          <FilterLink href="/events" active={!year}>{t("all")}</FilterLink>
           {years.map((y) => (
             <FilterLink key={y} href={`/events?year=${y}`} active={year === y}>
               {y}

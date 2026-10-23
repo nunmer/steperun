@@ -1,0 +1,34 @@
+{
+  "list": {
+    "title": "Events",
+    "summary": "{races, plural, one {# race} other {# races}} · {finishers, plural, one {# finisher} other {# finishers}}",
+    "season": "Season",
+    "all": "All",
+    "date": "Date",
+    "race": "Race",
+    "organizer": "Organizer",
+    "finishers": "Finishers"
+  },
+  "event": {
+    "finishers": "{count, plural, one {finisher} other {finishers}}",
+    "distances": "{count, plural, one {distance} other {distances}}",
+    "official": "Official results ↗",
+    "field": "The field",
+    "distance": "Distance",
+    "city": "City",
+    "country": "Country",
+    "all": "All",
+    "none": "No finishers recorded",
+    "range": "{from}–{to} of {total}",
+    "empty": "No results for this distance.",
+    "cols": {
+      "place": "Pl.",
+      "runner": "Runner",
+      "from": "From",
+      "bib": "Bib",
+      "distance": "Distance",
+      "chip": "Chip",
+      "gun": "Gun"
+    }
+  }
+}

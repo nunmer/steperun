@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 export interface ReplayRunner {
@@ -35,10 +36,11 @@ function fmt(sec: number): string {
   return h > 0 ? `${String(h).padStart(2, "0")}:${mm}:${ss}` : `00:${mm}:${ss}`;
 }
 
-function gap(sec: number): string {
+/** "+1:05", or under a minute just the seconds ("+42s" via `seconds`). */
+function gap(sec: number, seconds: (s: number) => string): string {
   const s = Math.round(sec);
   const m = Math.floor(s / 60);
-  return m > 0 ? `+${m}:${String(s % 60).padStart(2, "0")}` : `+${s}s`;
+  return m > 0 ? `+${m}:${String(s % 60).padStart(2, "0")}` : seconds(s);
 }
 
 /** Map real finish seconds to animation ms (piecewise linear, monotonic). */
@@ -59,6 +61,7 @@ function timeline(runners: ReplayRunner[]) {
  * view; tabs switch distance; reduced motion shows the finished result.
  */
 export function RaceReplay({ distances }: { distances: ReplayDistance[] }) {
+  const t = useTranslations("home.replay");
   const [active, setActive] = useState(0);
   const [run, setRun] = useState(0);
   const [elapsed, setElapsed] = useState(0);
@@ -114,15 +117,15 @@ export function RaceReplay({ distances }: { distances: ReplayDistance[] }) {
   const clock = finished ? dist.runners[dist.runners.length - 1].seconds : toReal(elapsed);
 
   return (
-    <section ref={rootRef} aria-label="Race replay">
+    <section ref={rootRef} aria-label={t("label")}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b-2 border-rule pb-3">
         <div>
-          <p className="eyebrow mb-1">Race replay · all-time top {dist.runners.length}</p>
-          <h2 className="headline text-5xl sm:text-6xl">The fastest, raced again</h2>
+          <p className="eyebrow mb-1">{t("kicker", { count: dist.runners.length })}</p>
+          <h2 className="headline text-5xl sm:text-6xl">{t("title")}</h2>
         </div>
         <div className="flex items-end gap-6">
           <div className="text-right">
-            <p className="eyebrow">Race clock</p>
+            <p className="eyebrow">{t("clock")}</p>
             <p className="time text-4xl sm:text-5xl font-medium tracking-tight" aria-live="off">
               {fmt(clock)}
             </p>
@@ -131,7 +134,7 @@ export function RaceReplay({ distances }: { distances: ReplayDistance[] }) {
       </div>
 
       <div className="flex items-center justify-between gap-4 border-b py-2">
-        <div role="tablist" aria-label="Distance" className="flex gap-5 overflow-x-auto">
+        <div role="tablist" aria-label={t("distance")} className="flex gap-5 overflow-x-auto">
           {distances.map((d, i) => (
             <button
               key={d.key}
@@ -151,7 +154,7 @@ export function RaceReplay({ distances }: { distances: ReplayDistance[] }) {
           onClick={() => { setElapsed(0); setRun((r) => r + 1); }}
           className="time text-xs uppercase text-muted-foreground hover:text-primary whitespace-nowrap"
         >
-          ↻ Replay
+          {t("replay")}
         </button>
       </div>
 
@@ -196,7 +199,7 @@ export function RaceReplay({ distances }: { distances: ReplayDistance[] }) {
                   {r.time}
                 </span>
                 <span className={cn("time block text-[11px] text-muted-foreground transition-opacity duration-300", done ? "opacity-100" : "opacity-0")}>
-                  {i === 0 ? "winner" : gap(r.seconds - tMin)}
+                  {i === 0 ? t("winner") : gap(r.seconds - tMin, (s) => t("gapSeconds", { s }))}
                 </span>
               </span>
             </li>
@@ -205,8 +208,8 @@ export function RaceReplay({ distances }: { distances: ReplayDistance[] }) {
       </ol>
 
       <div className="mt-3 flex justify-between text-xs text-muted-foreground">
-        <span>Gaps are stretched so you can see them; the times are real.</span>
-        <Link href={dist.href} className="hover:text-foreground whitespace-nowrap">Full ranking →</Link>
+        <span>{t("note")}</span>
+        <Link href={dist.href} className="hover:text-foreground whitespace-nowrap">{t("full")}</Link>
       </div>
     </section>
   );
